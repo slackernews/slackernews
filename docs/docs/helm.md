@@ -10,7 +10,7 @@ The following steps are *required* to install SlackerNews into your Kubernetes c
 
 ```shell
 helm registry login \
-    registry.replicated.com \
+    chart.slackernews.io \
     --username <you@company.com> \
     --password <provided>
 ```
@@ -22,7 +22,7 @@ We publish a set of Preflight Checks that you can easily run to determine if you
 Install the Preflight `kubectl` plugin and run our Preflight Checks:
 ```shell
 kubectl krew install preflight
-kubectl preflight oci://registry.replicated.com/slackernews  ## TODO this is erroring today
+kubectl preflight oci://chart.slackernews.io/slackernews  
 ```
 
 If there are errors or warnings reported, take a look and resolve the issue presented. If you need help, save the output of your preflights (press `s`), and email them to us to guidance.
@@ -41,18 +41,17 @@ export SLACKERNEWS_KEY=`cat ./key.pem`
 
 helm install --namespace slackernews --create-namespace  \
     slackernews \
-    oci://registry.replicated.com/slackernews/stable/slackernews \
+    oci://chart.slackernews.io/slackernews/slackernews \
     --set postgres.deploy_postgres=true \
-    --set tinescale.password=secret-password \
-    --set slack.clientId=30505101... \
-    --set slack.clientSecret=3901da74... \
-    --set slack.botToken=xoxb-30505101... \
-    --set slack.userToken=xoxp-30505101... \
-    --set slackernews.domain=news.somebigbank.com.com \
+    --set postgres.enabled=true \
+    --set postgres.password=password \
     --set service.type=LoadBalancer \
-    --set admin-console.adminConsole.password=my-secure-password \
+    --set nginx.enabled=true \
+    --set slackernews.domain=<YOUR HOSTNAME> \
+    --set service.tls.enabled=true \
     --set service.tls.cert="$SLACKERNEWS_CERT" \
-    --set service.tls.key="$SLACKERNEWS_KEY"
+    --set service.tls.key="$SLACKERNEWS_KEY" \
+    --version 1.0.5
 ```
 
 ## Chart configuration
@@ -81,6 +80,8 @@ The following values can be provided to the chart when installing. For more info
 | `service.tls.existingSecretKeyKey` | | Set to the key in the `existingSecretName` for the key |
 | `service.tls.cert` | | Set to the value of a TLS cert | 
 | `service.tls.key` | | Set to the value of a TLS key |
+| `service.tls.enabled` | | Set to true to enable TLS |
+| `nginx.enabled` | | Set to true to enable ingress (recommended) |
 
 #### Slack
 | Key | Default | Description |
@@ -99,31 +100,7 @@ The following values can be provided to the chart when installing. For more info
 
 | Key | Default | Description |
 |-----|---------|-------------|
-| `images.slackernews.repository` | `registry.replicated.com/slackernews/slackernews` | The container image (without the tag) to pull the SlackerNews Web image from |
-| `images.slackernews.tag` | `0.5.65` | The image tag for the slackernews image |
+| `images.slackernews.repository` | `images.slackernews.io/proxy/slackernews/ghcr.io/slackernews/slackernews-web:1.0.5` | The container image (without the tag) to pull the SlackerNews Web image from |
 | `images.slackernews.pullPolicy` | `IfNotPresent` | Image pull policy for the slackernews image |
 | `images.slackernews.pullSecret` | `replicated` | The name of the image pull secret to use in the slackernews image |
-| `images.slackernews_migrations.tag` | `0.5.65` | The image tag for the slackernews-migrations image |
-| `images.slackernews_migrations.pullPolicy` | `IfNotPresent` | Image pull policy for the slackernews-migrations image |
-| `images.slackernews_migrations.pullSecret` | `replicated` | The name of the image pull secret to use in the slackernews-migrations image |
-| `images.slackernews_api.tag` | `0.5.65` | The image tag for the slackernews-api image |
-| `images.slackernews_api.pullPolicy` | `IfNotPresent` | Image pull policy for the slackernews-api image |
-| `images.slackernews_api.pullSecret` | `replicated` | The name of the image pull secret to use in the slackernews-api image |
 
-### Admin console values
-
-| Key | Default | Description |
-|-----|---------|-------------|
-| `admin-console.service.type` | `ClusterIP` | Set to the service type for the admin console |
-| `admin-console.password` | *random* | The initial password for the admin console. If you don't provide, you can retreive the generated password with... |
-| `admin-console.enabled` | `true` | When disabled, the admin console will not be deployed with the application |
-
-## Accessing the admin console
-
-By default, the admin console service is using a Cluster IP bound address. To connect, you'll need the namespace that you've deployed SlackerNews into, and the password that you provided during setup:
-
-```
-kubectl port-forward -n <namespace> svc/admin-console 8800:80
-```
-
-Then visit http://localhost:8800 and log in.
