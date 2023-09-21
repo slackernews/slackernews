@@ -23,7 +23,7 @@ In this example the DNS administrator must create a CNAME from `news.somebigbank
 
 ## TLS
 
-In addition to DNS, SlackerNews requires that trusted TLS connections are used to connect from Slack. When deploying via Helm, the two parameters `service.tls.cert` and `service.tls.key` are required. These should be set to the contents of the cert and key, respectively.
+In addition to DNS, SlackerNews requires that trusted TLS connections are used to connect from Slack. When deploying via Helm, the four parameters `service.tls.cert`, `service.tls.key`, `service.tls.enabled`, and `nginx.enabled` are required. These should be set to the contents of the cert, key, true, true respectively.
 
 For example:
 
@@ -34,5 +34,7 @@ export SLACKERNEWS_KEY=`cat ./key.pem`
 helm install \
     ... <other params removed> \
     --set service.tls.cert="$SLACKERNEWS_CERT" \
-    --set service.tls.key="$SLACKERNEWS_KEY"
+    --set service.tls.key="$SLACKERNEWS_KEY" \
+    --set service.tls.enabled=true \
+    --set nginx.enabled=true
 ```
