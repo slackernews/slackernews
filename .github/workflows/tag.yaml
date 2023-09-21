@@ -10,8 +10,6 @@ env:
 jobs:
   build:
     runs-on: ubuntu-22.04
-    permissions:
-      packages: write
     outputs:
       tags: ${{ steps.web-meta.outputs.tags }}
     steps:
@@ -25,7 +23,7 @@ jobs:
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.GHCR_PAT }}
 
       - name: Extract metadata (tags, labels) for web image
         id: web-meta
