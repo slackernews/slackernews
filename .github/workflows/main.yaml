@@ -2,7 +2,7 @@ name: main
 
 on:
   push:
-    branches: playwright-2
+    branches: main
 env:
   REGISTRY: ttl.sh
 
