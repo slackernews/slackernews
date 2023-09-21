@@ -1,0 +1,17 @@
+{{ if eq .Values.postgres.deploy_postgres true }}
+apiVersion: v1
+kind: Service
+metadata:
+  annotations: {}
+  labels:
+    app: postgres
+  name: postgres
+spec:
+  ports:
+  - name: postgres
+    port: 5432
+    targetPort: postgres
+  selector:
+    app: postgres
+  type: ClusterIP
+{{ end }}

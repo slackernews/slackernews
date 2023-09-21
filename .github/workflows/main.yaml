@@ -1,0 +1,199 @@
+name: main
+
+on:
+  push:
+    branches: playwright-2
+env:
+  REGISTRY: ttl.sh
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    outputs:
+      tags: ${{ steps.web-meta.outputs.tags }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set outputs
+        id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build web image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./slackernews
+          tags: ttl.sh/slackernews/slackernews0.0.0-alpha.${{ steps.vars.outputs.sha_short }}:1h
+          file: ./deploy/Dockerfile.web
+          push: true
+
+  chart:
+    runs-on: ubuntu-22.04
+    needs:
+      - build
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: make chart
+
+      - uses: azure/setup-helm@v1
+        with:
+          version: "3.9.0"
+        id: install
+
+      - name: Set outputs
+        id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Update the values.yaml with the registry name
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          include: 'chart/slackernews/values.yaml'
+          find: '$REGISTRY'
+          replace: 'ttl.sh'
+          regex: false
+      - name: Update the values.yaml with the image path
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          include: 'chart/slackernews/values.yaml'
+          find: '$IMAGE'
+          replace: 'slackernews/slackernews0.0.0-alpha.${{ steps.vars.outputs.sha_short }}:1h'
+          regex: false
+
+
+      - id: package-helm-chart
+        run: |
+          cd chart/slackernews && \
+          helm dep up --debug && \
+          cd .. && \
+          helm package \
+            --app-version=0.0.0-alpha.${{ steps.vars.outputs.sha_short }} \
+            --version=0.0.0-alpha.${{ steps.vars.outputs.sha_short }} \
+            ./slackernews
+
+      - id: upload-helm-chart-artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: slackernews-0.0.0-alpha.${{ steps.vars.outputs.sha_short }}.tgz
+          path: chart/slackernews-0.0.0-alpha.${{ steps.vars.outputs.sha_short }}.tgz
+
+  compatibility-matrix:
+    needs:
+      - chart
+    strategy:
+      fail-fast: false
+      matrix:
+        cluster:
+          - { distribution: kind, version: v1.25 }
+          - { distribution: kind, version: v1.26 }
+          - { distribution: kind, version: v1.27 }
+          - { distribution: kind, version: v1.28 }
+          - { distribution: k3s, version: v1.24 }
+          - { distribution: k3s, version: v1.25 }
+          - { distribution: k3s, version: v1.26 }
+          - { distribution: k3s, version: v1.27 }
+          - { distribution: openshift, version: v4.13.0-okd }
+          - { distribution: eks, version: v1.23 }
+          - { distribution: eks, version: v1.24 }
+          - { distribution: eks, version: v1.25 }
+          - { distribution: eks, version: v1.26 }
+          - { distribution: eks, version: v1.26 }
+          - { distribution: gke, version: v1.24 }
+          - { distribution: gke, version: v1.25 }
+          - { distribution: gke, version: v1.26 }
+          - { distribution: gke, version: v1.27 }
+          - { distribution: aks, version: v1.27 }
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set outputs
+        id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - id: download-helm-chart-artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: slackernews-0.0.0-alpha.${{ steps.vars.outputs.sha_short }}.tgz
+          path: chart/slackernews
+
+      - uses: azure/setup-helm@v1
+        with:
+          version: "3.9.0"
+        id: install-helm
+
+      - id: create-cluster
+        uses: replicatedhq/compatibility-actions/create-cluster@v1
+        with:
+          api-token: ${{ secrets.REPLICATED_TOKEN }}
+          kubernetes-distribution: ${{ matrix.cluster.distribution }}
+          kubernetes-version: ${{ matrix.cluster.version }}
+          ttl: 4h
+          cluster-name: slackernews-${{ matrix.cluster.distribution }}-${{ matrix.cluster.version }}-${{ steps.vars.outputs.sha_short }}
+
+      - name: extract chart
+        run: |
+          mkdir -p ./slackernews-0.0.0-alpha.${{ steps.vars.outputs.sha_short }}
+          cd ./slackernews-0.0.0-alpha.${{ steps.vars.outputs.sha_short }}
+          tar xzvf ../chart/slackernews/slackernews-0.0.0-alpha.${{ steps.vars.outputs.sha_short }}.tgz
+
+      - id: helm-install
+        uses: replicatedhq/compatibility-actions/helm-install@v1
+        with:
+          kubeconfig: ${{ steps.create-cluster.outputs.cluster-kubeconfig }}
+          chart: ./slackernews-0.0.0-alpha.${{ steps.vars.outputs.sha_short }}/slackernews
+          name: 'slackernews'
+          version: 'alpha.0.0.0-${{ steps.vars.outputs.sha_short }}'
+          namespace: 'slackernews'
+          helm-path: 'helm'
+
+      - name: save the kubeconfig as a tmp file, saving the filename as an output
+        run: |
+          echo "${{ steps.create-cluster.outputs.cluster-kubeconfig }}" > ./kubeconfig
+
+      - name: wait long enough for the helm install to have created pods, this is not right
+        run: sleep 10
+
+      - name: wait for the slackernews-frontend pod to be running
+        run: |
+          kubectl --kubeconfig ./kubeconfig wait --for=condition=Ready pod -l app=slackernews-frontend -n slackernews --timeout=300s
+
+      - name: print the list of pods in the slackernews namespace
+        run: |
+          kubectl --kubeconfig ./kubeconfig get pods -n slackernews
+
+      - name: Setup Kubernetes port-forward daemon, using the kubeconfig from the previous step
+        uses: vbem/k8s-port-forward@v1
+        env:
+          KUBECONFIG: ./kubeconfig
+        with:
+          workload: 'svc/slackernews-frontend'
+          mappings: '3000:3000'
+          options: '--namespace=slackernews'
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install dependencies
+        run: cd slackernews && yarn
+      - name: Install Playwright Browsers
+        run: cd slackernews && yarn playwright install --with-deps
+      - name: Run Playwright tests on a port-forward instance
+        run: |
+          cd slackernews && NODE_ENV=test yarn playwright test
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report
+          path: slackernews/playwright-report/
+          retention-days: 30
+
+
+
+      - id: delete-cluster
+        uses: replicatedhq/compatibility-actions/remove-cluster@v1
+        with:
+          cluster-id: ${{ steps.create-cluster.outputs.cluster-id }}
+          api-token: ${{ secrets.REPLICATED_TOKEN }}

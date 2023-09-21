@@ -1,0 +1,32 @@
+{{ if .Values.nginx.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: slackernews-nginx
+data:
+  default.conf: |-
+    upstream slackernews-frontend {
+      server slackernews-frontend:3000;
+    }
+
+    server {
+{{ if .Values.service.tls.enabled }}
+      listen                443 ssl;
+      server_name           {{ .Values.slackernews.domain }};
+      ssl_certificate       /certs/tls.crt;
+      ssl_certificate_key   /certs/tls.key;
+      ssl_protocols         TLSv1 TLSv1.1 TLSv1.2;
+      ssl_ciphers           HIGH:!aNULL:!MD5;
+{{ else }}
+      listen      80 default_server;
+{{ end }}
+      charset     utf-8;
+
+      proxy_read_timeout 120s;
+
+      location / {
+        proxy_pass http://slackernews-frontend;
+      }
+    }
+
+{{ end }}

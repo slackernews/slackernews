@@ -1,0 +1,4 @@
+bin
+slackernews/node_modules
+.DS_Store
+chart/slackernews/charts/*.tgz

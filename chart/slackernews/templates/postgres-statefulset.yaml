@@ -1,0 +1,71 @@
+{{ if eq .Values.postgres.deploy_postgres true }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+spec:
+  selector:
+    matchLabels:
+      app: postgres
+  serviceName: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - env:
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
+        - name: POSTGRES_USER
+          value: slackernews
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: "{{ if .Values.postgres.existingSecretPasswordKey }}{{ .Values.postgres.existingSecretPasswordKey }}{{ else }}password{{ end }}"
+              name: "{{ if .Values.postgres.existingSecretName }}{{ .Values.postgres.existingSecretName }}{{ else }}slackernews-postgres{{ end }}"
+        - name: POSTGRES_DB
+          value: slackernews
+        image: postgres:14
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -i
+            - -c
+            - pg_isready -U slackernews -h 127.0.0.1 -p 5432
+          failureThreshold: 3
+          initialDelaySeconds: 30
+          timeoutSeconds: 5
+        name: postgres
+        ports:
+        - containerPort: 5432
+          name: postgres
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -i
+            - -c
+            - pg_isready -U slackernews -h 127.0.0.1 -p 5432
+          initialDelaySeconds: 1
+          periodSeconds: 1
+          timeoutSeconds: 1
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/data
+          name: slackernews-datadir
+      volumes:
+      - name: slackernews-datadir
+        persistentVolumeClaim:
+          claimName: slackernews-datadir
+  volumeClaimTemplates:
+  - metadata:
+      name: slackernews-datadir
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi
+{{ end }}

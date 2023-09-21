@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: slackernews-frontend
+spec:
+  selector:
+    matchLabels:
+      app: slackernews-frontend
+  template:
+    metadata:
+      labels:
+        app: slackernews-frontend
+    spec:
+      {{ if hasKey ((.Values.global).replicated) "dockerconfigjson" }}
+      imagePullSecrets:
+        - name: replicated-pull-secret
+      {{ end }}
+      containers:
+      - image: {{ .Values.images.slackernews.repository }}
+        imagePullPolicy: {{ .Values.images.slackernews.pullPolicy }}
+        name: slackernews
+        env:
+          - name: DB_URI
+{{ if eq .Values.postgres.enabled true }}
+            valueFrom:
+              secretKeyRef:
+                key: "{{ if .Values.postgres.existingSecretUriKey }}{{ .Values.postgres.existingSecretUriKey }}{{ else }}uri{{ end }}"
+                name: "{{ if .Values.postgres.existingSecretName }}{{ .Values.postgres.existingSecretName }}{{ else }}slackernews-postgres{{ end }}"
+{{ else }}
+            value: "sqlite:./slackernews.db"
+{{ end }}
+          - name: SLACK_AUTH_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                key: "{{ if .Values.slack.existingSecretClientIdKey }}{{ .Values.slack.existingSecretClientIdKey }}{{ else }}clientId{{ end }}"
+                name: "{{ if .Values.slack.existingSecretName }}{{ .Values.slack.existingSecretName }}{{ else }}slackernews-slack{{ end }}"
+          - name: SLACK_AUTH_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                key: "{{ if .Values.slack.existingSecretClientSecretKey }}{{ .Values.slack.existingSecretClientSecretKey }}{{ else }}clientSecret{{ end }}"
+                name: "{{ if .Values.slack.existingSecretName }}{{ .Values.slack.existingSecretName }}{{ else }}slackernews-slack{{ end }}"
+          - name: SLACK_AUTH_REDIRECT_URI
+            value: "https://{{ .Values.slackernews.domain }}/login/callback"
+          - name: SLACK_BOT_TOKEN
+            valueFrom:
+              secretKeyRef:
+                key: "{{ if .Values.slack.existingSecretSlackTokenKey }}{{ .Values.slack.existingSecretTokenKey }}{{ else }}botToken{{ end }}"
+                name: "{{ if .Values.slack.existingSecretName }}{{ .Values.slack.existingSecretName }}{{ else }}slackernews-slack{{ end }}"
+          - name: SLACK_USER_TOKEN
+            valueFrom:
+              secretKeyRef:
+                key: "{{ if .Values.slack.existingSecretSlackTokenKey }}{{ .Values.slack.existingSecretTokenKey }}{{ else }}userToken{{ end }}"
+                name: "{{ if .Values.slack.existingSecretName }}{{ .Values.slack.existingSecretName }}{{ else }}slackernews-slack{{ end }}"
+          - name: REPLICATED_ENABLED
+            value: {{ .Values.replicated.enabled  | quote }}
+          - name: INSTALL_METHOD
+            value: helm
+          - name: KUBERNETES_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+        ports:
+        - containerPort: 3000
+          name: http
+        resources:
+          limits:
+            memory: 2000Mi
+          requests:
+            cpu: 100m
+            memory: 500Mi
+      restartPolicy: Always

@@ -1,0 +1,3 @@
+The {{ .Chart.Name }} chart is deployed and starting now. It might take a minute or two before all pods are started.
+
+After installation is complete, you can access your installation using the service type specifed.

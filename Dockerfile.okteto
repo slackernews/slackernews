@@ -1,0 +1,35 @@
+FROM golang:1.17
+
+ENV GOCACHE "/.cache/gocache/"
+ENV GOMODCACHE "/.cache/gomodcache/"
+
+EXPOSE 3000
+EXPOSE 6060
+
+ENV PROJECT_PATH=/go/src/github.com/slackernews/slackernews
+WORKDIR $PROJECT_PATH
+
+# RUN --mount=target=$GOMODCACHE,type=cache,id=slackernews-gomodcache \
+#     --mount=target=$GOCACHE,type=cache,id=slackernews-gocache
+
+COPY go.mod go.sum ./
+RUN --mount=target=$GOMODCACHE,type=cache,id=slackernews-gomodcache \
+    --mount=target=$GOCACHE,type=cache,id=slackernews-gocache \
+    go mod download
+
+
+## Now add the project and compile
+COPY . /go/src/github.com/slackernews/slackernews
+RUN --mount=type=cache,target=$GOMODCACHE,id=slackernews-gomodcache \
+    --mount=type=cache,target=$GOCACHE,id=slackernews-gocache \
+    make build
+
+# RUN --mount=target=/tmp/.cache/gocache,id=slackernews-gocache,type=cache \
+#     mkdir -p $GOCACHE \
+#     && cp -r /tmp/.cache/gocache/* $GOCACHE
+
+RUN --mount=target=/tmp/.cache/gomodcache,id=slackernews-gomodcache,type=cache \
+    mkdir -p $GOMODCACHE \
+    && cp -r /tmp/.cache/gomodcache/* $GOMODCACHE
+
+RUN cp ./bin/slackernews-api /slackernews-api

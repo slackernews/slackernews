@@ -1,0 +1,25 @@
+site_name: SlackerNews Docs
+theme:
+  name: material
+  features:
+    - navigation.instant
+  icon:
+    repo: fontawesome/brands/github
+pages:
+  - index.md
+  - prereqs.md
+  - domain.md
+  - slack.md
+  - helm.md
+  - advanced.md
+  - updates.md
+  - config.md
+  - vm.md
+  - troubleshooting.md
+  - telemetry.md
+markdown_extensions:
+  - admonition
+extra_css:
+  - stylesheets/extra.css
+repo_url: https://github.com/slackernews/slackernews
+edit_uri: edit/main/docs/docs/

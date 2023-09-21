@@ -1,0 +1,21 @@
+{{ if .Values.nginx.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: slackernews-nginx
+  name: slackernews-nginx
+spec:
+  ports:
+  - name: http
+{{ if .Values.service.tls.enabled }}
+    port: 443
+    targetPort: https
+{{ else }}
+    port: 80
+    targetPort: http
+{{ end }}
+  selector:
+    app: slackernews-nginx
+  type: {{ .Values.service.type }}
+{{ end }}

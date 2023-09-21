@@ -1,0 +1,208 @@
+@import "~bootstrap/dist/css/bootstrap.min.css";
+@import "~bootstrap-icons/font/bootstrap-icons.css";
+
+.navbar {
+  background-color: rgb(246, 92, 92);
+  padding: 0;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.navbar .logo {
+  color: #fff;
+  font-size: 1em;
+  font-weight: 600;
+}
+
+.navbar .username {
+  font-size: 1em;
+  color: #333;
+}
+
+.navbar a.logout {
+  font-size: 1em;
+  font-weight: 400;
+  color: #333;
+  text-decoration: none;
+}
+
+.navbar .separator {
+  color: #fff;
+}
+
+.nav-item a {
+  color: #000;
+  font-size: 1em;
+  font-weight: 500;
+  text-decoration: none;
+}
+.nav-item a:hover {
+  color: #000;
+}
+
+.link-row-content {
+  font-size: 1em;
+  color: #777;
+}
+
+.link-row-content .bi {
+  color: #999;
+}
+
+.link-row-content-title a {
+  text-decoration: none;
+  color: #222;
+  font-weight: 450;
+}
+
+.link-row-content-domain {
+  color: #777;
+}
+
+.link-row-content-share {
+  color: #777;
+  font-size: 0.9em;
+}
+
+.link-row-content-share a {
+  color: #777;
+  text-decoration: none;
+}
+
+td {
+  border-style: none;
+}
+
+th {
+  border-style: none;
+  font-weight: 400;
+}
+
+.table > :not(caption) > * > * {
+  padding: 0.1em;
+}
+
+.more-row a {
+  color: #777;
+  text-decoration: none;
+}
+
+.large-stat {
+  width: 140px;
+  height: 140px;
+  text-align: center;
+}
+
+.large-stat > .large-number {
+  font-size: 2.5em;
+  font-weight: 600;
+}
+
+.large-stat > .small-number {
+  font-size: 1.5em;
+  font-weight: 400;
+}
+
+.muted {
+  color: #777;
+}
+
+table.members-table {
+  font-size: 0.9em;
+  font-weight: 400;
+}
+table.members-table > thead > tr > th:nth-child(1) {
+  width: 360px;
+}
+
+table.members-table > thead > tr > th:nth-child(2) {
+  width: 300px;
+}
+
+table.members-table > thead > tr > th:nth-child(3) {
+  width: 300px;
+}
+
+table.members-table > tbody > tr:nth-child(even) {
+  background: #eee;
+}
+table.members-table > tbody > tr:nth-child(odd) {
+  background: #fff;
+}
+
+.member-slack {
+  opacity: 60%;
+}
+
+table.members-table,
+thead,
+tbody,
+tfoot,
+tr,
+td,
+th {
+  padding: 10px;
+}
+
+.duration-dropdown > a,
+.duration-dropdown > a:active,
+.duration-dropdown > a:visited {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.duration-dropdown > a:hover {
+  color: rgba(255, 255, 255, 1);
+}
+
+.vote-up {
+  color: #ddd;
+}
+
+.integration-icon {
+  display: flex;
+  align-items: center;
+}
+
+.search {
+  text-align: center;
+}
+
+.link-row-content-share-reply-count {
+  cursor: pointer;
+}
+
+.popover-arrow {
+  display: none !important;
+}
+
+.popover {
+  max-width: 500px;
+}
+
+a.share {
+  color: #000;
+  font-size: 1em;
+  font-weight: 500;
+  text-decoration: none;
+}
+a:hover.share {
+  color: #000;
+}
+
+a.discuss {
+  color: #000;
+  font-size: 1em;
+  font-weight: 500;
+  text-decoration: none;
+}
+a:hover.discuss {
+  color: #000;
+}
+
+.hidden {
+  display: none !important;
+}
+
+code {
+  color: #f8f8f2;
+}

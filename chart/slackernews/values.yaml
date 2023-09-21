@@ -1,0 +1,53 @@
+postgres:
+  enabled: false
+  deploy_postgres: false
+  password: ""
+  uri: ""
+  existingSecretName: ""
+  existingSecretPasswordKey: ""
+  existingSecretUriKey: ""
+sqlite:
+  enabled: true
+
+ingress:
+  annotations: {}
+  enabled: false
+  ingressClassName: ""
+nginx:
+  enabled: false
+service:
+  type: ClusterIP
+  tls:
+    enabled: false
+    existingSecretName: ""
+    existingSecretCertKey: ""
+    existingSecretKeyKey: ""
+    cert: ""
+    key: ""
+
+slack:
+  botToken: ""
+  userToken: ""
+  clientId: ""
+  clientSecret: ""
+  existingSecretName: ""
+  existingSecretBotTokenKey: ""
+  existingSecretUserTokenKey: ""
+  existingSecretClientIdKey: ""
+  existingSecretClientSecretKey: ""
+
+slackernews:
+  domain: ""
+
+admin-console:
+  enabled: true
+images:
+  pullSecrets:
+    replicated:
+      name: proxypullsecret
+  slackernews:
+    repository: $REGISTRY/$IMAGE
+    pullPolicy: IfNotPresent
+    pullSecret: proxypullsecret
+replicated:
+  enabled: true
