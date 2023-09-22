@@ -29,24 +29,24 @@ spec:
 {{ else }}
             value: "sqlite:./slackernews.db"
 {{ end }}
-          - name: SLACK_AUTH_CLIENT_ID
+          - name: SLACKERNEWS_SLACK_AUTH_CLIENT_ID
             valueFrom:
               secretKeyRef:
                 key: "{{ if .Values.slack.existingSecretClientIdKey }}{{ .Values.slack.existingSecretClientIdKey }}{{ else }}clientId{{ end }}"
                 name: "{{ if .Values.slack.existingSecretName }}{{ .Values.slack.existingSecretName }}{{ else }}slackernews-slack{{ end }}"
-          - name: SLACK_AUTH_CLIENT_SECRET
+          - name: SLACKERNEWS_SLACK_AUTH_CLIENT_SECRET
             valueFrom:
               secretKeyRef:
                 key: "{{ if .Values.slack.existingSecretClientSecretKey }}{{ .Values.slack.existingSecretClientSecretKey }}{{ else }}clientSecret{{ end }}"
                 name: "{{ if .Values.slack.existingSecretName }}{{ .Values.slack.existingSecretName }}{{ else }}slackernews-slack{{ end }}"
           - name: SLACK_AUTH_REDIRECT_URI
             value: "https://{{ .Values.slackernews.domain }}/login/callback"
-          - name: SLACK_BOT_TOKEN
+          - name: SLACKERNEWS_SLACK_BOT_TOKEN
             valueFrom:
               secretKeyRef:
                 key: "{{ if .Values.slack.existingSecretSlackTokenKey }}{{ .Values.slack.existingSecretTokenKey }}{{ else }}botToken{{ end }}"
                 name: "{{ if .Values.slack.existingSecretName }}{{ .Values.slack.existingSecretName }}{{ else }}slackernews-slack{{ end }}"
-          - name: SLACK_USER_TOKEN
+          - name: SLACKERNEWS_SLACK_USER_TOKEN
             valueFrom:
               secretKeyRef:
                 key: "{{ if .Values.slack.existingSecretSlackTokenKey }}{{ .Values.slack.existingSecretTokenKey }}{{ else }}userToken{{ end }}"
