@@ -27,12 +27,6 @@ spec:
             - name: load_balancer
               title: Load Balancer Service
           when: repl{{ ne NodeCount 1 }}
-        - name: timescale_password
-          type: password
-          title: Timescale Password
-          required: true
-          hidden: true
-          value: repl{{ RandomString 40}}
     - name: slack
       title: Slack App
       items:
