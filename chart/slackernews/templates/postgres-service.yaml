@@ -11,7 +11,10 @@ spec:
   - name: postgres
     port: 5432
     targetPort: postgres
+  {{- if ne .Values.postgres.service.nodePort.port nil }}
+    nodePort: {{ .Values.postgres.service.nodePort.port }}
+  {{- end }}
   selector:
     app: postgres
-  type: ClusterIP
+  type: {{ .Values.postgres.service.type }}
 {{ end }}
