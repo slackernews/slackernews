@@ -37,7 +37,7 @@ oauth_config:
       - channels:history
 settings:
   event_subscriptions:
-    request_url: https://<sub.yourdomain.com>/v1/webhooks/slack
+    request_url: https://<sub.yourdomain.com>/api/webhooks/slack
     user_events:
       - message.channels
       - reaction_added
