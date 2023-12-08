@@ -1,13 +1,15 @@
 import { test, expect, Locator } from '@playwright/test';
 
+const baseUrl = process.env.TEST_URL;
+
 test('has title', async ({ page }) => {
-  await page.goto('http://localhost:3000');
+  await page.goto(process.env.TEST_URL!);
 
   await expect(page).toHaveTitle("SlackerNews");
 });
 
 test('has demo links', async ({ page }) => {
-  await page.goto('http://localhost:3000');
+  await page.goto(process.env.TEST_URL!);
 
   // expect there are 3 links
   const linkRows: Locator = page.locator("_react=LinkRow");
