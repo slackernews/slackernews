@@ -56,5 +56,3 @@ images:
     repository: $REGISTRY/$IMAGE
     pullPolicy: IfNotPresent
     pullSecret: proxypullsecret
-replicated:
-  enabled: true

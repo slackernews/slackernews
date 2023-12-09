@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import "../../styles/Home.module.css";
 import { loadSession } from "../../lib/session";
 import cookies from 'next-cookies';
-import { getLink, listShares } from "../../lib/link";
+import { getLink, listShares } from "../../lib/share";
 import Link from "next/link";
 import Button from 'react-bootstrap/Button';
 

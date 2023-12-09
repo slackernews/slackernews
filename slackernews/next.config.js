@@ -24,6 +24,7 @@ const moduleExports = {
       dns: false,
       net: false,
       tls: false,
+      sequelize: false,
     };
 
     return config;

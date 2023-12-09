@@ -9,8 +9,8 @@ import { User } from "./user";
 import { Session } from "./session";
 import { DefaultIntegrations, Integration } from "./integration";
 import pg from 'pg';
-
 const { Sequelize } = require('sequelize');
+const sqlite3 = require('sqlite3');
 
 let sequelize: any;
 let ensureSeedData: boolean = true;
@@ -20,10 +20,17 @@ export async function initDb(dbUri: string) {
     logging: console.log,
   };
 
+  console.log(`dbUri: ${dbUri}`);
+
   if (dbUri.startsWith('postgresql://')) {
     options = {
       ...options,
       dialectModule: pg,
+    }
+  } else {
+    options = {
+      ...options,
+      dialectModule: sqlite3,
     }
   }
   sequelize = new Sequelize(dbUri, options);

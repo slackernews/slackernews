@@ -52,7 +52,7 @@ spec:
                 key: "{{ if .Values.slack.existingSecretSlackTokenKey }}{{ .Values.slack.existingSecretTokenKey }}{{ else }}userToken{{ end }}"
                 name: "{{ if .Values.slack.existingSecretName }}{{ .Values.slack.existingSecretName }}{{ else }}slackernews-slack{{ end }}"
           - name: REPLICATED_ENABLED
-            value: {{ .Values.replicated.enabled  | quote }}
+            value: "1"
           - name: INSTALL_METHOD
             value: helm
           - name: KUBERNETES_NAMESPACE

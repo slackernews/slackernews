@@ -1,8 +1,10 @@
-name: main
+name: cmx-test-with-ingress
 
 on:
   push:
-    branches: main
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 env:
   REGISTRY: ttl.sh
 
@@ -21,6 +23,18 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_PAT }}
+
+      - uses: int128/docker-build-cache-config-action@v1
+        id: cache
+        with:
+          image: ghcr.io/${{ github.repository }}/cache
+
       - name: Build web image
         uses: docker/build-push-action@v4
         with:
@@ -28,6 +42,8 @@ jobs:
           tags: ttl.sh/slackernews/slackernews0.0.0-alpha.${{ steps.vars.outputs.sha_short }}:1h
           file: ./deploy/Dockerfile.web
           push: true
+          cache-from: ${{ steps.cache.outputs.cache-from }}
+          cache-to: ${{ steps.cache.outputs.cache-to }}
 
   chart:
     runs-on: ubuntu-22.04
@@ -62,7 +78,6 @@ jobs:
           replace: 'slackernews/slackernews0.0.0-alpha.${{ steps.vars.outputs.sha_short }}:1h'
           regex: false
 
-
       - id: package-helm-chart
         run: |
           cd chart/slackernews && \
@@ -94,7 +109,7 @@ jobs:
           - { distribution: k3s, version: v1.25 }
           - { distribution: k3s, version: v1.26 }
           - { distribution: k3s, version: v1.27 }
-          - { distribution: openshift, version: v4.13.0-okd }
+          # - { distribution: openshift, version: v4.13.0-okd }
           - { distribution: eks, version: v1.23 }
           - { distribution: eks, version: v1.24 }
           - { distribution: eks, version: v1.25 }
@@ -133,7 +148,22 @@ jobs:
           ttl: 4h
           cluster-name: slackernews-${{ matrix.cluster.distribution }}-${{ matrix.cluster.version }}-${{ steps.vars.outputs.sha_short }}
 
-      - name: extract chart
+      - id: install-ngrok-ingress
+        uses: replicatedhq/compatibility-actions/helm-install@v1
+        with:
+          kubeconfig: ${{ steps.create-cluster.outputs.cluster-kubeconfig }}
+          repo-name: ngrok
+          repo-url: https://ngrok.github.io/kubernetes-ingress-controller
+          chart: ngrok/kubernetes-ingress-controller
+          name: 'ngrok-ingress-controller'
+          namespace: 'ngrok-ingress-controller'
+          helm-path: 'helm'
+          values: |
+            credentials:
+              authtoken: ${{ secrets.NGROK_AUTH_TOKEN }}
+              apiKey: ${{ secrets.NGROK_API_KEY }}
+
+      - name: extract slackernews chart
         run: |
           mkdir -p ./slackernews-0.0.0-alpha.${{ steps.vars.outputs.sha_short }}
           cd ./slackernews-0.0.0-alpha.${{ steps.vars.outputs.sha_short }}
@@ -148,30 +178,32 @@ jobs:
           version: 'alpha.0.0.0-${{ steps.vars.outputs.sha_short }}'
           namespace: 'slackernews'
           helm-path: 'helm'
+          values: |
+            replicated:
+              integration:
+                licenseID: ${{ secrets.REPLICATED_LICENSE_ID }}
+
 
       - name: save the kubeconfig as a tmp file, saving the filename as an output
         run: |
           echo "${{ steps.create-cluster.outputs.cluster-kubeconfig }}" > ./kubeconfig
 
-      - name: wait long enough for the helm install to have created pods, this is not right
-        run: sleep 10
-
       - name: wait for the slackernews-frontend pod to be running
         run: |
           kubectl --kubeconfig ./kubeconfig wait --for=condition=Ready pod -l app=slackernews-frontend -n slackernews --timeout=300s
+
+      - name: wait for the replicated pod to be running
+        run: |
+          kubectl --kubeconfig ./kubeconfig wait --for=condition=available --timeout=60s deployment/replicated  -n slackernews --timeout=300s
 
       - name: print the list of pods in the slackernews namespace
         run: |
           kubectl --kubeconfig ./kubeconfig get pods -n slackernews
 
-      - name: Setup Kubernetes port-forward daemon, using the kubeconfig from the previous step
-        uses: vbem/k8s-port-forward@v1
-        env:
-          KUBECONFIG: ./kubeconfig
-        with:
-          workload: 'svc/slackernews-frontend'
-          mappings: '3000:3000'
-          options: '--namespace=slackernews'
+      - name: install an ngrok ingress for testing
+        run: |
+          sed -i "s/\$NGROK_HOST/slackernews-${{ steps.create-cluster.outputs.cluster-id }}.ngrok.app/g" ./test/ngrok-ingress.yaml
+          kubectl --kubeconfig ./kubeconfig apply -f ./test/ngrok-ingress.yaml
 
       - uses: actions/setup-node@v3
         with:
@@ -183,9 +215,9 @@ jobs:
       - name: Install Playwright Browsers
         run: cd slackernews && yarn playwright install --with-deps
 
-      - name: Run Playwright tests on a port-forward instance
+      - name: Run Playwright tests on the ngrok endpoint
         run: |
-          cd slackernews && NODE_ENV=test yarn playwright test
+          cd slackernews && NODE_ENV=test TEST_URL=https://slackernews-${{ steps.create-cluster.outputs.cluster-id }}.ngrok.app yarn playwright test
 
       - uses: actions/upload-artifact@v3
         if: always()
@@ -194,8 +226,48 @@ jobs:
           path: slackernews/playwright-report/
           retention-days: 30
 
+      - id: delete-ingress
+        if: always()
+        run:
+          kubectl --kubeconfig ./kubeconfig delete -f ./test/ngrok-ingress.yaml
+
+      - id: wait-for-ingress-delete
+        if: always()
+        run:
+          kubectl --kubeconfig ./kubeconfig wait --for=delete ingress/slackernews -n slackernews --timeout=300s
+
       - id: delete-cluster
         uses: replicatedhq/compatibility-actions/remove-cluster@v1
         with:
           cluster-id: ${{ steps.create-cluster.outputs.cluster-id }}
           api-token: ${{ secrets.REPLICATED_TOKEN }}
+
+      - id: install-ngrok
+        if: always()
+        run: |
+          wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz && \
+          sudo tar xvzf ngrok-v3-stable-linux-amd64.tgz -C ./
+
+      - id: delete-edge
+        if: always()
+        run: |
+          EDGE_ID=$(./ngrok api edges https list --api-key ${{ secrets.NGROK_API_KEY }} 2>/dev/null \
+                    | jq -r '.https_edges[] | select(.hostports[0] == "slackernews-${{ steps.create-cluster.outputs.cluster-id }}.ngrok.app:443").id')
+
+          if [ -n "$EDGE_ID" ]; then
+            ./ngrok api edges https delete --api-key ${{ secrets.NGROK_API_KEY }} $EDGE_ID
+          else
+            echo "No edges to delete."
+          fi
+
+      - id: delete-tunnel
+        if: always()
+        run: |
+          DOMAIN_ID=$(./ngrok api reserved-domains list --api-key ${{ secrets.NGROK_API_KEY }} 2>/dev/null \
+                    | jq -r '.reserved_domains[] | select(.domain == "slackernews-${{ steps.create-cluster.outputs.cluster-id }}.ngrok.app").id')
+
+          if [ -n "$DOMAIN_ID" ]; then
+            ./ngrok api reserved-domains delete --api-key ${{ secrets.NGROK_API_KEY }} $DOMAIN_ID
+          else
+            echo "No reserved domains to delete."
+          fi

@@ -6,4 +6,3 @@ dependencies:
 - name: replicated
   version: "1.0.0-beta.12"
   repository: "oci://chart.slackernews.io/library"
-  condition: replicated.enabled
