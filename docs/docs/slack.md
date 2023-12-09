@@ -5,7 +5,7 @@ You'll need to create a Slack App to integrate with your SlackNews instance. Thi
 2. [create a new app](https://api.slack.com/apps?new_app=1)
 3. select "from an app manifest"
 4. select your workspace
-5. Paste the following manifest in (be sure to change the `redirect_url` and the `request_url` to your custom domain with the paths specfified below).
+5. Paste the following manifest in (be sure to change the `redirect_url` and the `request_url` to use the domain at which you'll host SlackerNews).
 
 ```yaml
 display_information:
@@ -57,3 +57,7 @@ settings:
 !!! Note
     
     Login will be automatically restricted to users who are logging into the Slack app that the bot token is installed on.
+
+Once the app is installed, head to `YOUR_INSTANCE_URL`/admin/slack to configure the relevant fields
+
+

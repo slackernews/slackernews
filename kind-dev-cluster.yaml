@@ -1,0 +1,19 @@
+apiVersion: kind.x-k8s.io/v1alpha4
+kind: Cluster
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      - containerPort: 3000
+        hostPort: 3000
+        listenAddress: "0.0.0.0"
+        protocol: tcp
+      - containerPort: 5432
+        hostPort: 5432
+        listenAddress: "0.0.0.0"
+        protocol: tcp
+kubeadmConfigPatches:
+  - |
+    kind: ClusterConfiguration
+    apiServer:
+      extraArgs:
+        "service-node-port-range": "80-40000"

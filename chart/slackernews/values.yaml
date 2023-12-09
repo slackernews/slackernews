@@ -6,6 +6,11 @@ postgres:
   existingSecretName: ""
   existingSecretPasswordKey: ""
   existingSecretUriKey: ""
+  service:
+    type: ClusterIP
+    nodePort:
+      port:
+
 sqlite:
   enabled: true
 
@@ -17,6 +22,8 @@ nginx:
   enabled: false
 service:
   type: ClusterIP
+  nodePort:
+    port:
   tls:
     enabled: false
     existingSecretName: ""
