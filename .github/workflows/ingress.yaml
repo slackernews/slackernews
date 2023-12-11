@@ -188,6 +188,11 @@ jobs:
         run: |
           echo "${{ steps.create-cluster.outputs.cluster-kubeconfig }}" > ./kubeconfig
 
+      - name: Setting up kubeconfig ENV for Github Chaos Action
+        run: echo ::set-env name=KUBE_CONFIG_DATA::$(base64 -w 0 ./kubeconfig)
+        env:
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+
       - name: wait for the slackernews-frontend pod to be running
         run: |
           kubectl --kubeconfig ./kubeconfig wait --for=condition=Ready pod -l app=slackernews-frontend -n slackernews --timeout=300s
@@ -225,6 +230,32 @@ jobs:
           name: playwright-report
           path: slackernews/playwright-report/
           retention-days: 30
+
+      - name: Setup Litmus
+        uses: merkata/github-chaos-actions@fix/oci-cli  # this is a fork with a fox for oci cli https://github.com/litmuschaos/github-chaos-actions/pull/26
+        env:
+          INSTALL_LITMUS: true
+
+      - name: Running Litmus pod delete chaos experiment
+        uses: litmuschaos/github-chaos-actions@master
+        env:
+          EXPERIMENT_NAME: pod-delete
+          EXPERIMENT_IMAGE: litmuschaos/go-runner
+          EXPERIMENT_IMAGE_TAG: latest
+          JOB_CLEANUP_POLICY: delete
+          APP_NS: slackernews
+          APP_LABEL: run=slackernews-frontend
+          APP_KIND: deployment
+          IMAGE_PULL_POLICY: Always
+          TOTAL_CHAOS_DURATION: 30
+          CHAOS_INTERVAL: 10
+          FORCE: false
+
+      - name: Uninstall Litmus
+        if: always()
+        uses: litmuschaos/github-chaos-actions@master
+        env:
+          LITMUS_CLEANUP: true
 
       - id: delete-ingress
         if: always()
