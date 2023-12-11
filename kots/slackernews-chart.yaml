@@ -11,8 +11,11 @@ spec:
   # values are used in the customer environment, as a pre-render step
   # these values will be supplied to helm template
   values:
-    postgres:
-      password: repl{{ ConfigOption "postgres_password"}}
+    # provide the values that would be injected on a Helm install
+    global:
+      replicated:
+        dockerconfigjson: repl{{ LicenseDockerCfg }}
+
     slack:
       botToken: repl{{ ConfigOption "slack_bot_token" }}
       userToken: repl{{ ConfigOption "slack_user_token" }}
@@ -25,26 +28,79 @@ spec:
     replicated:
       enabled: false
       preflights: false
-    service:
-      tls:
-        enabled: true
-        cert: |
-          repl{{ ConfigOption "tls_cert" | nindent 10 }}
-        key: |
-          repl{{ ConfigOption "tls_key" | nindent 10 }}
+    timescale:
+      deploy_timescale: true
+      password: repl{{ ConfigOption "timescale_password"}}
     images:
-      pullSecrets:
-        replicated:
-          dockerconfigjson: ""
-      slackernews_api:
-        pullSecret: repl{{ ImagePullSecretName }}
-        repository: '{{repl HasLocalRegistry | ternary LocalRegistryHost "images.slackernews.io" }}/{{repl HasLocalRegistry | ternary LocalRegistryNamespace "proxy/slackernews/ghcr.io/slackernews" }}/slackernews-api'
-      slackernews_migrations:
-        pullSecret: repl{{ ImagePullSecretName }}
-        repository: '{{repl HasLocalRegistry | ternary LocalRegistryHost "images.slackernews.io" }}/{{repl HasLocalRegistry | ternary LocalRegistryNamespace "proxy/slackernews/ghcr.io/slackernews" }}/slackernews-migrations'
       slackernews:
         pullSecret: repl{{ ImagePullSecretName }}
-        repository: '{{repl HasLocalRegistry | ternary LocalRegistryHost "images.slackernews.io" }}/{{repl HasLocalRegistry | ternary LocalRegistryNamespace "proxy/slackernews/ghcr.io/slackernews" }}/slackernews-web'
+        repository: '{{repl HasLocalRegistry | ternary LocalRegistryHost "proxy.shortrib.io" }}/{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/ghcr.io/crdant/slackernews" ) }}/slackernews-web'
+
+
+  optionalValues: 
+    - when: '{{repl ConfigOptionEquals "deploy_postgres" "1"}}'
+      recursiveMerge: true
+      values:
+        postgres:
+          enabled: true
+          password: '{{repl ConfigOption "postgres_password" }}'
+        
+    - when: '{{repl ConfigOptionNotEquals "deploy_postgres" "1"}}'
+      recursiveMerge: true
+      values:
+        postgres:
+          uri: '{{repl ConfigOption "postgres_external_uri" }}'
+
+    - when: '{{repl ConfigOptionEquals "certificate_source" "upload_existing"}}'
+      recursiveMerge: true
+      values:
+        service:
+          tls:
+            enabled: true
+            cert: repl{{ ConfigOptionData "tls_cert" | nindent 14 }}
+            key: repl{{ ConfigOptionData "tls_key" | nindent 14 }}
+            ca: repl{{ ConfigOptionData "tls_ca" | nindent 14 }}
+        
+    - when: '{{repl ConfigOptionEquals "certificate_source" "generate_internal"}}'
+      recursiveMerge: true
+      values:
+        service:
+          tls:
+            enabled: true
+            ca: |-
+              {{repl $ca := genCA (LicenseFieldValue "customerName") 365 }}
+              {{repl $ca.Cert | Base64Encode}}
+            cert: |-
+              {{repl $cert := genSignedCert (ConfigOption "slackernews_domain") nil (list (ConfigOption "slackernews_domain")) 365 $ca }}
+              {{repl $cert.Cert | nindent 14 }}
+            key: |-
+              {{repl $cert.Key | nindent 14 }}
+ 
+    - when: '{{repl ConfigOptionEquals "access_option" "ingress"}}'
+      recursiveMerge: true
+      values:
+        ingress:
+          enabled: true
+          annotations: 
+            ingress.kubernetes.io/force-ssl-redirect: "true"
+
+    - when: '{{repl ConfigOptionEquals "access_option" "load_balancer"}}'
+      recursiveMerge: true
+      values:
+        nginx:
+          enabled: true
+        service:
+          type: LoadBalancer
+
+    - when: '{{repl ConfigOptionEquals "access_option" "node_port"}}'
+      recursiveMerge: true
+      values:
+        nginx:
+          enabled: true
+        service:
+          type: NodePort
+
+
   # builder values provide a way to render the chart with all images
   # and manifests. this is used in replicated to create airgap packages
   builder:
