@@ -237,7 +237,7 @@ jobs:
           INSTALL_LITMUS: true
 
       - name: Running Litmus pod delete chaos experiment
-        uses: litmuschaos/github-chaos-actions@master
+        uses:  merkata/github-chaos-actions@fix/oci-cli
         env:
           EXPERIMENT_NAME: pod-delete
           EXPERIMENT_IMAGE: litmuschaos/go-runner
@@ -253,7 +253,7 @@ jobs:
 
       - name: Uninstall Litmus
         if: always()
-        uses: litmuschaos/github-chaos-actions@master
+        uses:  merkata/github-chaos-actions@fix/oci-cli
         env:
           LITMUS_CLEANUP: true
 
