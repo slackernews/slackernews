@@ -186,24 +186,38 @@ jobs:
 
       - name: save the kubeconfig as a tmp file, saving the filename as an output
         run: |
-          echo "${{ steps.create-cluster.outputs.cluster-kubeconfig }}" > ./kubeconfig
+          mkdir -p ~/.kube
+          echo "${{ steps.create-cluster.outputs.cluster-kubeconfig }}" > ~/.kube/config
 
       - name: wait for the slackernews-frontend pod to be running
         run: |
-          kubectl --kubeconfig ./kubeconfig wait --for=condition=Ready pod -l app=slackernews-frontend -n slackernews --timeout=300s
+          kubectl wait --for=condition=Ready pod -l app=slackernews-frontend -n slackernews --timeout=300s
 
       - name: wait for the replicated pod to be running
         run: |
-          kubectl --kubeconfig ./kubeconfig wait --for=condition=available --timeout=60s deployment/replicated  -n slackernews --timeout=300s
+          kubectl wait --for=condition=available --timeout=60s deployment/replicated  -n slackernews --timeout=300s
 
       - name: print the list of pods in the slackernews namespace
         run: |
-          kubectl --kubeconfig ./kubeconfig get pods -n slackernews
+          kubectl get pods -n slackernews
+
+      - name: Install Chainsaw
+        uses: kyverno/chainsaw/.github/actions/install@v0.0.9
+        with:
+          release: v0.0.9
+
+      - name: Test with Chainsaw
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          cd ./test/conformance && chainsaw test --test-dir ./
 
       - name: install an ngrok ingress for testing
         run: |
           sed -i "s/\$NGROK_HOST/slackernews-${{ steps.create-cluster.outputs.cluster-id }}.ngrok.app/g" ./test/ngrok-ingress.yaml
-          kubectl --kubeconfig ./kubeconfig apply -f ./test/ngrok-ingress.yaml
+          kubectl apply -f ./test/ngrok-ingress.yaml
 
       - uses: actions/setup-node@v3
         with:
@@ -229,12 +243,12 @@ jobs:
       - id: delete-ingress
         if: always()
         run:
-          kubectl --kubeconfig ./kubeconfig delete -f ./test/ngrok-ingress.yaml
+          kubectl delete -f ./test/ngrok-ingress.yaml
 
       - id: wait-for-ingress-delete
         if: always()
         run:
-          kubectl --kubeconfig ./kubeconfig wait --for=delete ingress/slackernews -n slackernews --timeout=300s
+          kubectl  wait --for=delete ingress/slackernews -n slackernews --timeout=300s
 
       - id: delete-cluster
         uses: replicatedhq/compatibility-actions/remove-cluster@v1

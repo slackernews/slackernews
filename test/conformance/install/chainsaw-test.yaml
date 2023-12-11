@@ -1,0 +1,13 @@
+apiVersion: chainsaw.kyverno.io/v1alpha1
+kind: Test
+metadata:
+  name: install
+spec:
+  steps:
+  - try:
+    - assert:
+        file: slackernews-frontend-deployment.yaml
+    - assert:
+        file: replicated-deployment.yaml
+    - assert:
+        file: replicated-secret.yaml
