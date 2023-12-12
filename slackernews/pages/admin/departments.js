@@ -5,8 +5,9 @@ import Table from 'react-bootstrap/Table';
 import React, { useState } from 'react';
 import { listUserGroupsFromDB } from "../../lib/link";
 import { listUserGroupsFromSlack } from "../../lib/slack";
+import envConfig from "../../lib/env-config";
 
-export default function Page({ initialDepartments ,isReplicatedEnabled}) {
+export default function Page({initialDepartments, isReplicatedEnabled}) {
   const [departments, setDepartments] = useState(initialDepartments);
   const userGroups = departments.map(depart => {
     return (
@@ -21,7 +22,7 @@ export default function Page({ initialDepartments ,isReplicatedEnabled}) {
               headers: {
                 'Content-Type': 'application/json',
               },
-              body: JSON.stringify({ id: depart.id, name: depart.name, isExcluded: ev.target.checked }),
+              body: JSON.stringify({id: depart.id, name: depart.name, isExcluded: ev.target.checked}),
             });
             console.log(res);
             if (res.status == 200) {
@@ -46,21 +47,22 @@ export default function Page({ initialDepartments ,isReplicatedEnabled}) {
 
   return (
     <div>
-      <p>By default all active user groups show up as a departments filter. You can exclude a user group to prevent it from showing as a department filter. 
-      When a department filter is applied, only links submitted by the users in that group will be displayed.</p>
+      <p>By default all active user groups show up as a departments filter. You can exclude a user group to prevent it
+        from showing as a department filter.
+        When a department filter is applied, only links submitted by the users in that group will be displayed.</p>
 
       <p>User Groups:</p>
-      <Table  bordered>
+      <Table bordered>
         <thead>
-          <tr>
-            <th className="fw-bold">Display name</th>
-            <th className="fw-bold">Description</th>
-            <th className="fw-bold"># of members</th>
-            <th className="fw-bold">Exclude</th>
-          </tr>
+        <tr>
+          <th className="fw-bold">Display name</th>
+          <th className="fw-bold">Description</th>
+          <th className="fw-bold"># of members</th>
+          <th className="fw-bold">Exclude</th>
+        </tr>
         </thead>
         <tbody>
-          {userGroups}
+        {userGroups}
         </tbody>
       </Table>
     </div>
@@ -69,7 +71,11 @@ export default function Page({ initialDepartments ,isReplicatedEnabled}) {
 
 Page.getLayout = function getLayout(page) {
   return (
-    <AdminLayout currentPage="departments" isReplicatedEnabled={page.props.isReplicatedEnabled}>
+    <AdminLayout currentPage="departments"
+                 isReplicatedEnabled={page.props.isReplicatedEnabled}
+                 isKOTSManaged={page.props.isKOTSManaged}
+                 showChromePluginTab={page.props.showChromePluginTab}
+    >
       {page}
     </AdminLayout>
   );
@@ -84,7 +90,7 @@ export async function getServerSideProps(ctx) {
         permanent: false,
         destination: "/login",
       },
-      props:{},
+      props: {},
     };
   }
 
@@ -94,7 +100,7 @@ export async function getServerSideProps(ctx) {
         permanent: false,
         destination: "/",
       },
-      props:{},
+      props: {},
     };
   }
 
@@ -108,14 +114,16 @@ export async function getServerSideProps(ctx) {
       ug.isExcluded = false
     }
   });
-  const isReplicatedEnabled = process.env.REPLICATED_ENABLED === "true";
+  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
 
   return {
     props: {
       username: sess.user.name,
       hideDuration: true,
       initialDepartments: userGroupsFromSlack,
-      isReplicatedEnabled
+      isReplicatedEnabled,
+      isKOTSManaged,
+      showChromePluginTab,
     },
   };
 }

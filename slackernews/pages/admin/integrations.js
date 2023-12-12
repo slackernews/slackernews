@@ -8,8 +8,9 @@ import Link from "next/link";
 import Toggle from "react-toggle";
 import "react-toggle/style.css"; // for ES6 modules
 import Image from "next/image";
+import envConfig from "../../lib/env-config";
 
-export default function Page({ initialIntegrations, isReplicatedEnabled }) {
+export default function Page({initialIntegrations, isReplicatedEnabled}) {
   const [integrations, setIntegrations] = useState(initialIntegrations);
 
   const cards = integrations.map((integration) => {
@@ -25,7 +26,7 @@ export default function Page({ initialIntegrations, isReplicatedEnabled }) {
                 alt={integration.title}
               />
 
-              <h5 style={{ marginBottom: 0, marginLeft: "10px" }}>
+              <h5 style={{marginBottom: 0, marginLeft: "10px"}}>
                 {integration.title}
               </h5>
             </div>
@@ -35,7 +36,7 @@ export default function Page({ initialIntegrations, isReplicatedEnabled }) {
               href={`https://docs.slackernews.io/integrations/${integration.id}`}
               className="btn btn-outline-secondary">Docs
             </Link>
-            <br />
+            <br/>
             <Toggle
               id={`integration-${integration.id}-enabled`}
               onChange={async (ev) => {
@@ -48,7 +49,7 @@ export default function Page({ initialIntegrations, isReplicatedEnabled }) {
                       headers: {
                         "Content-Type": "application/json",
                       },
-                      body: JSON.stringify({ enabled: ev.target.checked }),
+                      body: JSON.stringify({enabled: ev.target.checked}),
                     },
                   );
 
@@ -101,6 +102,8 @@ Page.getLayout = function getLayout(page) {
     <AdminLayout
       currentPage="integrations"
       isReplicatedEnabled={page.props.isReplicatedEnabled}
+      isKOTSManaged={page.props.isKOTSManaged}
+      showChromePluginTab={page.props.showChromePluginTab}
     >
       {page}
     </AdminLayout>
@@ -131,7 +134,8 @@ export async function getServerSideProps(ctx) {
   }
 
   const integrations = await listIntegrations();
-  const isReplicatedEnabled = process.env.REPLICATED_ENABLED === "true";
+  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
+
 
   return {
     props: {
@@ -139,6 +143,8 @@ export async function getServerSideProps(ctx) {
       hideDuration: true,
       initialIntegrations: integrations,
       isReplicatedEnabled,
+      isKOTSManaged,
+      showChromePluginTab,
     },
   };
 }

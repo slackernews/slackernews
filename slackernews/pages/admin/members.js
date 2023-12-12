@@ -25,15 +25,16 @@ import Form from "react-bootstrap/Form";
 import ListGroup from "react-bootstrap/ListGroup";
 import { ReplicatedClient } from "../../lib/replicated-sdk";
 import Image from "next/image";
+import envConfig from "../../lib/env-config";
 
 export default function Page({
-  initialUsers,
-  initialWorkspaceUsers,
-  dailyUsers,
-  monthlyUsers,
-  memberCountMax,
-  isReplicatedEnabled,
-}) {
+                               initialUsers,
+                               initialWorkspaceUsers,
+                               dailyUsers,
+                               monthlyUsers,
+                               memberCountMax,
+                               isReplicatedEnabled,
+                             }) {
   const [filterUsers, setFilterUsers] = useState({
     current: true,
     admin: true,
@@ -44,7 +45,7 @@ export default function Page({
   const [workspaceUsers, setWorkspaceUsers] = useState(initialWorkspaceUsers);
 
   const onChangeFilterUsers = (filter, ev) => {
-    const f = { ...filterUsers };
+    const f = {...filterUsers};
     f[filter] = !f[filter];
     setFilterUsers(f);
 
@@ -117,7 +118,8 @@ export default function Page({
     }
   }
 
-  const onRemoveClick = async (id) => {};
+  const onRemoveClick = async (id) => {
+  };
 
   const onMakeAdminOrUserClick = async (id, isAdmin) => {
     try {
@@ -156,7 +158,7 @@ export default function Page({
         key={user.id}
         className={`member-${user.createdAt ? "current" : "slack"}`}
       >
-        <td style={{ width: "80px" }}>
+        <td style={{width: "80px"}}>
           <Image
             src={user.avatarUrl}
             width="32"
@@ -166,7 +168,7 @@ export default function Page({
         </td>
         <td>
           <strong>{user.createdAt ? user.name : user.realName}</strong>
-          <br />
+          <br/>
           {user.email}
         </td>
         <td>
@@ -187,7 +189,7 @@ export default function Page({
               placement="left-start"
               overlay={
                 <Popover id="popover-filters">
-                  <Popover.Body style={{ padding: "2px" }}>
+                  <Popover.Body style={{padding: "2px"}}>
                     <ListGroup variant="flush">
                       <ListGroup.Item
                         action
@@ -211,7 +213,7 @@ export default function Page({
               }
             >
               <Button variant="outline-secondary" size="sm">
-                <FontAwesomeIcon icon={faEllipsis} />
+                <FontAwesomeIcon icon={faEllipsis}/>
               </Button>
             </OverlayTrigger>
           )}
@@ -222,23 +224,23 @@ export default function Page({
 
   return (
     <div>
-      <div style={{ display: "flex" }}>
+      <div style={{display: "flex"}}>
         <div className="large-stat">
           <span className="large-number">{users.length}</span>
           <span className="small-number"> / {workspaceUsers.length}</span>
-          <br />
+          <br/>
           <span className="muted">members</span>
-          <br />
+          <br/>
           <span>Your license allows for {memberCountMax} maximum members</span>
         </div>
         <div className="large-stat">
           <span className="large-number">{dailyUsers}</span>
-          <br />
+          <br/>
           <span className="muted">DAU</span>
         </div>
         <div className="large-stat">
           <span className="large-number">{monthlyUsers}</span>
-          <br />
+          <br/>
           <span className="muted">MAU</span>
         </div>
       </div>
@@ -289,23 +291,23 @@ export default function Page({
           }
         >
           <Button variant="outline-secondary" size="sm">
-            <FontAwesomeIcon icon={faFilter} />
+            <FontAwesomeIcon icon={faFilter}/>
           </Button>
         </OverlayTrigger>
       </div>
 
       <table className="members-table">
         <thead>
-          <tr>
-            <th colSpan="2">
-              Name <FontAwesomeIcon icon={faSortDown} />
-            </th>
-            <th>Type</th>
-            <th>
-              Last Activity <FontAwesomeIcon icon={faCircleInfo} />
-            </th>
-            <th></th>
-          </tr>
+        <tr>
+          <th colSpan="2">
+            Name <FontAwesomeIcon icon={faSortDown}/>
+          </th>
+          <th>Type</th>
+          <th>
+            Last Activity <FontAwesomeIcon icon={faCircleInfo}/>
+          </th>
+          <th></th>
+        </tr>
         </thead>
         <tbody>{rows}</tbody>
       </table>
@@ -355,7 +357,7 @@ export async function getServerSideProps(ctx) {
 
   const dailyUsers = await listDailyActiveUsers();
   const monthlyUsers = await listMonthlyActiveUsers();
-  const isReplicatedEnabled = process.env.REPLICATED_ENABLED === "true";
+  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
   //TODO: Pass this value from helm chart in for non-sdk installs
   const memberCountMax = isReplicatedEnabled
     ? (await ReplicatedClient.getEntitlement("member_count_max")).value
@@ -371,6 +373,8 @@ export async function getServerSideProps(ctx) {
       hideDuration: true,
       memberCountMax: memberCountMax,
       isReplicatedEnabled,
+      isKOTSManaged,
+      showChromePluginTab,
     },
   };
 }

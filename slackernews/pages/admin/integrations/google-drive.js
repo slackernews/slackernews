@@ -5,18 +5,19 @@ import { loadSession } from "../../../lib/session";
 import cookies from 'next-cookies';
 import Link from "next/link";
 
-export default function Page({ isHelm, namespace }) {
+export default function Page({isHelm, namespace}) {
 
   return (
     <>
       <h1>Google Drive</h1>
       <div>
-        <p>When enabled, SlackerNews will automatically update document titles for Google docs, sheets, slides, and forms.</p>
+        <p>When enabled, SlackerNews will automatically update document titles for Google docs, sheets, slides, and
+          forms.</p>
         <a href="https://docs.slackernews.io/integrations/google-drive">Docs</a>
         <form>
           <div className="form-group">
             <label htmlFor="googleDriveFolderId">Folder ID</label>
-            <input type="text" className="form-control" id="googleDriveFolderId" placeholder="Enter folder ID" />
+            <input type="text" className="form-control" id="googleDriveFolderId" placeholder="Enter folder ID"/>
           </div>
         </form>
       </div>
@@ -26,7 +27,12 @@ export default function Page({ isHelm, namespace }) {
 
 Page.getLayout = function getLayout(page) {
   return (
-    <AdminLayout currentPage="integrations">
+    <AdminLayout currentPage="integrations"
+                 isReplicatedEnabled={page.props.isReplicatedEnabled}
+                 isKOTSManaged={page.props.isKOTSManaged}
+                 showChromePluginTab={page.props.showChromePluginTab}
+    >
+
       {page}
     </AdminLayout>
   );
@@ -41,7 +47,7 @@ export async function getServerSideProps(ctx) {
         permanent: false,
         destination: "/login",
       },
-      props:{},
+      props: {},
     };
   }
 
@@ -51,7 +57,7 @@ export async function getServerSideProps(ctx) {
         permanent: false,
         destination: "/",
       },
-      props:{},
+      props: {},
     };
   }
 

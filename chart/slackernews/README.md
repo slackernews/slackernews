@@ -59,7 +59,21 @@ if you are using the built-in `kind` cluster from `make dev-cluster`, add a Node
 Then you can open slackernews on localhost:3000 (you still need an ngrok or other tunnel to log in, etc), and you can
 access postgres locally on port 5432.
 
-If you are signing in for the first time, you will need to flip the admin bit for your user. (instructions coming soon)
+Once you have signed in for the first time, you will need to flip the admin bit for your user. 
+These instructions are for a local kind cluster exposing postgres on 5432. 
+
+```shell
+psql --host 127.0.0.1 \slackernews --user slackernews \
+    -c "UPDATE slackernews_user SET is_super_admin = TRUE WHERE email_address = '<your email>'"
+```
+
+You can also create a port-forward with kubectl to make the above command work for a remote cluster:
+
+```shell
+kubectl port-forward svc/postgres 5432:5432
+```
+
+From there, you can navigate to `/admin` and [configure slack](../../CONTRIBUTING.md#configuring-a-slack-app).
 
 ## Releasing
 

@@ -9,8 +9,9 @@ import { listTopLinks } from "../lib/link";
 import { getParam } from "../lib/param";
 import { listAvailableUserGroups, listUsersInUserGroup } from "../lib/slack";
 import { sendMetrics } from "../lib/metrics/metric";
+import envConfig from "../lib/env-config";
 
-export default function Page({ renderableLinks, nextPageUrl, startCount, isSuperAdmin, isDebugMode }) {
+export default function Page({renderableLinks, nextPageUrl, startCount, isSuperAdmin, isDebugMode}) {
   const onEdited = (link, newTitle) => {
     const updatedLinks = renderableLinks.map(l => {
       if (l.link.url === link.link.url) {
@@ -26,10 +27,10 @@ export default function Page({ renderableLinks, nextPageUrl, startCount, isSuper
     return (
       <LinkRow
         key={renderableLink.link.url}
-        rowNumber={startCount+i}
+        rowNumber={startCount + i}
         renderableLink={renderableLink}
         onEdited={onEdited}
-        isEditable={isSuperAdmin} />
+        isEditable={isSuperAdmin}/>
     );
   });
 
@@ -37,12 +38,12 @@ export default function Page({ renderableLinks, nextPageUrl, startCount, isSuper
     <div>
       <table className="table">
         <tbody>
-          {rows}
-          <tr className={`more-row ${nextPageUrl ? "" : "d-none"}`}>
-            <td colSpan="4" style={{paddingLeft: "56px", paddingTop: "12px"}}>
-              <Link href={nextPageUrl}>More</Link>
-            </td>
-          </tr>
+        {rows}
+        <tr className={`more-row ${nextPageUrl ? "" : "d-none"}`}>
+          <td colSpan="4" style={{paddingLeft: "56px", paddingTop: "12px"}}>
+            <Link href={nextPageUrl}>More</Link>
+          </td>
+        </tr>
         </tbody>
       </table>
     </div>
@@ -51,7 +52,7 @@ export default function Page({ renderableLinks, nextPageUrl, startCount, isSuper
 
 Page.getLayout = function getLayout(page) {
   return (
-    <Layout >
+    <Layout>
       {page}
     </Layout>
   );
@@ -68,7 +69,7 @@ export async function getServerSideProps(ctx) {
         permanent: false,
         destination: "/login",
       },
-      props:{},
+      props: {},
     };
   }
 
@@ -88,6 +89,9 @@ export async function getServerSideProps(ctx) {
 
   await sendMetrics();
 
+  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
+
+
   return {
     props: {
       renderableLinks,
@@ -100,7 +104,9 @@ export async function getServerSideProps(ctx) {
       userId: sess ? sess.user.id : "",
       duration: duration,
       isSuperAdmin: sess ? sess.user.isSuperAdmin : false,
-      isReplicatedEnabled: process.env.REPLICATED_ENABLED === "true"
+      isReplicatedEnabled,
+      isKOTSManaged,
+      showChromePluginTab,
     },
   };
 }

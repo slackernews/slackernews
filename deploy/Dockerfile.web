@@ -24,7 +24,7 @@ COPY . .
 # Uncomment to disable Next.js telemetry during build
 # ENV NEXT_TELEMETRY_DISABLED 1
 
-RUN yarn build
+RUN --mount=type=cache,target=/app/.next/cache yarn build
 
 # Set up the production image
 FROM base AS runner

@@ -5,8 +5,9 @@ import { loadSession } from "../../lib/session";
 import { ensureAdminNotificationChannel } from "../../lib/slack";
 import cookies from 'next-cookies';
 import { getAdminNotificationSettings } from "../../lib/param";
+import envConfig from "../../lib/env-config";
 
-export default function Page({ notificationsChannel, initialNotificationSettings, isReplicatedEnabled }) {
+export default function Page({notificationsChannel, initialNotificationSettings, isReplicatedEnabled}) {
   const [notificationSettings, setNotificationSettings] = useState(initialNotificationSettings);
 
   const toggleNotificationSetting = async (key, enabled) => {
@@ -39,7 +40,7 @@ export default function Page({ notificationsChannel, initialNotificationSettings
             type="checkbox"
             id={notificationSetting.key}
             checked={notificationSetting.enabled}
-            onChange={toggleNotificationSetting.bind(this, notificationSetting.key, !notificationSetting.enabled)} />
+            onChange={toggleNotificationSetting.bind(this, notificationSetting.key, !notificationSetting.enabled)}/>
         </td>
       </tr>
     );
@@ -52,13 +53,13 @@ export default function Page({ notificationsChannel, initialNotificationSettings
       </p>
       <table>
         <thead>
-          <tr>
-            <th className="fw-bold">Description</th>
-            <th className="fw-bold">Enabled</th>
-          </tr>
+        <tr>
+          <th className="fw-bold">Description</th>
+          <th className="fw-bold">Enabled</th>
+        </tr>
         </thead>
         <tbody>
-          {notificationRows}
+        {notificationRows}
         </tbody>
       </table>
     </div>
@@ -67,7 +68,11 @@ export default function Page({ notificationsChannel, initialNotificationSettings
 
 Page.getLayout = function getLayout(page) {
   return (
-    <AdminLayout currentPage="admin-notifications" isReplicatedEnabled={page.props.isReplicatedEnabled}>
+    <AdminLayout currentPage="admin-notifications"
+                 isReplicatedEnabled={page.props.isReplicatedEnabled}
+                 isKOTSManaged={page.props.isKOTSManaged}
+                 showChromePluginTab={page.props.showChromePluginTab}
+    >
       {page}
     </AdminLayout>
   );
@@ -82,7 +87,7 @@ export async function getServerSideProps(ctx) {
         permanent: false,
         destination: "/login",
       },
-      props:{},
+      props: {},
     };
   }
 
@@ -92,20 +97,22 @@ export async function getServerSideProps(ctx) {
         permanent: false,
         destination: "/",
       },
-      props:{},
+      props: {},
     };
   }
 
   const adminChannel = await ensureAdminNotificationChannel();
-  const adminNotificationSettings = await getAdminNotificationSettings();  
-  const isReplicatedEnabled = process.env.REPLICATED_ENABLED === "true";
+  const adminNotificationSettings = await getAdminNotificationSettings();
+  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
   return {
     props: {
       username: sess.user.name,
       hideDuration: true,
       notificationsChannel: adminChannel,
       initialNotificationSettings: adminNotificationSettings,
-      isReplicatedEnabled
+      isReplicatedEnabled,
+      isKOTSManaged,
+      showChromePluginTab,
     },
   };
 }

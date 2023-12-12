@@ -53,6 +53,8 @@ spec:
                 name: "{{ if .Values.slack.existingSecretName }}{{ .Values.slack.existingSecretName }}{{ else }}slackernews-slack{{ end }}"
           - name: REPLICATED_ENABLED
             value: "1"
+          - name: REPLICATED_KOTS_MANAGED
+            value: {{ .Values.replicated.isKOTSManaged  | quote }}
           - name: INSTALL_METHOD
             value: helm
           - name: KUBERNETES_NAMESPACE
