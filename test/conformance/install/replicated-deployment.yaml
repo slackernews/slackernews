@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    meta.helm.sh/release-name: slackernews
+    meta.helm.sh/release-namespace: slackernews
+  labels:
+    app.kubernetes.io/instance: slackernews
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: replicated
+  name: replicated
+  namespace: slackernews
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: slackernews
+      app.kubernetes.io/name: replicated
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: slackernews
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: replicated
