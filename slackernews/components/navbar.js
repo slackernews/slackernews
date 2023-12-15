@@ -1,9 +1,10 @@
 import * as React from "react";
 import { useRouter } from 'next/router'
 import Link from 'next/link';
-import { NavDropdown} from 'react-bootstrap';
+import { NavDropdown } from 'react-bootstrap';
 
-export default function Navbar({ username, userId, duration, hideFilter, departments = [], depart }) {
+
+export default function Navbar({username, userId, duration, hideFilter, departments = [], depart}) {
   const router = useRouter();
 
   const handleLogoClick = () => {
@@ -44,7 +45,7 @@ export default function Navbar({ username, userId, duration, hideFilter, departm
       <div className="collapse navbar-collapse">
         <div className="align-items-center" style={{display: hideFilter ? "none" : "flex"}}>
           <ul className="navbar-nav" style={{paddingLeft: "30px"}}>
-            <NavDropdown title={durationDisplay} id="collasible-nav-dropdown" className="duration-dropdown" >
+            <NavDropdown title={durationDisplay} id="collasible-nav-dropdown" className="duration-dropdown">
               <Link href={`/?t=1d&depart=${depart}`}><NavDropdown.Item>today</NavDropdown.Item></Link>
               <Link href={`/?t=7d&depart=${depart}`}><NavDropdown.Item>this week</NavDropdown.Item></Link>
               <Link href={`/?t=30d&depart=${depart}`}><NavDropdown.Item>this month</NavDropdown.Item></Link>
@@ -61,7 +62,8 @@ export default function Navbar({ username, userId, duration, hideFilter, departm
           </ul>
         </div>
         <span className="navbar-text ms-auto" style={{paddingRight: "30px"}}>
-          <Link href={`/user?id=${userId}`} className="username">{username}</Link>{' '}|{' '}<Link href="/logout" className="logout">logout</Link>
+          <Link href={`/user?id=${userId}`} className="username">{username}</Link>{' '}|{' '}<Link href="/logout"
+                                                                                                   className="logout">logout</Link>
         </span>
       </div>
     </nav>

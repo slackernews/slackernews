@@ -1,37 +1,47 @@
 import AdminLayout from "../../components/admin-layout";
-import React, { useEffect, useState } from 'react';
-import router, { useRouter } from 'next/router';
+import React from 'react';
 import { loadSession } from "../../lib/session";
 import cookies from 'next-cookies';
+import { Link, Text, Flex } from "@radix-ui/themes";
 
-export default function Page({ isHelm, namespace , isReplicatedEnabled}) {
+export function Code({children}) {
+  return (
+    <code style={{color: "var(--gray-12)", background: "var(--gray-4)", padding: "5px"}}>
+      {children}
+    </code>
+  )
+}
+
+export default function Page({isHelm, namespace, isReplicatedEnabled}) {
 
   return (
-    <div className="admin-console">
+    <Flex direction="column" gap="2">
       <h1>Connect to the Admin Console</h1>
-      <p>
-        If you have <code>kubectl</code> to the Kubernetes cluster that
+      <Text>
+        If you have <Code>kubectl</Code> access to the Kubernetes cluster
+        that
         you&apos;re running SlackerNews on, you can also access a lower
         level admin console.
-      </p>
-      <h3>Run the following command to access the admin console:</h3>
-      <pre>
+      </Text>
+      <h5>Run the following command to access the admin console:</h5>
+      <Code>
         kubectl -n {namespace} port-forward svc/kotsadm 8800:80
-      </pre>
-      <h3 className="admin-console-link">visit http://localhost:8800</h3>
-      <h2>With the Admin Console, you can:</h2>
+      </Code>
+      <Text>Then visit <Link href={"http://localhost:8800"}>http://localhost:8800</Link> to access the
+        console.</Text>
+      <h5>With the Admin Console, you can:</h5>
       <ul>
         <li>Manage update frequency</li>
         <li>Read release notes</li>
         <li>Generate support bundles</li>
         <li>Adjust environment configuration</li>
       </ul>
-    </div>
+    </Flex>
   )
 }
 
 Page.getLayout = function getLayout(page) {
-  console.log(page,'page')
+  console.log(page, 'page')
 
   return (
     <AdminLayout currentPage="admin-console" isReplicatedEnabled={page.props.isReplicatedEnabled}>
@@ -42,8 +52,8 @@ Page.getLayout = function getLayout(page) {
 
 export async function getServerSideProps(ctx) {
   const c = cookies(ctx);
-  const sess = await loadSession(c.auth);  
-   const isReplicatedEnabled = process.env.REPLICATED_ENABLED === "true";
+  const sess = await loadSession(c.auth);
+  const isReplicatedEnabled = process.env.REPLICATED_ENABLED === "true";
 
   if (!sess) {
     return {
@@ -51,7 +61,7 @@ export async function getServerSideProps(ctx) {
         permanent: false,
         destination: "/login",
       },
-      props:{},
+      props: {},
     };
   }
 
@@ -61,7 +71,7 @@ export async function getServerSideProps(ctx) {
         permanent: false,
         destination: "/",
       },
-      props:{},
+      props: {},
     };
   }
 
