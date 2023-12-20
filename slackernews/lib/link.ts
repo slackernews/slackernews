@@ -430,9 +430,7 @@ export async function getTotalLinkCount(): Promise<number> {
 
 export async function getUntitledLinkCount(): Promise<number> {
   return await (await Link()).count({
-    where: {
-      title: Sequelize.col('link'),
-    },
+    where: Sequelize.literal('title = link')
   });
 }
 
