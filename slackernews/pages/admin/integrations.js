@@ -1,8 +1,7 @@
-import AdminLayout from "../../components/admin-layout";
-import React, { useEffect, useState } from "react";
-import router, { useRouter } from "next/router";
+import React, { useState } from "react";
 import { loadSession } from "../../lib/session";
 import { listIntegrations } from "../../lib/integration";
+import AdminLayout from "../../components/admin-layout";
 import cookies from "next-cookies";
 import Link from "next/link";
 import Toggle from "react-toggle";
@@ -10,15 +9,14 @@ import "react-toggle/style.css"; // for ES6 modules
 import Image from "next/image";
 import envConfig from "../../lib/env-config";
 
-export default function Page({ initialIntegrations, isReplicatedEnabled }) {
+export default function Page({initialIntegrations, isReplicatedEnabled}) {
   const [integrations, setIntegrations] = useState(initialIntegrations);
 
   const cards = integrations.map((integration) => {
     return (
       <div key={integration.id} className="col-sm-4">
         <div className="card">
-          <div className="card-body">
-            <div className="integration-icon">
+          <div className="card-body flex-column gap-3">
               <Image
                 src={`data:image/png;base64,${integration.icon}`}
                 width="30"
@@ -26,17 +24,18 @@ export default function Page({ initialIntegrations, isReplicatedEnabled }) {
                 alt={integration.title}
               />
 
-              <h5 style={{ marginBottom: 0, marginLeft: "10px" }}>
+              <h5 style={{marginBottom: 0, marginLeft: "10px"}}>
                 {integration.title}
               </h5>
             </div>
-            <Link href={`/admin/integrations/${integration.id}`} className="btn btn-outline-secondary">Configure
-            </Link>
-            <Link
-              href={`https://docs.slackernews.io/integrations/${integration.id}`}
-              className="btn btn-outline-secondary">Docs
-            </Link>
-            <br />
+              <div className="flex-row gap-1">
+              <Link href={`/admin/integrations/${integration.id}`} className="btn btn-outline-secondary">Configure
+              </Link>
+              <Link
+                href={`https://docs.slackernews.io/integrations/${integration.id}`}
+                className="btn btn-outline-secondary">Docs
+              </Link>
+            </div>
             <Toggle
               id={`integration-${integration.id}-enabled`}
               onChange={async (ev) => {
@@ -49,7 +48,7 @@ export default function Page({ initialIntegrations, isReplicatedEnabled }) {
                       headers: {
                         "Content-Type": "application/json",
                       },
-                      body: JSON.stringify({ enabled: ev.target.checked }),
+                      body: JSON.stringify({enabled: ev.target.checked}),
                     },
                   );
 
@@ -80,9 +79,10 @@ export default function Page({ initialIntegrations, isReplicatedEnabled }) {
               }}
               checked={integration.is_enabled}
             />
-            <label htmlFor={`integration-${integration.id}-enabled`}>
-              Enabled
-            </label>
+            <div className="flex-row flex-grow-1 gap-5">
+              <label htmlFor={`integration-${integration.id}-enabled`}>
+                Enabled
+              </label>
             <p>{integration.version}</p>
           </div>
         </div>
@@ -92,6 +92,9 @@ export default function Page({ initialIntegrations, isReplicatedEnabled }) {
 
   return (
     <>
+      <h1>Integrations</h1>
+      <p>Configuring and connecting Integrations improves the ability to fetch preview and icon data for
+        links.</p>
       <div className="row">{cards}</div>
     </>
   );

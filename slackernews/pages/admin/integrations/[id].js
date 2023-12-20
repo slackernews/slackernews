@@ -9,7 +9,7 @@ import { getIntegration } from "../../../lib/integration";
 import validator from "@rjsf/validator-ajv6";
 import Form from "@rjsf/core";
 
-export default function Page({ integration }) {
+export default function Page({integration}) {
   return (
     <>
       <h1>{integration.title}</h1>
@@ -21,20 +21,20 @@ export default function Page({ integration }) {
           validator={validator}
           formData={JSON.parse(integration.config)}
           onSubmit={async (ev) => {
-          try {
-            const res = await fetch(`/api/admin/integration/${integration.id}/config`, {
-              method: 'PUT',
-              body: JSON.stringify(ev.formData),
-            });
+            try {
+              const res = await fetch(`/api/admin/integration/${integration.id}/config`, {
+                method: 'PUT',
+                body: JSON.stringify(ev.formData),
+              });
 
-            if (res.status === 204) {
-              alert('Configuration saved');
-              return;
+              if (res.status === 204) {
+                alert('Configuration saved');
+                return;
+              }
+            } catch (err) {
+              console.log(err);
             }
-          } catch (err) {
-            console.log(err);
-          }
-        }} />
+          }}/>
       </div>
     </>
   )
@@ -46,6 +46,7 @@ Page.getLayout = function getLayout(page) {
                  isReplicatedEnabled={page.props.isReplicatedEnabled}
                  isKOTSManaged={page.props.isKOTSManaged}
                  showChromePluginTab={page.props.showChromePluginTab}
+                 childPage={page.props.integration.id
     >
       {page}
     </AdminLayout>
@@ -61,7 +62,7 @@ export async function getServerSideProps(ctx) {
         permanent: false,
         destination: "/login",
       },
-      props:{},
+      props: {},
     };
   }
 
@@ -71,7 +72,7 @@ export async function getServerSideProps(ctx) {
         permanent: false,
         destination: "/",
       },
-      props:{},
+      props: {},
     };
   }
 

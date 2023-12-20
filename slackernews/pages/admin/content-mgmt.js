@@ -9,14 +9,14 @@ import { getTotalScoreCount } from "../../lib/score";
 import envConfig from "../../lib/env-config";
 
 export default function Page({
-                               linkCount,
-                               untitledLinkCount,
-                               totalScore,
-                               renderableLinks,
-                               nextPageUrl,
-                               startCount,
-                               isReplicatedEnabled
-                             }) {
+  linkCount,
+  untitledLinkCount,
+  totalScore,
+  renderableLinks,
+  nextPageUrl,
+  startCount,
+  isReplicatedEnabled
+}) {
 
   const onEdited = (link, newTitle) => {
     const updatedLinks = renderableLinks.map(l => {
@@ -32,28 +32,28 @@ export default function Page({
   const rows = renderableLinks.map((renderableLink, i) => {
     return <LinkRow
       key={renderableLink.link.url}
-      rowNumber={startCount+i}
+      rowNumber={startCount + i}
       renderableLink={renderableLink}
       onEdited={onEdited}
       isEditable={true}
       showHide={true}
       showBoost={true}
-      isDebugMode={true} />;
+      isDebugMode={true}/>;
   });
 
   return (
     <div>
       <div style={{display: "flex"}}>
         <div className="large-stat">
-          <span className="large-number">{Number(linkCount).toLocaleString()}</span><br />
+          <span className="large-number">{Number(linkCount).toLocaleString()}</span><br/>
           <span className="muted">Links</span>
         </div>
         <div className="large-stat">
-          <span className="large-number">{Number(untitledLinkCount).toLocaleString()}</span><br />
+          <span className="large-number">{Number(untitledLinkCount).toLocaleString()}</span><br/>
           <span className="muted">Untitled Links</span>
         </div>
         <div className="large-stat">
-          <span className="large-number">{Number(totalScore).toLocaleString()}</span><br />
+          <span className="large-number">{Number(totalScore).toLocaleString()}</span><br/>
           <span className="muted">Points</span>
         </div>
       </div>
@@ -61,12 +61,12 @@ export default function Page({
       <div>
         <table className="table">
           <tbody>
-            {rows}
-            <tr className={`more-row ${nextPageUrl ? "" : "d-none"}`}>
-              <td colSpan="4" style={{paddingLeft: "56px", paddingTop: "12px"}}>
-                <Link href={nextPageUrl}>More</Link>
-              </td>
-            </tr>
+          {rows}
+          <tr className={`more-row ${nextPageUrl ? "" : "d-none"}`}>
+            <td colSpan="4" style={{paddingLeft: "56px", paddingTop: "12px"}}>
+              <Link href={nextPageUrl}>More</Link>
+            </td>
+          </tr>
           </tbody>
         </table>
       </div>
@@ -96,7 +96,7 @@ export async function getServerSideProps(ctx) {
         permanent: false,
         destination: "/login",
       },
-      props:{},
+      props: {},
     };
   }
 
@@ -106,16 +106,20 @@ export async function getServerSideProps(ctx) {
         permanent: false,
         destination: "/",
       },
-      props:{},
+      props: {},
     };
   }
 
   const linkCount = await getTotalLinkCount();
+
   const untitledLinkCount = await getUntitledLinkCount();
+
   const totalScore = await getTotalScoreCount();
+
 
   const duration = ctx.query.t ? ctx.query.t : "7d";
   const page = ctx.query.p ? ctx.query.p : "1";
+
   const renderableLinks = await listTopLinks(duration, page, sess.user.id, [], true, "");
 
   const nextPageUrl = renderableLinks.length === 30 ?

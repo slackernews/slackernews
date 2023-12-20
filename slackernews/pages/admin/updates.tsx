@@ -380,6 +380,7 @@ Page.getLayout = function getLayout(page: any) {
       isReplicatedEnabled={page.props.isReplicatedEnabled}
       isKOTSManaged={page.props.isKOTSManaged}
       showChromePluginTab={page.props.showChromePluginTab}
+      childPage={null} // cmon tsx...
     >
       {page}
     </AdminLayout>
