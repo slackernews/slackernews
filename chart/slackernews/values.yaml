@@ -46,8 +46,6 @@ slack:
 slackernews:
   domain: ""
 
-admin-console:
-  enabled: true
 images:
   pullSecrets:
     replicated:

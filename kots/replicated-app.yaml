@@ -14,10 +14,7 @@ spec:
       localPort: 80
       applicationUrl: "http://slackernews-nginx"
   statusInformers:
-    - deployment/migrations
-    - deployment/slackernews-api
     - deployment/slackernews-frontend
-    - deployment/slackernews-nginx
   graphs:
     - title: DAU
       query: 'sum(user_signup_events_total)'
