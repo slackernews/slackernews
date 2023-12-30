@@ -5,6 +5,10 @@ metadata:
 spec:
   groups:
     - name: postgres
+      description: >
+        This section can be used to configure the postgresql database required by slackernews. You
+        can either deploy postgresql in the cluster or provide an external URI to an existing postgresql instance
+        that you will use for slackernews.
       title: Postgresql
       items:
         - name: deploy_postgres
@@ -25,6 +29,14 @@ spec:
           when: repl{{ ConfigOptionEquals "deploy_postgres" "0"}}
     - name: tls
       title: TLS
+      description: |
+        This section has been pre-populated with domains and self-signed certificates. 
+        If you want, you can replace the self-signed certificates with your own.
+        Note that the domain you use will need to be publicly addressable with certs signed by a public authority 
+        so it can receive webhooks from Slack.
+        
+        If you'll be using your own ingress controller or external load balancer, use the DNS name or IP
+        of that external address.
       items:
         - name: slackernews_domain
           title: Ingress Hostname

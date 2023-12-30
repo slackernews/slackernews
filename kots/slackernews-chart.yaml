@@ -12,7 +12,10 @@ spec:
   # these values will be supplied to helm template
   values:
     postgres:
+      enabled: repl{{ ConfigOption "deploy_postgres" | ParseBool }}
+      deploy_postgres: repl{{ ConfigOption "deploy_postgres" | ParseBool }}
       password: repl{{ ConfigOption "postgres_password"}}
+      uri: repl{{ ConfigOption "postgres_external_uri" }}
     slack:
       botToken: repl{{ ConfigOption "slack_bot_token" }}
       userToken: repl{{ ConfigOption "slack_user_token" }}
@@ -38,13 +41,13 @@ spec:
           dockerconfigjson: ""
       slackernews_api:
         pullSecret: repl{{ ImagePullSecretName }}
-        repository: '{{repl HasLocalRegistry | ternary LocalRegistryHost "images.slackernews.io" }}/{{repl HasLocalRegistry | ternary LocalRegistryNamespace "proxy/slackernews/ghcr.io/slackernews" }}/slackernews-api'
+        repository: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}/{{repl HasLocalRegistry | ternary LocalRegistryNamespace "proxy/slackernews/ghcr.io/slackernews" }}/slackernews-api'
       slackernews_migrations:
         pullSecret: repl{{ ImagePullSecretName }}
-        repository: '{{repl HasLocalRegistry | ternary LocalRegistryHost "images.slackernews.io" }}/{{repl HasLocalRegistry | ternary LocalRegistryNamespace "proxy/slackernews/ghcr.io/slackernews" }}/slackernews-migrations'
+        repository: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}/{{repl HasLocalRegistry | ternary LocalRegistryNamespace "proxy/slackernews/ghcr.io/slackernews" }}/slackernews-migrations'
       slackernews:
         pullSecret: repl{{ ImagePullSecretName }}
-        repository: '{{repl HasLocalRegistry | ternary LocalRegistryHost "images.slackernews.io" }}/{{repl HasLocalRegistry | ternary LocalRegistryNamespace "proxy/slackernews/ghcr.io/slackernews" }}/slackernews-web'
+        repository: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}/{{repl HasLocalRegistry | ternary LocalRegistryNamespace "proxy/slackernews/ghcr.io/slackernews" }}/slackernews-web'
   # builder values provide a way to render the chart with all images
   # and manifests. this is used in replicated to create airgap packages
   builder:
