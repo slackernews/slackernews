@@ -34,11 +34,14 @@ spec:
           - pass:
               when: "== eks"
               message: EKS is a supported platform
+          - pass:
+              when: "== k3s"
+              message: K3s is a supported platform
           - warn:
               when: "== docker-desktop"
               message: This application has not been tested on Docker Desktop
           - warn:
-              message: The Kubernetes platform is not validated, but there are no known compatibility issues.
+              message: This Kubernetes platform is not regularly tested, but there are no known compatibility issues.
     - textAnalyze:
         checkName: slack
         fileName: slack.json

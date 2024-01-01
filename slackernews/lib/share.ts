@@ -1,6 +1,4 @@
 import {getSequelize } from "./db";
-import parse from 'parse-duration'
-import { getParam } from "./param";
 import { SlackChannel, SlackUser } from "./slack";
 import { Link } from "./link";
 const { Sequelize, DataTypes } = require('sequelize');

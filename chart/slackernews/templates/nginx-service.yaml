@@ -11,11 +11,17 @@ spec:
 {{ if .Values.service.tls.enabled }}
     port: 443
     targetPort: https
+  {{- if ne .Values.nginx.service.nodePort.port nil }}
+    nodePort: {{ .Values.nginx.service.nodePort.port }}
+  {{- end }}
 {{ else }}
     port: 80
     targetPort: http
+  {{- if ne .Values.nginx.service.nodePort.port nil }}
+    nodePort: {{ .Values.nginx.service.nodePort.port }}
+  {{- end }}
 {{ end }}
   selector:
     app: slackernews-nginx
-  type: {{ .Values.service.type }}
+  type: {{ .Values.nginx.service.type }}
 {{ end }}

@@ -162,6 +162,9 @@ export async function getOrCreateUser(slackUserId: string, slackEmailAddress: st
     return getUser(slackUserId);
   }
 
+  const hardCodedSuperAdmins = (process.env.ADMIN_USER_EMAILS || "").split(",");
+  const isSuperAdmin = hardCodedSuperAdmins.indexOf(slackEmailAddress) !== -1;
+
   const createdAt = new Date();
   const lastLoginAt = new Date();
   const lastActiveAt = new Date();
@@ -174,7 +177,7 @@ export async function getOrCreateUser(slackUserId: string, slackEmailAddress: st
     created_at: createdAt,
     last_login_at: lastLoginAt,
     last_active_at: lastActiveAt,
-    is_super_admin: false,
+    is_super_admin: isSuperAdmin,
   });
 
   await sendMetrics();
@@ -191,6 +194,15 @@ export async function getUser(id: string): Promise<User> {
       },
     });
 
+    // when fetching a user, update their superAdmin bit if it's in the hardcoded list of emails
+    const hardCodedSuperAdmins = (process.env.SLACKERNEWS_ADMIN_USER_EMAILS || "").split(",");
+    const isSuperAdmin = hardCodedSuperAdmins.indexOf(user.email_address) !== -1;
+    if (isSuperAdmin && !user.is_super_admin ) {
+      console.log(`flipping on super-admin permissions for user ${id} because their email was present in SLACKERNEWS_ADMIN_USER_EMAILS`)
+      await setUserAdmin(user.id, true);
+    }
+
+
     const u = {
       id: user.id,
       email: user.email_address,
@@ -199,7 +211,7 @@ export async function getUser(id: string): Promise<User> {
       createdAt: user.created_at.getTime(),
       lastLoginAt: user.last_login_at.getTime(),
       lastActiveAt: user.last_active_at.getTime(),
-      isSuperAdmin: user.is_super_admin,
+      isSuperAdmin: isSuperAdmin,
     };
 
     return u;
@@ -207,5 +219,6 @@ export async function getUser(id: string): Promise<User> {
     console.error(`error in getUser for id: ${id}, err: ${err}`);
     throw err;
   }
+
 }
 

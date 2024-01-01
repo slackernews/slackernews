@@ -14,20 +14,13 @@ spec:
       localPort: 80
       applicationUrl: "http://slackernews-nginx"
   statusInformers:
-    - deployment/migrations
-    - deployment/slackernews-api
     - deployment/slackernews-frontend
-    - deployment/slackernews-nginx
+    - '{{repl if ConfigOptionEquals "deploy_postgres" "1"}}statefulset/postgres{{repl end}}'
+    - '{{repl if ConfigOptionEquals "nginx_enabled" "1"}}deployment/slackernews-nginx{{repl end}}'
   graphs:
     - title: DAU
       query: 'sum(user_signup_events_total)'
 images:
-  slackernews_api:
-    pullSecret: repl{{ ImagePullSecretName }}
-    repository: ghcr.io/slackernews/slackernews-api
-  slackernews_migrations:
-    pullSecret: repl{{ ImagePullSecretName }}
-    repository: ghcr.io/slackernews/slackernews-migrations
   slackernews:
     pullSecret: repl{{ ImagePullSecretName }}
     repository: ghcr.io/slackernews/slackernews-web
