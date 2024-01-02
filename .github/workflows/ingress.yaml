@@ -110,7 +110,6 @@ jobs:
           - { distribution: k3s, version: v1.26 }
           - { distribution: k3s, version: v1.27 }
           # - { distribution: openshift, version: v4.13.0-okd }
-          - { distribution: eks, version: v1.23 }
           - { distribution: eks, version: v1.24 }
           - { distribution: eks, version: v1.25 }
           - { distribution: eks, version: v1.26 }
