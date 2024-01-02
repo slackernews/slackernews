@@ -12,20 +12,33 @@ spec:
   # these values will be supplied to helm template
   values:
     postgres:
+      enabled: true
+      deploy_postgres: repl{{ ConfigOption "deploy_postgres" | ParseBool }}
       password: repl{{ ConfigOption "postgres_password"}}
+      uri: repl{{ ConfigOption "postgres_external_uri" }}
     slack:
-      botToken: repl{{ ConfigOption "slack_bot_token" }}
-      userToken: repl{{ ConfigOption "slack_user_token" }}
-      clientId: repl{{ ConfigOption "slack_clientid" }}
-      clientSecret: repl{{ ConfigOption "slack_clientsecret" }}
+      botToken: repl{{ ConfigOption "slack_bot_token" | quote }}
+      userToken: repl{{ ConfigOption "slack_user_token" | quote }}
+      clientId: repl{{ ConfigOption "slack_clientid" | quote }}
+      clientSecret: repl{{ ConfigOption "slack_clientsecret" | quote }}
     slackernews:
       domain: repl{{ ConfigOption "slackernews_domain" }}
+      adminUserEmails: repl{{ ConfigOption "slackernews_admin_user_emails" | quote }}
     admin-console:
       enabled: false
     replicated:
       enabled: false
       preflights: false
+    nginx:
+      enabled: repl{{ ConfigOption "nginx_enabled" | ParseBool }}
+      service:
+        type: repl{{ ConfigOption "nginx_service_type" }}
+        nodePort:
+          port: repl{{ ConfigOption "nginx_node_port_port" }}
     service:
+      type: repl{{ ConfigOption "slackernews_service_type" }}
+      nodePort:
+        port: repl{{ ConfigOption "slackernews_node_port_port" }}
       tls:
         enabled: true
         cert: |
@@ -36,15 +49,9 @@ spec:
       pullSecrets:
         replicated:
           dockerconfigjson: ""
-      slackernews_api:
-        pullSecret: repl{{ ImagePullSecretName }}
-        repository: '{{repl HasLocalRegistry | ternary LocalRegistryHost "images.slackernews.io" }}/{{repl HasLocalRegistry | ternary LocalRegistryNamespace "proxy/slackernews/ghcr.io/slackernews" }}/slackernews-api'
-      slackernews_migrations:
-        pullSecret: repl{{ ImagePullSecretName }}
-        repository: '{{repl HasLocalRegistry | ternary LocalRegistryHost "images.slackernews.io" }}/{{repl HasLocalRegistry | ternary LocalRegistryNamespace "proxy/slackernews/ghcr.io/slackernews" }}/slackernews-migrations'
       slackernews:
         pullSecret: repl{{ ImagePullSecretName }}
-        repository: '{{repl HasLocalRegistry | ternary LocalRegistryHost "images.slackernews.io" }}/{{repl HasLocalRegistry | ternary LocalRegistryNamespace "proxy/slackernews/ghcr.io/slackernews" }}/slackernews-web'
+        repository: repl{{ LocalImageName "$IMAGE" }}
   # builder values provide a way to render the chart with all images
   # and manifests. this is used in replicated to create airgap packages
   builder:

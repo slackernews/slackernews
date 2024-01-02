@@ -20,6 +20,11 @@ ingress:
   ingressClassName: ""
 nginx:
   enabled: false
+  service:
+    type: ClusterIP
+    nodePort:
+      port:
+
 service:
   type: ClusterIP
   nodePort:
@@ -45,9 +50,8 @@ slack:
 
 slackernews:
   domain: ""
+  adminUserEmails: ""
 
-admin-console:
-  enabled: true
 images:
   pullSecrets:
     replicated:
@@ -55,4 +59,3 @@ images:
   slackernews:
     repository: $REGISTRY/$IMAGE
     pullPolicy: IfNotPresent
-    pullSecret: proxypullsecret

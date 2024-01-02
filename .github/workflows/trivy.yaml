@@ -7,30 +7,8 @@ on:
       
 env:
   REGISTRY: ghcr.io
-  REPLICATED_APP: slackernews
 
 jobs:
-  run-trivy-migrations:
-    runs-on: ubuntu-22.04
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    steps:
-      - name: Trivy Scan migrations
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: '${{ env.REGISTRY }}/slackernews/slackernews-migrations@${{ github.sha }}'
-          exit-code: '1'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH,MEDIUM'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-        env:
-          TRIVY_USERNAME: ${{ github.actor }}
-          TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: 'trivy-results.sarif'
   run-trivy-web:
     runs-on: ubuntu-22.04
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
@@ -38,28 +16,7 @@ jobs:
       - name: Trivy Scan web
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: '${{ env.REGISTRY }}/slackernews/slackernews-web@${{ github.sha }}'
-          exit-code: '1'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH,MEDIUM'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-        env:
-          TRIVY_USERNAME: ${{ github.actor }}
-          TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: 'trivy-results.sarif'
-  run-trivy-api:
-    runs-on: ubuntu-22.04
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    steps:
-      - name: Trivy Scan api
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: '${{ env.REGISTRY }}/slackernews/slackernews-api@${{ github.sha }}'
+          image-ref: '${{ env.REGISTRY }}/${{ secrets.GHCR_NAMESPACE }}/slackernews-web:sha-${{ github.sha }}'
           exit-code: '1'
           ignore-unfixed: true
           vuln-type: 'os,library'

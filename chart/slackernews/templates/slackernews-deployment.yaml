@@ -2,6 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: slackernews-frontend
+  annotations:
+    # if you're using a chart-managed secret, this will roll the deployment when the secret changes
+    checksum/slackernews-slack: {{ include (print $.Template.BasePath "/slack-secret.yaml") . | sha256sum }}
 spec:
   selector:
     matchLabels:
@@ -55,6 +58,8 @@ spec:
             value: "1"
           - name: INSTALL_METHOD
             value: helm
+          - name: SLACKERNEWS_ADMIN_USER_EMAILS
+            value: {{ .Values.slackernews.adminUserEmails | quote }}
           - name: KUBERNETES_NAMESPACE
             valueFrom:
               fieldRef:

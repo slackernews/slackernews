@@ -1,6 +1,5 @@
 import AdminLayout from "../../components/admin-layout";
-import React, { useEffect, useState } from 'react';
-import router, { useRouter } from 'next/router';
+import React from 'react';
 import { loadSession } from "../../lib/session";
 import cookies from 'next-cookies';
 
@@ -54,6 +53,7 @@ export async function getServerSideProps(ctx) {
       props:{},
     };
   }
+
 
   if (!sess.user.isSuperAdmin) {
     return {
