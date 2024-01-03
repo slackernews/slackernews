@@ -4,11 +4,14 @@ import { CopyBlock, dracula } from "react-code-blocks";
 import Link from "next/link";
 import cookies from "next-cookies";
 import { loadSession } from "../../lib/session";
+import envConfig from "../../lib/env-config";
 
 export default function Page({
   isReplicatedEnabled,
+    isKOTSManaged,
 }: {
   isReplicatedEnabled: boolean;
+  isKOTSManaged: boolean;
 }) {
   const supportBundlePluginCmd = "curl https://krew.sh/support-bundle | bash";
   const collectSupportBundleCmd = "kubectl support-bundle --load-cluster-specs";
@@ -82,6 +85,8 @@ Page.getLayout = function getLayout(page: any) {
       currentPage="support"
       isUpdateAvailable={undefined}
       isReplicatedEnabled={page.props.isReplicatedEnabled}
+      isKOTSManaged={page.props.isKOTSManaged}
+      showChromePluginTab={page.props.showChromePluginTab}
     >
       {page}
     </AdminLayout>
@@ -114,11 +119,14 @@ export async function getServerSideProps(ctx: {
       };
     }
 
-    const isReplicatedEnabled = process.env.REPLICATED_ENABLED === "true";
+    const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
+
 
     return {
       props: {
         isReplicatedEnabled,
+        isKOTSManaged,
+        showChromePluginTab,
       },
     };
   }

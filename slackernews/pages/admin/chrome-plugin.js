@@ -4,11 +4,19 @@ import router, { useRouter } from 'next/router';
 import { loadSession } from "../../lib/session";
 import cookies from 'next-cookies';
 import { getChromePluginConfig } from "../../lib/param";
+import envConfig from "../../lib/env-config";
 
-export default function Page({ isEnabled, token, isReplicatedEnabled }) {
+export default function Page({isEnabled, token, showChromePluginTab}) {
   const [enabled, setEnabled] = useState(isEnabled);
   const [pluginToken, setPluginToken] = useState(token);
+
+  if (!showChromePluginTab) {
+    // don't let them go there until this feature is ready
+    router.push("/admin");
+  }
+
   return (
+
     <div className="chrome-plugin">
       <h1>Configure the SlackerNews Chrome Plugin</h1>
       <p>
@@ -29,7 +37,11 @@ export default function Page({ isEnabled, token, isReplicatedEnabled }) {
 
 Page.getLayout = function getLayout(page) {
   return (
-    <AdminLayout currentPage="chrome-plugin" isReplicatedEnabled={page.props.isReplicatedEnabled}>
+    <AdminLayout currentPage="chrome-plugin"
+                 isReplicatedEnabled={page.props.isReplicatedEnabled}
+                 showChromePluginTab={page.props.showChromePluginTab}
+                 isKOTSManaged={page.props.isKOTSManaged}
+    >
       {page}
     </AdminLayout>
   );
@@ -59,7 +71,8 @@ export async function getServerSideProps(ctx) {
   }
 
   const chromePluginConfig = await getChromePluginConfig();
-  const isReplicatedEnabled = process.env.REPLICATED_ENABLED === "true";
+  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
+
 
   return {
     props: {
@@ -67,7 +80,9 @@ export async function getServerSideProps(ctx) {
       hideDuration: true,
       isEnabled: chromePluginConfig.enabled,
       token: chromePluginConfig.token,
-      isReplicatedEnabled
+      isReplicatedEnabled,
+      isKOTSManaged,
+      showChromePluginTab,
     },
   };
 }

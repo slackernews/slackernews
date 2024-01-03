@@ -5,6 +5,7 @@ import { loadSession } from "../../lib/session";
 import { ensureAdminNotificationChannel } from "../../lib/slack";
 import cookies from 'next-cookies';
 import { getAdminNotificationSettings } from "../../lib/param";
+import envConfig from "../../lib/env-config";
 
 export default function Page({ notificationsChannel, initialNotificationSettings, isReplicatedEnabled }) {
   const [notificationSettings, setNotificationSettings] = useState(initialNotificationSettings);
@@ -67,7 +68,11 @@ export default function Page({ notificationsChannel, initialNotificationSettings
 
 Page.getLayout = function getLayout(page) {
   return (
-    <AdminLayout currentPage="admin-notifications" isReplicatedEnabled={page.props.isReplicatedEnabled}>
+    <AdminLayout currentPage="admin-notifications"
+                 isReplicatedEnabled={page.props.isReplicatedEnabled}
+                 isKOTSManaged={page.props.isKOTSManaged}
+                 showChromePluginTab={page.props.showChromePluginTab}
+    >
       {page}
     </AdminLayout>
   );
@@ -98,14 +103,16 @@ export async function getServerSideProps(ctx) {
 
   const adminChannel = await ensureAdminNotificationChannel();
   const adminNotificationSettings = await getAdminNotificationSettings();  
-  const isReplicatedEnabled = process.env.REPLICATED_ENABLED === "true";
+  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
   return {
     props: {
       username: sess.user.name,
       hideDuration: true,
       notificationsChannel: adminChannel,
       initialNotificationSettings: adminNotificationSettings,
-      isReplicatedEnabled
+      isReplicatedEnabled,
+      isKOTSManaged,
+      showChromePluginTab,
     },
   };
 }

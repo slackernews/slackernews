@@ -59,7 +59,47 @@ if you are using the built-in `kind` cluster from `make dev-cluster`, add a Node
 Then you can open slackernews on localhost:3000 (you still need an ngrok or other tunnel to log in, etc), and you can
 access postgres locally on port 5432.
 
-If you are signing in for the first time, you will need to flip the admin bit for your user. (instructions coming soon)
+## Giving yourself Admin Privileges
+
+
+### With a helm value
+
+To get access to admin functionality, your user needs the `is_super_admin` column set to true in the database. 
+The quickest way to do this is to pass in an email address in `slackernews.adminUserEmails`.
+
+```
+    --set slackernews.adminUserEmails=<your email>
+```
+
+Be sure to use the email associated with the slack account you'll use to log in to slackernews.
+
+### With an env var
+
+You can also add yourself to the admins list by modifying a nextjs .env file
+
+```env
+SLACKERNEWS_ADMIN_USER_EMAILS=<your email>
+```
+
+Again, be sure to use the email associated with the slack account you'll use to log in to slackernews.
+
+### By modifying the database
+
+Once you have signed in for the first time, you can flip admin bit for your user with a database query. 
+These instructions are for a local kind cluster exposing postgres on 5432. 
+
+```shell
+psql --host 127.0.0.1 \slackernews --user slackernews \
+    -c "UPDATE slackernews_user SET is_super_admin = TRUE WHERE email_address = '<your email>'"
+```
+
+You can also create a port-forward with kubectl to make the above command work for a remote cluster:
+
+```shell
+kubectl port-forward svc/postgres 5432:5432
+```
+
+From there, you can log in navigate to `/admin` - you shouldn't need to [configure slack](../../CONTRIBUTING.md#configuring-a-slack-app) if you already passed credentials as helm values.
 
 ## Releasing
 

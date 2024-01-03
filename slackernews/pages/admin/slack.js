@@ -4,8 +4,16 @@ import { loadSession } from "../../lib/session";
 import cookies from 'next-cookies';
 import Link from "next/link";
 import { getParam, isSlackLoadedFromEnv } from "../../lib/param";
+import envConfig from "../../lib/env-config";
 
-export default function Page({ isConfiguredInEnv, initialBotToken, initialUserToken, initialClientId, initialClientSecret, isReplicatedEnabled}) {
+export default function Page({
+  isConfiguredInEnv,
+  initialBotToken,
+  initialUserToken,
+  initialClientId,
+  initialClientSecret,
+  isReplicatedEnabled
+}) {
   const [botToken, setBotToken] = useState(initialBotToken);
   const [userToken, setUserToken] = useState(initialUserToken);
   const [clientId, setClientId] = useState(initialClientId);
@@ -86,7 +94,11 @@ export default function Page({ isConfiguredInEnv, initialBotToken, initialUserTo
 
 Page.getLayout = function getLayout(page) {
   return (
-    <AdminLayout currentPage="slack" isReplicatedEnabled={page.props.isReplicatedEnabled}>
+    <AdminLayout currentPage="slack"
+                 isReplicatedEnabled={page.props.isReplicatedEnabled}
+                 isKOTSManaged={page.props.isKOTSManaged}
+                 showChromePluginTab={page.props.showChromePluginTab}
+    >
       {page}
     </AdminLayout>
   );
@@ -119,7 +131,7 @@ export async function getServerSideProps(ctx) {
   }
 
   const isConfiguredInEnv = await isSlackLoadedFromEnv();
-  const isReplicatedEnabled = process.env.REPLICATED_ENABLED === "true";
+  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
   return {
     props: {
       username: sess ? sess.user.name : "Anomymous",
@@ -129,7 +141,9 @@ export async function getServerSideProps(ctx) {
       initialUserToken: await getParam("SlackUserToken") || "",
       initialClientId: await getParam("SlackClientId") || "",
       initialClientSecret: await getParam("SlackClientSecret") || "",
-      isReplicatedEnabled
+      isReplicatedEnabled,
+      isKOTSManaged,
+      showChromePluginTab,
     },
   };
 }

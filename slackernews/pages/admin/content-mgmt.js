@@ -6,8 +6,17 @@ import Link from 'next/link';
 import { getTotalLinkCount, getUntitledLinkCount, listTopLinks } from "../../lib/link";
 import LinkRow from "../../components/link-row";
 import { getTotalScoreCount } from "../../lib/score";
+import envConfig from "../../lib/env-config";
 
-export default function Page({ linkCount, untitledLinkCount, totalScore, renderableLinks, nextPageUrl, startCount, isReplicatedEnabled }) {
+export default function Page({
+                               linkCount,
+                               untitledLinkCount,
+                               totalScore,
+                               renderableLinks,
+                               nextPageUrl,
+                               startCount,
+                               isReplicatedEnabled
+                             }) {
 
   const onEdited = (link, newTitle) => {
     const updatedLinks = renderableLinks.map(l => {
@@ -68,7 +77,11 @@ export default function Page({ linkCount, untitledLinkCount, totalScore, rendera
 Page.getLayout = function getLayout(page) {
 
   return (
-    <AdminLayout currentPage="content-mgmt" isReplicatedEnabled={page.props.isReplicatedEnabled}>
+    <AdminLayout currentPage="content-mgmt"
+                 isReplicatedEnabled={page.props.isReplicatedEnabled}
+                 isKOTSManaged={page.props.isKOTSManaged}
+                 showChromePluginTab={page.props.showChromePluginTab}
+    >
       {page}
     </AdminLayout>
   );
@@ -111,7 +124,8 @@ export async function getServerSideProps(ctx) {
     `/?p=${parseInt(page) + 1}`
   : null;
 
-  const isReplicatedEnabled = process.env.REPLICATED_ENABLED === "true";
+  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
+
 
   return {
     props: {
@@ -124,7 +138,9 @@ export async function getServerSideProps(ctx) {
       hasNextPage: renderableLinks.length === 30,
       nextPageUrl: nextPageUrl ? nextPageUrl : "",
       startCount: (parseInt(page) - 1) * 30 + 1,
-      isReplicatedEnabled
+      isReplicatedEnabled,
+      isKOTSManaged,
+      showChromePluginTab,
     },
   };
 }

@@ -29,6 +29,7 @@ spec:
     replicated:
       enabled: false
       preflights: false
+      isKOTSManaged: true
     nginx:
       enabled: repl{{ ConfigOption "nginx_enabled" | ParseBool }}
       service:

@@ -2,6 +2,7 @@ import AdminLayout from "../../components/admin-layout";
 import React from 'react';
 import { loadSession } from "../../lib/session";
 import cookies from 'next-cookies';
+import envConfig from "../../lib/env-config";
 
 export default function Page({ isHelm, namespace , isReplicatedEnabled}) {
 
@@ -33,7 +34,11 @@ Page.getLayout = function getLayout(page) {
   console.log(page,'page')
 
   return (
-    <AdminLayout currentPage="admin-console" isReplicatedEnabled={page.props.isReplicatedEnabled}>
+    <AdminLayout currentPage="admin-console"
+                 isReplicatedEnabled={page.props.isReplicatedEnabled}
+                 isKOTSManaged={page.props.isKOTSManaged}
+                 showChromePluginTab={page.props.showChromePluginTab}
+    >
       {page}
     </AdminLayout>
   );
@@ -42,7 +47,7 @@ Page.getLayout = function getLayout(page) {
 export async function getServerSideProps(ctx) {
   const c = cookies(ctx);
   const sess = await loadSession(c.auth);  
-   const isReplicatedEnabled = process.env.REPLICATED_ENABLED === "true";
+  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
 
   if (!sess) {
     return {
@@ -76,7 +81,9 @@ export async function getServerSideProps(ctx) {
       hideDuration: true,
       isHelm: process.env["INSTALL_METHOD"] === "helm",
       namespace,
-      isReplicatedEnabled
+      isReplicatedEnabled,
+      isKOTSManaged,
+      showChromePluginTab,
     },
   };
 }

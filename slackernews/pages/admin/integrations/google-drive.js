@@ -11,7 +11,8 @@ export default function Page({ isHelm, namespace }) {
     <>
       <h1>Google Drive</h1>
       <div>
-        <p>When enabled, SlackerNews will automatically update document titles for Google docs, sheets, slides, and forms.</p>
+        <p>When enabled, SlackerNews will automatically update document titles for Google docs, sheets, slides, and
+          forms.</p>
         <a href="https://docs.slackernews.io/integrations/google-drive">Docs</a>
         <form>
           <div className="form-group">
@@ -26,7 +27,12 @@ export default function Page({ isHelm, namespace }) {
 
 Page.getLayout = function getLayout(page) {
   return (
-    <AdminLayout currentPage="integrations">
+    <AdminLayout currentPage="integrations"
+                 isReplicatedEnabled={page.props.isReplicatedEnabled}
+                 isKOTSManaged={page.props.isKOTSManaged}
+                 showChromePluginTab={page.props.showChromePluginTab}
+    >
+
       {page}
     </AdminLayout>
   );

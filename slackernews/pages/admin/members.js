@@ -25,6 +25,7 @@ import Form from "react-bootstrap/Form";
 import ListGroup from "react-bootstrap/ListGroup";
 import { ReplicatedClient } from "../../lib/replicated-sdk";
 import Image from "next/image";
+import envConfig from "../../lib/env-config";
 
 export default function Page({
   initialUsers,
@@ -117,7 +118,8 @@ export default function Page({
     }
   }
 
-  const onRemoveClick = async (id) => {};
+  const onRemoveClick = async (id) => {
+  };
 
   const onMakeAdminOrUserClick = async (id, isAdmin) => {
     try {
@@ -355,7 +357,7 @@ export async function getServerSideProps(ctx) {
 
   const dailyUsers = await listDailyActiveUsers();
   const monthlyUsers = await listMonthlyActiveUsers();
-  const isReplicatedEnabled = process.env.REPLICATED_ENABLED === "true";
+  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
   //TODO: Pass this value from helm chart in for non-sdk installs
   const memberCountMax = isReplicatedEnabled
     ? (await ReplicatedClient.getEntitlement("member_count_max")).value
@@ -371,6 +373,8 @@ export async function getServerSideProps(ctx) {
       hideDuration: true,
       memberCountMax: memberCountMax,
       isReplicatedEnabled,
+      isKOTSManaged,
+      showChromePluginTab,
     },
   };
 }
