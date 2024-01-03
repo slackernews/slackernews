@@ -16,6 +16,7 @@ import {
   faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
 import { VersionHistory, Release } from "../../lib/replicated-sdk";
+import envConfig from "../../lib/env-config";
 
 type Updates = {
   versionLabel: string;
@@ -87,7 +88,7 @@ export default function Page({
     }, 60000); // update every minute
 
     return () => clearInterval(intervalId);
-  }, [updates]);
+  }, [updates, lastUpdatedDate]);
 
   const renderLastUpdated = () => {
     if (minutesPassed < 1) {
@@ -377,6 +378,8 @@ Page.getLayout = function getLayout(page: any) {
       currentPage="updates"
       isUpdateAvailable={undefined}
       isReplicatedEnabled={page.props.isReplicatedEnabled}
+      isKOTSManaged={page.props.isKOTSManaged}
+      showChromePluginTab={page.props.showChromePluginTab}
     >
       {page}
     </AdminLayout>
@@ -417,7 +420,8 @@ export async function getServerSideProps(ctx: {
     const upgradeCmd = await ReplicatedClient.getUpgradeCommand();
     const versionHistory = await ReplicatedClient.getVersionHistory();
 
-    const isReplicatedEnabled = process.env.REPLICATED_ENABLED === "true";
+    const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
+
 
     return {
       props: {
@@ -429,6 +433,8 @@ export async function getServerSideProps(ctx: {
         upgradeCmd,
         isReplicatedEnabled,
         versionHistory,
+        isKOTSManaged,
+        showChromePluginTab,
       },
     };
   }
