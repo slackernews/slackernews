@@ -3,11 +3,29 @@ import Footer from "./footer";
 import Head from "next/head";
 import Link from "next/link";
 import { titleCase } from "title-case";
-import getConfig from 'next/config';
 
-const { publicRuntimeConfig } = getConfig();
+export function BreadCrumbs({currentPage, childPage}) {
+  return (
+    <div className="breadcrumbs">
+      <Link href={"/"}>Home</Link>
+      {' '}
+      &raquo;
+      {' '}
+      <Link href={"/admin"}>Admin</Link>
+      {' '}
+      &raquo;
+      {' '}
+      {(!childPage) ? titleCase(currentPage) :
+        <>
+          <Link href={`/admin/${currentPage}`}>{titleCase(currentPage)}</Link>
+          {' '}
+          &raquo; {titleCase(childPage)}</>}
+    </div>
+  )
 
-export default function Layout({ children, currentPage, isReplicatedEnabled, isUpdateAvailable, }) {
+}
+
+export default function Layout({children, currentPage, isReplicatedEnabled, isUpdateAvailable, childPage}) {
 
   return (
     <>
@@ -16,19 +34,17 @@ export default function Layout({ children, currentPage, isReplicatedEnabled, isU
       </Head>
       <div className="col-lg-8 mx-auto" style={{ width: "85%" }}>
         <Navbar username={children.props.username} hideFilter={true} />
-        <div className="breadcrumbs">
-          Home &raquo; Admin &raquo; {titleCase(currentPage)}
-        </div>
         {isUpdateAvailable ? (
           <span>There is an update to SlackerNews available!</span>
         ) : null}
+        <BreadCrumbs currentPage={currentPage} childPage={childPage}/>
         <div className="body" style={{ display: "flex" }}>
           <div
             className="d-flex flex-column flex-shrink-0 p-3 bg-light"
             style={{ width: "280px" }}
           >
             <ul className="nav nav-pills flex-column mb-auto">
-              <li className="nav-item">
+              <li className={"nav-item"}>
                 <Link href="/admin/content-mgmt" className={`nav-link ${
                       currentPage === "content-mgmt" ? "active" : "link-dark"
                     }`}
@@ -42,7 +58,7 @@ export default function Layout({ children, currentPage, isReplicatedEnabled, isU
                       Content Rules
                   </Link>
                 </li> */}
-              <li>
+              <li className={"nav-item"}>
                 <Link href="/admin/members" className={`nav-link ${
                       currentPage === "members" ? "active" : "link-dark"
                     }`}
@@ -50,7 +66,7 @@ export default function Layout({ children, currentPage, isReplicatedEnabled, isU
                     Members
                 </Link>
               </li>
-              <li>
+              <li className={"nav-item"}>
                 <Link href="/admin/departments" className={`nav-link ${
                       currentPage === "departments" ? "active" : "link-dark"
                     }`}
@@ -61,7 +77,7 @@ export default function Layout({ children, currentPage, isReplicatedEnabled, isU
 
               {isReplicatedEnabled &&
               <>
-              <li>
+                  <li className={"nav-item"}>
                 <Link href="/admin/updates" className={`nav-link ${
                       currentPage === "updates" ? "active" : "link-dark"
                     }`}
@@ -69,7 +85,7 @@ export default function Layout({ children, currentPage, isReplicatedEnabled, isU
                     Updates
                 </Link>
               </li>
-              <li>
+                  <li className={"nav-item"}>
                 <Link href="/admin/support-bundle" className={`nav-link ${
                       currentPage === "support" ? "active" : "link-dark"
                     }`}
@@ -79,7 +95,7 @@ export default function Layout({ children, currentPage, isReplicatedEnabled, isU
               </li>
               </>
               }
-              <li>
+              <li className={"nav-item"}>
                 <Link href="/admin/admin-console" className={`nav-link ${
                       currentPage === "admin-console" ? "active" : "link-dark"
                     }`}
@@ -87,7 +103,7 @@ export default function Layout({ children, currentPage, isReplicatedEnabled, isU
                     Admin Console
                 </Link>
               </li>
-              <li>
+              <li className={"nav-item"}>
                 <Link href="/admin/admin-notifications" className={`nav-link ${
                       currentPage === "admin-notifications"
                         ? "active"
@@ -97,7 +113,7 @@ export default function Layout({ children, currentPage, isReplicatedEnabled, isU
                     Admin Notifications
                 </Link>
               </li>
-              <li>
+              <li className={"nav-item"}>
                 <Link href="/admin/integrations" className={`nav-link ${
                       currentPage === "integrations" ? "active" : "link-dark"
                     }`}
@@ -105,7 +121,7 @@ export default function Layout({ children, currentPage, isReplicatedEnabled, isU
                     Integrations
                 </Link>
               </li>
-              <li>
+              <li className={"nav-item"}>
                 <Link href="/admin/slack" className={`nav-link ${
                       currentPage === "slack" ? "active" : "link-dark"
                     }`}
@@ -113,7 +129,7 @@ export default function Layout({ children, currentPage, isReplicatedEnabled, isU
                     Slack
                 </Link>
               </li>
-              <li className="nav-item">
+              <li className={"nav-item"}>
                 <Link href="/admin/chrome-plugin" className={`nav-link ${
                       currentPage === "chrome-plugin" ? "active" : "link-dark"
                     }`}
@@ -123,7 +139,9 @@ export default function Layout({ children, currentPage, isReplicatedEnabled, isU
               </li>
             </ul>
           </div>
-          <main style={{ paddingLeft: "24px", width: "100%" }}>{children}</main>
+          <main style={{paddingLeft: "24px", width: "100%"}}>
+            {children}
+          </main>
         </div>
         <Footer hideSearch={true} />
       </div>

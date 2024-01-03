@@ -7,7 +7,15 @@ import { getTotalLinkCount, getUntitledLinkCount, listTopLinks } from "../../lib
 import LinkRow from "../../components/link-row";
 import { getTotalScoreCount } from "../../lib/score";
 
-export default function Page({ linkCount, untitledLinkCount, totalScore, renderableLinks, nextPageUrl, startCount, isReplicatedEnabled }) {
+export default function Page({
+                               linkCount,
+                               untitledLinkCount,
+                               totalScore,
+                               renderableLinks,
+                               nextPageUrl,
+                               startCount,
+                               isReplicatedEnabled
+                             }) {
 
   const onEdited = (link, newTitle) => {
     const updatedLinks = renderableLinks.map(l => {
@@ -98,15 +106,19 @@ export async function getServerSideProps(ctx) {
   }
 
   const linkCount = await getTotalLinkCount();
+
   const untitledLinkCount = await getUntitledLinkCount();
+
   const totalScore = await getTotalScoreCount();
+
 
   const duration = ctx.query.t ? ctx.query.t : "7d";
   const page = ctx.query.p ? ctx.query.p : "1";
+
   const renderableLinks = await listTopLinks(duration, page, sess.user.id, [], true, "");
 
   const nextPageUrl = renderableLinks.length === 30 ?
-  ctx.query.t ?
+    duration ?
     `/?t=${duration}&p=${parseInt(page) + 1}` :
     `/?p=${parseInt(page) + 1}`
   : null;

@@ -42,7 +42,7 @@ export default function Page({ integration }) {
 
 Page.getLayout = function getLayout(page) {
   return (
-    <AdminLayout currentPage="integrations">
+    <AdminLayout currentPage="integrations" childPage={page.props.integration.id}>
       {page}
     </AdminLayout>
   );

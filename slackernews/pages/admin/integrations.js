@@ -14,10 +14,10 @@ export default function Page({ initialIntegrations, isReplicatedEnabled }) {
 
   const cards = integrations.map((integration) => {
     return (
-      <div key={integration.id} className="col-sm-4">
-        <div className="card">
-          <div className="card-body">
-            <div className="integration-icon">
+      <div key={integration.id} className="grid col-sm-10 col-md-5 col-lg-4">
+        <div className="card mb-1">
+          <div className="card-body m-0">
+            <div className="integration-icon mb-2">
               <Image
                 src={`data:image/png;base64,${integration.icon}`}
                 width="30"
@@ -29,11 +29,12 @@ export default function Page({ initialIntegrations, isReplicatedEnabled }) {
                 {integration.title}
               </h5>
             </div>
-            <Link href={`/admin/integrations/${integration.id}`} className="btn btn-outline-secondary">Configure
+            <Link href={`/admin/integrations/${integration.id}`}
+                  className="btn btn-outline-secondary me-1 mb-1">Configure
             </Link>
             <Link
               href={`https://docs.slackernews.io/integrations/${integration.id}`}
-              className="btn btn-outline-secondary">Docs
+              className="btn btn-outline-secondary mb-1">Docs
             </Link>
             <br />
             <Toggle
@@ -79,9 +80,6 @@ export default function Page({ initialIntegrations, isReplicatedEnabled }) {
               }}
               checked={integration.is_enabled}
             />
-            <label htmlFor={`integration-${integration.id}-enabled`}>
-              Enabled
-            </label>
             <p>{integration.version}</p>
           </div>
         </div>

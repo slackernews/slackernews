@@ -377,6 +377,7 @@ Page.getLayout = function getLayout(page: any) {
       currentPage="updates"
       isUpdateAvailable={undefined}
       isReplicatedEnabled={page.props.isReplicatedEnabled}
+      childPage={null} // cmon tsx...
     >
       {page}
     </AdminLayout>
