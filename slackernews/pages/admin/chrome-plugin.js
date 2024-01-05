@@ -29,7 +29,7 @@ export default function Page({ isEnabled, token, isReplicatedEnabled }) {
 
 Page.getLayout = function getLayout(page) {
   return (
-    <AdminLayout currentPage="chrome-plugin" isReplicatedEnabled={page.props.isReplicatedEnabled}>
+    <AdminLayout currentPage="chrome-plugin" slackernewsVersion={page.props.slackernewsVersion} isReplicatedEnabled={page.props.isReplicatedEnabled}>
       {page}
     </AdminLayout>
   );
@@ -67,6 +67,7 @@ export async function getServerSideProps(ctx) {
       hideDuration: true,
       isEnabled: chromePluginConfig.enabled,
       token: chromePluginConfig.token,
+      slackernewsVersion: process.env["SLACKERNEWS_VERSION"],
       isReplicatedEnabled
     },
   };

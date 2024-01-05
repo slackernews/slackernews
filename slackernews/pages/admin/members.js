@@ -370,6 +370,7 @@ export async function getServerSideProps(ctx) {
       username: sess.user.name,
       hideDuration: true,
       memberCountMax: memberCountMax,
+      slackernewsVersion: process.env["SLACKERNEWS_VERSION"],
       isReplicatedEnabled,
     },
   };

@@ -376,6 +376,7 @@ Page.getLayout = function getLayout(page: any) {
     <AdminLayout
       currentPage="updates"
       isUpdateAvailable={undefined}
+      slackernewsVersion={page.props.slackernewsVersion}
       isReplicatedEnabled={page.props.isReplicatedEnabled}
     >
       {page}
@@ -427,6 +428,7 @@ export async function getServerSideProps(ctx: {
         installPreflightCmd,
         preflightCmd,
         upgradeCmd,
+        slackernewsVersion: process.env["SLACKERNEWS_VERSION"],
         isReplicatedEnabled,
         versionHistory,
       },

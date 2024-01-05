@@ -50,12 +50,15 @@ slack:
 
 slackernews:
   domain: ""
+  # set default admin users
   adminUserEmails: ""
+  # display running version on admin dashboard
+  version: "$TAG"
 
 images:
   pullSecrets:
     replicated:
       name: proxypullsecret
   slackernews:
-    repository: $REGISTRY/$IMAGE
+    repository: "$REGISTRY/$IMAGE:$TAG"
     pullPolicy: IfNotPresent

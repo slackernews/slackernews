@@ -84,14 +84,22 @@ jobs:
         with:
           include: 'chart/slackernews/values.yaml'
           find: '$IMAGE'
-          replace: 'proxy/${{ secrets.REPLICATED_APP }}/ghcr.io/${{ secrets.GHCR_NAMESPACE }}/slackernews-web:${{ steps.get_version.outputs.version-without-v }}'
+          replace: 'proxy/${{ secrets.REPLICATED_APP }}/ghcr.io/${{ secrets.GHCR_NAMESPACE }}/slackernews-web'
+          regex: false
+
+      - name: Update the values.yaml with the image path
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          include: 'chart/slackernews/values.yaml'
+          find: '$TAG'
+          replace: '${{ steps.get_version.outputs.version-without-v }}'
           regex: false
 
       - name: Update the KOTS HelmChart CR with the image path
         uses: jacobtomlinson/gha-find-replace@v2
         with:
           include: 'kots/slackernews-chart.yaml'
-          find: '$IMAGE'
+          find: '$IMAGE_WITH_TAG'
           replace: 'ghcr.io/${{ secrets.GHCR_NAMESPACE }}/slackernews-web:${{ steps.get_version.outputs.version-without-v }}'
           regex: false
 

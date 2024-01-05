@@ -68,7 +68,7 @@ export default function Page({ linkCount, untitledLinkCount, totalScore, rendera
 Page.getLayout = function getLayout(page) {
 
   return (
-    <AdminLayout currentPage="content-mgmt" isReplicatedEnabled={page.props.isReplicatedEnabled}>
+    <AdminLayout currentPage="content-mgmt" slackernewsVersion={page.props.slackernewsVersion} isReplicatedEnabled={page.props.isReplicatedEnabled}>
       {page}
     </AdminLayout>
   );
@@ -124,6 +124,8 @@ export async function getServerSideProps(ctx) {
       hasNextPage: renderableLinks.length === 30,
       nextPageUrl: nextPageUrl ? nextPageUrl : "",
       startCount: (parseInt(page) - 1) * 30 + 1,
+      slackernewsVersion: process.env["SLACKERNEWS_VERSION"],
+
       isReplicatedEnabled
     },
   };

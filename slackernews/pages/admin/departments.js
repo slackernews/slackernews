@@ -69,7 +69,7 @@ export default function Page({ initialDepartments ,isReplicatedEnabled}) {
 
 Page.getLayout = function getLayout(page) {
   return (
-    <AdminLayout currentPage="departments" isReplicatedEnabled={page.props.isReplicatedEnabled}>
+    <AdminLayout currentPage="departments" slackernewsVersion={page.props.slackernewsVersion} isReplicatedEnabled={page.props.isReplicatedEnabled}>
       {page}
     </AdminLayout>
   );
@@ -115,6 +115,7 @@ export async function getServerSideProps(ctx) {
       username: sess.user.name,
       hideDuration: true,
       initialDepartments: userGroupsFromSlack,
+      slackernewsVersion: process.env["SLACKERNEWS_VERSION"],
       isReplicatedEnabled
     },
   };

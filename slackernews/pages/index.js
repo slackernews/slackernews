@@ -100,6 +100,7 @@ export async function getServerSideProps(ctx) {
       userId: sess ? sess.user.id : "",
       duration: duration,
       isSuperAdmin: sess ? sess.user.isSuperAdmin : false,
+      slackernewsVersion: process.env["SLACKERNEWS_VERSION"],
       isReplicatedEnabled: process.env.REPLICATED_ENABLED === "true"
     },
   };

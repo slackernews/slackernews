@@ -51,7 +51,7 @@ spec:
           dockerconfigjson: ""
       slackernews:
         pullSecret: repl{{ ImagePullSecretName }}
-        repository: repl{{ LocalImageName "$IMAGE" }}
+        repository: repl{{ LocalImageName "$IMAGE_WITH_TAG" }}
   # builder values provide a way to render the chart with all images
   # and manifests. this is used in replicated to create airgap packages
   builder:

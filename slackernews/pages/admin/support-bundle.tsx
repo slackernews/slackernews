@@ -81,6 +81,7 @@ Page.getLayout = function getLayout(page: any) {
     <AdminLayout
       currentPage="support"
       isUpdateAvailable={undefined}
+      slackernewsVersion={page.props.slackernewsVersion}
       isReplicatedEnabled={page.props.isReplicatedEnabled}
     >
       {page}
@@ -118,6 +119,7 @@ export async function getServerSideProps(ctx: {
 
     return {
       props: {
+        slackernewsVersion: process.env["SLACKERNEWS_VERSION"],
         isReplicatedEnabled,
       },
     };

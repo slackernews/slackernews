@@ -86,7 +86,7 @@ export default function Page({ isConfiguredInEnv, initialBotToken, initialUserTo
 
 Page.getLayout = function getLayout(page) {
   return (
-    <AdminLayout currentPage="slack" isReplicatedEnabled={page.props.isReplicatedEnabled}>
+    <AdminLayout currentPage="slack" slackernewsVersion={page.props.slackernewsVersion} isReplicatedEnabled={page.props.isReplicatedEnabled}>
       {page}
     </AdminLayout>
   );
@@ -129,6 +129,7 @@ export async function getServerSideProps(ctx) {
       initialUserToken: await getParam("SlackUserToken") || "",
       initialClientId: await getParam("SlackClientId") || "",
       initialClientSecret: await getParam("SlackClientSecret") || "",
+      slackernewsVersion: process.env["SLACKERNEWS_VERSION"],
       isReplicatedEnabled
     },
   };

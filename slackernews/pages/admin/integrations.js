@@ -100,6 +100,7 @@ Page.getLayout = function getLayout(page) {
   return (
     <AdminLayout
       currentPage="integrations"
+      slackernewsVersion={page.props.slackernewsVersion}
       isReplicatedEnabled={page.props.isReplicatedEnabled}
     >
       {page}
@@ -138,6 +139,7 @@ export async function getServerSideProps(ctx) {
       username: sess.user.name,
       hideDuration: true,
       initialIntegrations: integrations,
+      slackernewsVersion: process.env["SLACKERNEWS_VERSION"],
       isReplicatedEnabled,
     },
   };

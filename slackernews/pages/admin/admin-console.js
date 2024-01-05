@@ -33,7 +33,7 @@ Page.getLayout = function getLayout(page) {
   console.log(page,'page')
 
   return (
-    <AdminLayout currentPage="admin-console" isReplicatedEnabled={page.props.isReplicatedEnabled}>
+    <AdminLayout currentPage="admin-console" slackernewsVersion={page.props.slackernewsVersion} isReplicatedEnabled={page.props.isReplicatedEnabled}>
       {page}
     </AdminLayout>
   );
@@ -76,7 +76,8 @@ export async function getServerSideProps(ctx) {
       hideDuration: true,
       isHelm: process.env["INSTALL_METHOD"] === "helm",
       namespace,
-      isReplicatedEnabled
+      slackernewsVersion: process.env["SLACKERNEWS_VERSION"],
+      isReplicatedEnabled,
     },
   };
 }

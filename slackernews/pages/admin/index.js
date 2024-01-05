@@ -14,7 +14,7 @@ export default function Page({isReplicatedEnabled }) {
 
 Page.getLayout = function getLayout(page) {
   return (
-    <Layout isReplicatedEnabled={page.props.isReplicatedEnabled}>
+    <Layout slackernewsVersion={page.props.slackernewsVersion} isReplicatedEnabled={page.props.isReplicatedEnabled}>
       {page}
     </Layout>
   );
@@ -31,7 +31,10 @@ export async function getServerSideProps(ctx) {
         permanent: false,
         destination: "/login",
       },
-      props:{isReplicatedEnabled},
+      props:{
+        slackernewsVersion: process.env["SLACKERNEWS_VERSION"],
+        isReplicatedEnabled,
+      },
     };
   }
 
@@ -40,6 +43,9 @@ export async function getServerSideProps(ctx) {
       permanent: false,
       destination: "/admin/members",
     },
-    props:{isReplicatedEnabled},
+    props:{
+      slackernewsVersion: process.env["SLACKERNEWS_VERSION"],
+      isReplicatedEnabled,
+    },
   };
 }

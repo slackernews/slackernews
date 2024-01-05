@@ -67,7 +67,7 @@ export default function Page({ notificationsChannel, initialNotificationSettings
 
 Page.getLayout = function getLayout(page) {
   return (
-    <AdminLayout currentPage="admin-notifications" isReplicatedEnabled={page.props.isReplicatedEnabled}>
+    <AdminLayout currentPage="admin-notifications" slackernewsVersion={page.props.slackernewsVersion} isReplicatedEnabled={page.props.isReplicatedEnabled}>
       {page}
     </AdminLayout>
   );
@@ -105,6 +105,7 @@ export async function getServerSideProps(ctx) {
       hideDuration: true,
       notificationsChannel: adminChannel,
       initialNotificationSettings: adminNotificationSettings,
+      slackernewsVersion: process.env["SLACKERNEWS_VERSION"],
       isReplicatedEnabled
     },
   };
