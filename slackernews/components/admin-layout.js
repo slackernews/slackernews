@@ -4,17 +4,21 @@ import Head from "next/head";
 import Link from "next/link";
 import { titleCase } from "title-case";
 import getConfig from 'next/config';
+import * as React from "react";
 
 const { publicRuntimeConfig } = getConfig();
 
-export default function Layout({
-  children,
-  currentPage,
-  isReplicatedEnabled,
-  isUpdateAvailable,
-  isKOTSManaged,
-  showChromePluginTab
-}) {
+export default function Layout(
+  {
+    children,
+    currentPage,
+    isReplicatedEnabled,
+    isUpdateAvailable,
+    slackernewsVersion,
+    isKOTSManaged,
+    showChromePluginTab
+  }
+) {
 
   return (
     <>
@@ -22,7 +26,7 @@ export default function Layout({
         <title>SlackerNews: Admin</title>
       </Head>
       <div className="col-lg-8 mx-auto" style={{ width: "85%" }}>
-        <Navbar username={children.props.username} hideFilter={true} />
+        <Navbar slackernewsVersion={slackernewsVersion} username={children.props.username} hideFilter={true} />
         <div className="breadcrumbs">
           Home &raquo; Admin &raquo; {titleCase(currentPage)}
         </div>
@@ -136,6 +140,7 @@ export default function Layout({
           </div>
           <main style={{ paddingLeft: "24px", width: "100%" }}>{children}</main>
         </div>
+        <i style={{fontSize: "12px", textAlign: "center"}}>Slackernews version {slackernewsVersion}</i>
         <Footer hideSearch={true} />
       </div>
     </>

@@ -84,6 +84,7 @@ Page.getLayout = function getLayout(page: any) {
     <AdminLayout
       currentPage="support"
       isUpdateAvailable={undefined}
+      slackernewsVersion={page.props.slackernewsVersion}
       isReplicatedEnabled={page.props.isReplicatedEnabled}
       isKOTSManaged={page.props.isKOTSManaged}
       showChromePluginTab={page.props.showChromePluginTab}
@@ -124,6 +125,7 @@ export async function getServerSideProps(ctx: {
 
     return {
       props: {
+        slackernewsVersion: process.env["SLACKERNEWS_VERSION"],
         isReplicatedEnabled,
         isKOTSManaged,
         showChromePluginTab,

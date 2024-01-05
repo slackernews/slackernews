@@ -15,7 +15,9 @@ export default function Page({isReplicatedEnabled, isKOTSManaged}) {
 
 Page.getLayout = function getLayout(page) {
   return (
-    <Layout isReplicatedEnabled={page.props.isReplicatedEnabled} isKOTSManaged={page.props.isKOTSManaged}>
+    <Layout slackernewsVersion={page.props.slackernewsVersion}
+            isReplicatedEnabled={page.props.isReplicatedEnabled}
+            isKOTSManaged={page.props.isKOTSManaged}>
       {page}
     </Layout>
   );
@@ -36,6 +38,7 @@ export async function getServerSideProps(ctx) {
         isReplicatedEnabled,
         isKOTSManaged,
         showChromePluginTab,
+        slackernewsVersion: process.env["SLACKERNEWS_VERSION"],
       },
     };
   }
@@ -45,6 +48,9 @@ export async function getServerSideProps(ctx) {
       permanent: false,
       destination: "/admin/members",
     },
-    props:{isReplicatedEnabled},
+    props:{
+      slackernewsVersion: process.env["SLACKERNEWS_VERSION"],
+      isReplicatedEnabled,
+    },
   };
 }
