@@ -10,9 +10,21 @@ spec:
           url: https://api.slack.com/methods/api.test
     - postgres:
         collectorName: postgres
-        uri: 'postgresql://slackernews:password@localhost:5432/slackernews?sslmode=require'
-
+        uri: '{{repl if ConfigOptionEquals "deploy_postgres" "1"}}postgresql://slackernews:{{repl ConfigOption "postgres_password"}}@postgres:5432/slackernews{{repl else}}{{repl ConfigOption "postgres_external_uri"}}{{repl end}}'
   analyzers:
+    - postgres:
+        exclude: '{{repl ConfigOptionEquals "deploy_postgres" "1"}}'
+        checkName: Postgres Check
+        collectorName: postgres
+        outcomes:
+          - fail:
+              when: connected == false
+              message: Cannot connect to PostgreSQL server
+          - fail:
+              when: version < 10.x
+              message: The PostgreSQL server must be at least version 10
+          - pass:
+              message: The PostgreSQL server is ready
     - clusterVersion:
         outcomes:
           - fail:

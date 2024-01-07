@@ -3,8 +3,9 @@ kind: Deployment
 metadata:
   name: slackernews-frontend
   annotations:
-    # if you're using a chart-managed secret, this will roll the deployment when the secret changes
+    # if you're using a chart-managed secret, these will roll the deployment when the secret(s) change
     checksum/slackernews-slack: {{ include (print $.Template.BasePath "/slack-secret.yaml") . | sha256sum }}
+    checksum/slackernews-postgres: {{ include (print $.Template.BasePath "/postgres-secret.yaml") . | sha256sum }}
 spec:
   selector:
     matchLabels:
