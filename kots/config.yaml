@@ -132,17 +132,17 @@ spec:
         
         Instructions on how to configure your slack application and collect these values can be found in [the SlackerNewa slack documentation](https://docs.slackernews.io/slack/).
       items:
-        - name: slack_user_token
-          title: User OAuth Token
-          type: password
-        - name: slack_bot_token
-          title: Bot User OAuth Token
-          type: password
         - name: slack_clientid
           title: Slack Client ID
           type: text
         - name: slack_clientsecret
           title: Slack Client Secret
+          type: password
+        - name: slack_user_token
+          title: User OAuth Token
+          type: password
+        - name: slack_bot_token
+          title: Bot User OAuth Token
           type: password
     - name: admin_users
       title: Admin Users
