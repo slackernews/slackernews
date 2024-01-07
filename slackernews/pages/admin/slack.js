@@ -14,13 +14,19 @@ export default function Page({
   initialClientSecret,
   isReplicatedEnabled
 }) {
-  const [botToken, setBotToken] = useState(initialBotToken);
-  const [userToken, setUserToken] = useState(initialUserToken);
   const [clientId, setClientId] = useState(initialClientId);
-  const [clientSecret, setClientSecret] = useState(initialClientSecret);
+
+  const [botToken, setBotToken] = useState("");
+  const [userToken, setUserToken] = useState("");
+  const [clientSecret, setClientSecret] = useState("");
+
+  const buttonClassNames = buttonError ? "mt-2 btn btn-primary bg-danger border-danger" : "mt-2 btn btn-primary";
 
   const onSaveClick = async (ev) => {
     ev.preventDefault();
+    setSaveErrorToast(null);
+    setButtonError(false);
+    setIsSaving(true);
     try {
       const res = await fetch(`/api/admin/slack`, {
         method: "PUT",
@@ -35,58 +41,83 @@ export default function Page({
         }),
       });
       if (res.status !== 200) {
-        throw new Error("Error saving Slack configuration");
+        const responseBody = await res.json();
+        throw new Error(`Error: ${responseBody.error}`);
       }
     } catch (err) {
-      console.error(err);
+      setSaveErrorToast(err.message);
+      setButtonError(true);
+      setTimeout(() => {
+        setButtonError(null);
+      }, 2000)
+    } finally {
+      setIsSaving(false);
     }
+  }
+
+  function justShowSlackClientID(clientId) {
+    return <>
+      <div className="alert alert-warning" role="alert">
+        The Slack configuration was provided in the <Link href="/admin/admin-console">Admin Console</Link> configuration
+        and is not editable here. To reconfigure the Slack integration, please update the configuration in the Admin
+        Console or Helm Values.
+      </div>
+      <form>
+        <div className="form-group">
+          <label htmlFor="slackClientId">Client ID</label>
+          <input type="text" disabled className="form-control" id="slackClientId" placeholder="Enter client ID"
+                 value={clientId}/>
+        </div>
+      </form>
+    </>;
   }
 
   return (
     <>
       <h1>Slack Configuration</h1>
       <div>
-        { isConfiguredInEnv ?
-          <div className="alert alert-warning" role="alert">
-            The Slack configuration was provided in the <Link href="/admin/admin-console">Admin Console</Link> configuration
-            and is not editable here. To reconfigure the Slack integration, please update the configuration in the Admin Console.
-          </div>
-          :
+        { isConfiguredInEnv ? justShowSlackClientID(clientId) :
+          <>
           <div className="alert alert-info" role="alert">
             Instructions for creating and configuring the Slack application can be found in the <Link href="https://docs.slackernews.io/slack">documentation</Link>.
           </div>
-      }
-        <form>
-          <div className="form-group">
+          <form>
+            <div className="form-group">
 
-            <label htmlFor="slackBotToken">Bot Token</label>
-            <input type="text" disabled={isConfiguredInEnv} className="form-control" id="slackBotToken" placeholder="Enter bot token" value={botToken} onChange={(e) => {
-              setBotToken(e.target.value);
-            }} />
+              <label htmlFor="slackClientId">Client ID</label>
+              <input type="text" disabled={isSaving} className="form-control" id="slackClientId" placeholder="Enter client ID" value={clientId} onChange={(e) => {
+                setClientId(e.target.value);
+              }} />
 
-            <label htmlFor="slackUserToken">User Token</label>
-            <input type="text" disabled={isConfiguredInEnv} className="form-control" id="slackUserToken" placeholder="Enter user token" value={userToken} onChange={(e) => {
-              setUserToken(e.target.value);
-            }} />
+              <label htmlFor="slackClientSecret">Client Secret</label>
+              <input type="password" disabled={isSaving} className="form-control" id="slackClientSecret" placeholder="" value={clientSecret} onChange={(e) => {
+                setClientSecret(e.target.value);
+              }} />
 
-            <label htmlFor="slackClientId">Client ID</label>
-            <input type="text" disabled={isConfiguredInEnv} className="form-control" id="slackClientId" placeholder="Enter client ID" value={clientId} onChange={(e) => {
-              setClientId(e.target.value);
-            }} />
+              <label htmlFor="slackUserToken">User Token</label>
+              <input type="password" disabled={isSaving} className="form-control" id="slackUserToken" placeholder="xoxp-" value={userToken} onChange={(e) => {
+                setUserToken(e.target.value);
+              }} />
 
-            <label htmlFor="slackClientSecret">Client Secret</label>
-            <input type="text" disabled={isConfiguredInEnv} className="form-control" id="slackClientSecret" placeholder="Enter client secret" value={clientSecret} onChange={(e) => {
-              setClientSecret(e.target.value);
-            }} />
+              <label htmlFor="slackBotToken">Bot Token</label>
+              <input type="password" disabled={isSaving} className="form-control" id="slackBotToken" placeholder="xoxb-" value={botToken} onChange={(e) => {
+                setBotToken(e.target.value);
+              }} />
 
-          </div>
+            </div>
+          </form>
 
-          {
-            isConfiguredInEnv ? null :
-              <button type="submit" className="btn btn-primary" onClick={onSaveClick}>Update</button>
-          }
+            <div className="flex-row">
+          <button disabled={isSaving || buttonError} type="submit" className={buttonClassNames} onClick={onSaveClick}>
+            { isSaving ? "Saving..." : "Update" }
+            </button>
+              <p className="text-danger">
+                {saveErrorToast}
+              </p>
+            </div>
+          </>
 
-        </form>
+        }
       </div>
     </>
   )
@@ -137,10 +168,7 @@ export async function getServerSideProps(ctx) {
       username: sess ? sess.user.name : "Anomymous",
       hideDuration: true,
       isConfiguredInEnv: isConfiguredInEnv,
-      initialBotToken: await getParam("SlackBotToken") || "",
-      initialUserToken: await getParam("SlackUserToken") || "",
       initialClientId: await getParam("SlackClientId") || "",
-      initialClientSecret: await getParam("SlackClientSecret") || "",
       isReplicatedEnabled,
       isKOTSManaged,
       showChromePluginTab,
