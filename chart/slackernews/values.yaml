@@ -1,11 +1,22 @@
 postgres:
+  # tells slackernews to use postgres as the
+  # backing database instead of sqlite
   enabled: false
+  # deploys a postgresql workload to the cluster
   deploy_postgres: false
+  # the password to use with deploy_postgres
   password: ""
+  # if deploy_postgres is false, provide a URI
   uri: ""
+
+  # use a value in an existing secret instead of
+  # .postgres.password OR .postgres.uri
   existingSecretName: ""
+  # key in the secret that contains the password
   existingSecretPasswordKey: ""
+  # key in the secret that contains the uri
   existingSecretUriKey: ""
+  # service type if deploy_postgres is true
   service:
     type: ClusterIP
     nodePort:
