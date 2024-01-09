@@ -1,0 +1,4 @@
+apiVersion: embeddedcluster.replicated.com/v1beta1
+kind: Config
+spec:
+  version: 1.28.4+ec.5
