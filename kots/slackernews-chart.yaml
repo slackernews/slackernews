@@ -6,7 +6,7 @@ spec:
   # chart identifies a matching chart from a .tgz
   chart:
     name: slackernews
-    chartVersion: 1.0.10
+    chartVersion: $VERSION
 
   # values are used in the customer environment, as a pre-render step
   # these values will be supplied to helm template
