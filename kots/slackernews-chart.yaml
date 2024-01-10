@@ -6,7 +6,7 @@ spec:
   # chart identifies a matching chart from a .tgz
   chart:
     name: slackernews
-    chartVersion: $VERSION
+    chartVersion: 1.0.10
 
   # values are used in the customer environment, as a pre-render step
   # these values will be supplied to helm template
@@ -30,20 +30,11 @@ spec:
       enabled: false
       preflights: false
     nginx:
+      enabled: true 
       service:
-        type: repl{{ ConfigOption "nginx_service_type" }}
+        type: repl{{ ConfigOption "service_type" }}
         nodePort:
-          port: repl{{ ConfigOption "nginx_node_port_port" }}
-    service:
-      type: repl{{ ConfigOption "slackernews_service_type" }}
-      nodePort:
-        port: repl{{ ConfigOption "slackernews_node_port_port" }}
-      tls:
-        enabled: true
-        cert: |
-          repl{{ ConfigOption "tls_cert" | nindent 10 }}
-        key: |
-          repl{{ ConfigOption "tls_key" | nindent 10 }}
+          port: repl{{ ConfigOption "node_port_port" }}
     images:
       pullSecrets:
         replicated:
@@ -58,3 +49,30 @@ spec:
       password: repl{{ ConfigOption "postgres_password"}}
     admin-console:
       enabled: false
+
+  optionalValues:
+    - when: '{{repl ConfigOptionEquals "certificate_source" "upload_existing"}}'
+      recursiveMerge: true
+      values:
+        service:
+          tls:
+            enabled: true
+            cert: repl{{ ConfigOptionData "tls_cert" | nindent 14 }}
+            key: repl{{ ConfigOptionData "tls_key" | nindent 14 }}
+            ca: repl{{ ConfigOptionData "tls_ca" | nindent 14 }}
+        
+    - when: '{{repl ConfigOptionEquals "certificate_source" "generate_internal"}}'
+      recursiveMerge: true
+      values:
+        service:
+          tls:
+            enabled: true
+            ca: |-
+              {{repl $ca := genCA (LicenseFieldValue "customerName") 365 }}
+              {{repl $ca.Cert | Base64Encode}}
+            cert: |-
+              {{repl $cert := genSignedCert (ConfigOption "slackernews_domain") nil (list (ConfigOption "slackernews_domain")) 365 $ca }}
+              {{repl $cert.Cert | nindent 14 }}
+            key: |-
+              {{repl $cert.Key | nindent 14 }}
+ 

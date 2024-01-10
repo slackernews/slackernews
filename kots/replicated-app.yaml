@@ -14,9 +14,9 @@ spec:
       localPort: 3000
       applicationUrl: "http://slackernews"
   statusInformers:
-    - deployment/slackernews
-    - '{{repl if ConfigOptionEquals "deploy_postgres" "1"}}statefulset/postgres{{repl end}}'
+    - deployment/slackernews-frontend
     - deployment/slackernews-nginx
+    - '{{repl if ConfigOptionEquals "deploy_postgres" "1"}}statefulset/postgres{{repl end}}'
   graphs:
     - title: DAU
       query: 'sum(user_signup_events_total)'
