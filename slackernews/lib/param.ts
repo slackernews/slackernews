@@ -20,7 +20,6 @@ let params: Params = {
   isSlackLoadedFromEnv: false,
   DBUri: process.env["DB_URI"]!,
 };
-
 const { Sequelize, DataTypes } = require('sequelize');
 
 export async function DefaultAdminNotifications() {
@@ -134,10 +133,13 @@ export async function SlackerNewsConfig() {
 }
 
 export async function loadParams() {
+  console.log("loadParams() called");
+  // Sets params 
+  params.DBUri = process.env["DB_URI"]!;
+
   // load slack params from db
   // the dbURI is always present
-  await initDb(params.DBUri);
-
+  await initDb(params.DBUri!);
   const rows = await (await SlackerNewsConfig()).findAll();
 
   for (const row of rows) {
@@ -242,7 +244,7 @@ export async function getParam(key: string): Promise<any> {
   if (!params.isLoaded && isSlackParam(key)) {
     await loadParams();
   }
-
+  
   switch (key) {
     case "DBUri":
       return params.DBUri;

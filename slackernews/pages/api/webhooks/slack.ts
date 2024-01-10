@@ -162,9 +162,10 @@ async function handleSlackLinkSharedEvent(channelId: string, userId: string, ts:
 
   // create the share in the database
   const share = await createShare(cleanedUrl, permalink, user.id, channel.id, ts, parsedTs);
-
+  console.log(share);
   // update the score in the database
   await scoreShare(cleanedUrl, parsedTs);
+  console.log("scored");
 }
 
 function slackTSToTime(ts: string): Date {

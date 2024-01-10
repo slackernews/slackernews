@@ -1,6 +1,7 @@
 {
   "name": "slackernews",
   "private": true,
+  
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -25,6 +26,8 @@
     "cheerio": "^1.0.0-rc.12",
     "cookies": "^0.8.0",
     "cronstrue": "^1.122.0",
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.3.1",
     "google": "^2.1.0",
     "googleapis": "^126.0.0",
     "jsonwebtoken": "^9.0.0",
@@ -50,6 +53,7 @@
     "sqlite3": "^5.1.6",
     "styled-components": "^5.3.3",
     "title-case": "^3.0.3",
+    "ts-import": "^5.0.0-beta.0",
     "typescript-cacheable": "^3.0.3"
   },
   "devDependencies": {
