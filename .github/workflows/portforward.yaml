@@ -175,9 +175,9 @@ jobs:
         run: |
           echo "${{ steps.create-cluster.outputs.cluster-kubeconfig }}" > ./kubeconfig
 
-      - name: wait for the slackernews-frontend pod to be running
+      - name: wait for the slackernews pod to be running
         run: |
-          kubectl --kubeconfig ./kubeconfig wait --for=condition=Ready pod -l app=slackernews-frontend -n slackernews --timeout=300s
+          kubectl --kubeconfig ./kubeconfig wait --for=condition=Ready pod -l app=slackernews -n slackernews --timeout=300s
 
       - name: wait for the replicated pod to be running
         run: |
@@ -192,7 +192,7 @@ jobs:
         env:
           KUBECONFIG: ./kubeconfig
         with:
-          workload: 'svc/slackernews-frontend'
+          workload: 'svc/slackernews'
           mappings: '3000:3000'
           options: '--namespace=slackernews'
 

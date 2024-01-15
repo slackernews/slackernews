@@ -188,9 +188,9 @@ jobs:
           mkdir -p ~/.kube
           echo "${{ steps.create-cluster.outputs.cluster-kubeconfig }}" > ~/.kube/config
 
-      - name: wait for the slackernews-frontend pod to be running
+      - name: wait for the slackernews pod to be running
         run: |
-          kubectl wait --for=condition=Ready pod -l app=slackernews-frontend -n slackernews --timeout=300s
+          kubectl wait --for=condition=Ready pod -l app=slackernews -n slackernews --timeout=300s
 
       - name: wait for the replicated pod to be running
         run: |

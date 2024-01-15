@@ -6,7 +6,7 @@ spec:
   steps:
   - try:
     - assert:
-        file: slackernews-frontend-deployment.yaml
+        file: slackernews-deployment.yaml
     - assert:
         file: replicated-deployment.yaml
     - assert:

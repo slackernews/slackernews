@@ -4,14 +4,14 @@ metadata:
   name: slackernews-support-bundle
   labels:
     troubleshoot.sh/kind: support-bundle
-stringData: 
+stringData:
   support-bundle-spec: |-
     apiVersion: troubleshoot.sh/v1beta2
     kind: SupportBundle
     metadata:
       name: slackernews-support-bundle
     spec:
-      collectors:      
+      collectors:
         - clusterInfo: {}
         - clusterResources:
           namespace: {{ .Release.Namespace }}
@@ -30,11 +30,11 @@ stringData:
         - logs:
             namespace: {{ .Release.Namespace }}
             selector:
-              - app=slackernews-frontend
+              - app=slackernews
         - logs:
             selector:
               - app=postgres
-      analyzers:      
+      analyzers:
         - clusterVersion:
             outcomes:
             - fail:
@@ -50,7 +50,7 @@ stringData:
                 message: Your cluster meets the recommended and quired versions of Kubernetes.
         - textAnalyze:
             checkName: Axios Errors
-            fileName: slackernews-frontend-*/slackernews.log
+            fileName: slackernews-*/slackernews.log
             regex: "error - AxiosError"
             outcomes:
               - pass:

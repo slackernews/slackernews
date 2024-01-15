@@ -30,7 +30,6 @@ spec:
       enabled: false
       preflights: false
     nginx:
-      enabled: repl{{ ConfigOption "nginx_enabled" | ParseBool }}
       service:
         type: repl{{ ConfigOption "nginx_service_type" }}
         nodePort:

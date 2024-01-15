@@ -2,8 +2,8 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: slackernews-frontend
-  name: slackernews-frontend
+    app: slackernews
+  name: slackernews
 spec:
   ports:
   - name: http
@@ -13,5 +13,5 @@ spec:
     nodePort: {{ .Values.service.nodePort.port }}
 {{- end }}
   selector:
-    app: slackernews-frontend
+    app: slackernews
   type: {{ .Values.service.type }}

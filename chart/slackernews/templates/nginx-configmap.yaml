@@ -1,12 +1,11 @@
-{{ if .Values.nginx.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: slackernews-nginx
 data:
   default.conf: |-
-    upstream slackernews-frontend {
-      server slackernews-frontend:3000;
+    upstream slackernews {
+      server slackernews:3000;
     }
 
     server {
@@ -25,8 +24,6 @@ data:
       proxy_read_timeout 120s;
 
       location / {
-        proxy_pass http://slackernews-frontend;
+        proxy_pass http://slackernews;
       }
     }
-
-{{ end }}
