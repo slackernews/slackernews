@@ -52,6 +52,9 @@ images:
   pullSecrets:
     replicated:
       name: proxypullsecret
+  nginx:
+    repository: $REGISTRY/$NGINX_IMAGE
+    pullPolicy: IfNotPresent
   slackernews:
     repository: $REGISTRY/$IMAGE
     pullPolicy: IfNotPresent
