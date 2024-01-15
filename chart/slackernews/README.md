@@ -50,8 +50,6 @@ helm upgrade --install --namespace slackernews --create-namespace  \
 if you are using the built-in `kind` cluster from `make dev-cluster`, add a NodePort so you can easily access slackernews and postgres locally
 
 ```
-    --set service.type=NodePort \
-    --set service.nodePort.port=3000 \
     --set postgres.service.type=NodePort \
     --set postgres.service.nodePort.port=5432 \
 ```
@@ -75,7 +73,5 @@ helm install --namespace slackernews --create-namespace  \
     --set slack.clientId=$SLACKERNEWS_UAT_SLACK_CLIENTID \
     --set slack.clientSecret=$SLACKERNEWS_UAT_SLACK_CLIENTSECRET \
     --set slack.token=$SLACKERNEWS_UAT_SLACK_TOKEN \
-    --set slackernews.domain=$SLACKERNEWS_DOMAIN \
-    --set service.type=LoadBalancer \
-    --set admin-console.adminConsole.password=SLACKERNEWS_UAT_ADMINCONSOLE_PASSWORD 
+    --set slackernews.domain=$SLACKERNEWS_DOMAIN 
 ```

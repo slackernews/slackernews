@@ -45,7 +45,6 @@ helm install --namespace slackernews --create-namespace  \
     --set postgres.deploy_postgres=true \
     --set postgres.enabled=true \
     --set postgres.password=password \
-    --set service.type=LoadBalancer 
     --set slackernews.domain=<YOUR HOSTNAME> \
     --set service.tls.enabled=true \
     --set service.tls.cert="$SLACKERNEWS_CERT" \
@@ -72,7 +71,6 @@ The following values can be provided to the chart when installing. For more info
 #### Service
 | Key | Default | Description |
 |-----|---------|-------------|
-| `service.type` | `ClusterIP` | Set to the service type to use when creating the service |
 | `slackernews.domain` | | Set to the FQDN (fully qualified domain name) you will configure for this instance
 | `service.tls.existingSecretName` | | Set to an exiseting secret name that has the TLS key and cert (optional) |
 | `service.tls.existingSecretCertKey` | | Set to the key in the `existingSecretName` for the cert |

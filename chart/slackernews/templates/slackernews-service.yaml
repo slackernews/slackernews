@@ -9,9 +9,6 @@ spec:
   - name: http
     port: 3000
     targetPort: http
-{{- if ne .Values.service.nodePort.port nil }}
-    nodePort: {{ .Values.service.nodePort.port }}
-{{- end }}
   selector:
     app: slackernews
-  type: {{ .Values.service.type }}
+  type: ClusterIP
