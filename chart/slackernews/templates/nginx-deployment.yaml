@@ -1,4 +1,3 @@
-{{ if .Values.nginx.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -62,5 +61,4 @@ spec:
       - secret:
           secretName: slackernews-nginx
         name: certs
-{{ end }}
 {{ end }}

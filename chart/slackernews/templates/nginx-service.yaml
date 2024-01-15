@@ -1,4 +1,3 @@
-{{ if .Values.nginx.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -24,4 +23,3 @@ spec:
   selector:
     app: slackernews-nginx
   type: {{ .Values.nginx.service.type }}
-{{ end }}

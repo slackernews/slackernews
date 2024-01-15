@@ -1,13 +1,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: slackernews-frontend
+  name: slackernews
   namespace: slackernews
 spec:
   selector:
     matchLabels:
-      app: slackernews-frontend
+      app: slackernews
   template:
     metadata:
       labels:
-        app: slackernews-frontend
+        app: slackernews

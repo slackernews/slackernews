@@ -20,7 +20,7 @@ spec:
           pathType: Prefix
         - backend:
             service:
-              name: slackernews-frontend
+              name: slackernews
               port:
                 number: 3000
           path: /

@@ -45,8 +45,7 @@ helm install --namespace slackernews --create-namespace  \
     --set postgres.deploy_postgres=true \
     --set postgres.enabled=true \
     --set postgres.password=password \
-    --set service.type=LoadBalancer \
-    --set nginx.enabled=true \
+    --set service.type=LoadBalancer 
     --set slackernews.domain=<YOUR HOSTNAME> \
     --set service.tls.enabled=true \
     --set service.tls.cert="$SLACKERNEWS_CERT" \
@@ -81,7 +80,6 @@ The following values can be provided to the chart when installing. For more info
 | `service.tls.cert` | | Set to the value of a TLS cert | 
 | `service.tls.key` | | Set to the value of a TLS key |
 | `service.tls.enabled` | | Set to true to enable TLS |
-| `nginx.enabled` | | Set to true to enable ingress (recommended) |
 
 #### Slack
 | Key | Default | Description |

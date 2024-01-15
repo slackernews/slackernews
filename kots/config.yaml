@@ -31,21 +31,21 @@ spec:
       title: TLS and Ingress
       description: |
         You can customize how you will expose SlackerNews to the internet.
-        Note that the domain you use will need to be publicly addressable with certs signed by a public authority 
+        Note that the domain you use will need to be publicly addressable with certs signed by a public authority
         so it can receive webhooks from Slack.
-        
+
         Common configurations include:
-        
+
         - **ClusterIP** Using a Cluster IP and configuring your existing ingress controller to route traffic to SlackerNews
         - **NodePort** Using a NodePort and configuring an existing load balancer to route traffic to SlackerNews
         - **LoadBalancer** Using a LoadBalancer service and letting Kubernetes provision a load balancer for you
         - **Nginx** Deploying the included nginx service to handle TLS and proxying traffic to SlackerNews, and exposing that with a ClusterIP, NodePort, or LoadBalancer
-        
-        If you choose to use nginx, you'll see that this page has been pre-populated with self-signed certificates. 
+
+        If you choose to use nginx, you'll see that this page has been pre-populated with self-signed certificates.
         If you want, you can replace the self-signed certificates with your own.
-        
+
         If you'll be using your own ingress controller or external load balancer, use the DNS name of that external address.
-        
+
       items:
         - name: slackernews_domain
           title: Ingress Hostname
@@ -65,21 +65,16 @@ spec:
           default: ClusterIP
         - name: slackernews_node_port_port
           title: Slackernews Node Port
-          help_text: > 
+          help_text: >
               (Optional) - The port to use for the NodePort service type. Leave this blank to have Kubernetes choose a port for you.
           type: text
           default: ""
           when: repl{{ ConfigOptionEquals "slackernews_service_type" "NodePort" }}
-        - name: nginx_enabled
-          title: Enable Nginx
-          help_text: Deploy an nginx reverse proxy. Running nginx is required to customize the TLS configuration.
-          type: bool
-          default: "1"
         - name: nginx_service_type
           title: Nginx Service Type
-          help_text: > 
-              The service type to use for the nginx service. 
-              If you're using an external http or tcp load balancer, you should use NodePort. 
+          help_text: >
+              The service type to use for the nginx service.
+              If you're using an external http or tcp load balancer, you should use NodePort.
               If you're running in a supported cloud provider and want Kubernetes to provision a Load Balancer, use LoadBalancer.
           type: select_one
           items:
@@ -90,14 +85,13 @@ spec:
             - name: LoadBalancer
               title: LoadBalancer
           default: ClusterIP
-          when: repl{{ ConfigOptionEquals "nginx_enabled" "1" }}
         - name: nginx_node_port_port
           title: Nginx Node Port
-          help_text: > 
+          help_text: >
               (Optional) - The port to use for the NodePort service type. Leave this blank to have Kubernetes choose a port for you.
           type: text
           default: ""
-          when: repl{{ and (ConfigOptionEquals "nginx_enabled" "1") (ConfigOptionEquals "nginx_service_type" "NodePort") }}
+          when: repl{{ ConfigOptionEquals "nginx_service_type" "NodePort" }}
         - name: tls_json
           title: TLS JSON
           type: textarea
@@ -112,24 +106,21 @@ spec:
           title: Signing Authority
           type: textarea
           value: repl{{ fromJson (ConfigOption "tls_json") | dig "ca" "Cert" "" }}
-          when: repl{{ ConfigOptionEquals "nginx_enabled" "1" }}
         - name: tls_cert
           title: TLS Cert
           type: textarea
           value: repl{{ fromJson (ConfigOption "tls_json") | dig "cert" "Cert" "" }}
-          when: repl{{ ConfigOptionEquals "nginx_enabled" "1" }}
         - name: tls_key
           title: TLS Key
           type: textarea
           value: repl{{ fromJson (ConfigOption "tls_json") | dig "cert" "Key" "" }}
-          when: repl{{ ConfigOptionEquals "nginx_enabled" "1" }}
     - name: slack
       title: Slack Settings
       description: |
-        If desired, you can preconfigure the slack settings for SlackerNews. 
+        If desired, you can preconfigure the slack settings for SlackerNews.
         These are required for logging into SlackerNews and pulling/organizing content from your slack instance.
         If you don't preconfigure these settings, you'll be prompted to configure them when you first access SlackerNews.
-        
+
         Instructions on how to configure your slack application and collect these values can be found in [the SlackerNewa slack documentation](https://docs.slackernews.io/slack/).
       items:
         - name: slack_user_token
@@ -152,7 +143,7 @@ spec:
         Since SlackerNews users Slack for authentication, these email addresses must match the users' email addresses in Slack.
 
         Users on this list will be able to access the `/admin` route, allowing them to manage content, users, and settings.
-        
+
         For any users who receive admin permissions from this setting, the change will take effect the next time
         they are active in the slackernews application.
       items:

@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: slackernews-frontend
+  name: slackernews
   annotations:
     # if you're using a chart-managed secret, this will roll the deployment when the secret changes
     checksum/slackernews-slack: {{ include (print $.Template.BasePath "/slack-secret.yaml") . | sha256sum }}
 spec:
   selector:
     matchLabels:
-      app: slackernews-frontend
+      app: slackernews
   template:
     metadata:
       labels:
-        app: slackernews-frontend
+        app: slackernews
     spec:
       {{ if hasKey ((.Values.global).replicated) "dockerconfigjson" }}
       imagePullSecrets:
