@@ -61,3 +61,12 @@ See [chart/slackernews/README.md](./chart/slackernews/README.md)
 ### Creating a replicated release
 
 
+### Iterating on Chart Preflight and Support Bundle specs locally
+
+```shell
+helm template ./chart/slackernews | kubectl preflight -
+# or
+helm template ./chart/slackernews | kubectl support-bundle -
+```
+
+
