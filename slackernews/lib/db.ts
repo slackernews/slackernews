@@ -4,6 +4,8 @@ import { AdminNotification, DefaultAdminNotifications, SlackerNewsConfig, loadPa
 import { Favicon, FaviconSeed } from "./favicon";
 import { Score, ScoreSeed } from "./score";
 import { SlackChannel, SlackChannelSeed, SlackUser, SlackUserSeed } from "./slack";
+import { DiscordChannel, DiscordUser } from "./discord";
+
 import { Filter } from "./filter";
 import { User } from "./user";
 import { Session } from "./session";
@@ -18,25 +20,19 @@ let ensureSeedData: boolean = true;
 export async function initDb(dbUri: string) {
   let options: any = {
     logging: console.log,
+    dialect: 'sqlite',
+    storage: dbUri,
   };
 
-  console.log(`dbUri: ${dbUri}`);
-
-  if (dbUri.startsWith('postgresql://')) {
-    options = {
-      ...options,
-      dialectModule: pg,
-    }
-  } else {
-    options = {
-      ...options,
-      dialectModule: sqlite3,
-    }
+  sequelize = new Sequelize(options); // Pass the options object only
+  console.log(`Sequelize initialized with SQLite.`);
+  
+  try {
+    await sequelize.authenticate();
+    console.log('Connection has been established successfully.');
+  } catch (error) {
+    console.error(`Unable to connect to the database: ${error}`);
   }
-  sequelize = new Sequelize(dbUri, options);
-
-  await sequelize.authenticate();
-  console.log('Connection has been established successfully.');
 
   // initialize the models
   (await SlackerNewsConfig()).sync();
@@ -53,6 +49,8 @@ export async function initDb(dbUri: string) {
   (await AdminNotification()).sync();
   (await Reply()).sync();
   (await Filter()).sync();
+  (await DiscordChannel()).sync();
+  (await DiscordUser()).sync();
 
   await DefaultIntegrations();
   await DefaultAdminNotifications();
@@ -64,6 +62,7 @@ export async function initDb(dbUri: string) {
     await ScoreSeed();
     await SlackUserSeed();
     await SlackChannelSeed();
+
   }
 }
 

@@ -61,6 +61,7 @@ export async function Score() {
     reason: {
       type: DataTypes.STRING,
       allowNull: false,
+      primaryKey: true,
     },
     user_id: {
       type: DataTypes.STRING,
@@ -75,22 +76,43 @@ export async function Score() {
 
 export async function scoreReactionAdd(url: string, at: Date): Promise<void> {
   console.log('scoreReaction', url, at);
-  await (await Score()).upsert({
-    time: at,
-    link: url,
-    score: 0.5,
-    reason: 'reaction',
+  const s = await Score();
+  const score = await s.findOne({
+    where: {
+      time: at,
+      link: url,
+      reason: 'reaction',
+    },
   });
+  console.log('score', score);
+  if (score) {
+    score.score += 0.5;
+    await score.save();
+  } else {
+      await s.create({
+        time: at,
+        link: url,
+        score: 0.5,
+        reason: 'reaction',
+      });
+  }
 }
 
 export async function scoreReactionRemove(url: string, at: Date): Promise<void> {
   console.log('scoreReaction', url, at);
-  await (await Score()).upsert({
-    time: at,
-    link: url,
-    score: -0.5,
-    reason: 'reaction',
+  const s = await Score();
+  const score = await s.findOne({
+    where: {
+      time: at,
+      link: url,
+      reason: 'reaction',
+    },
   });
+
+  if (score) {
+    score.score -= 0.5;
+    await score.save();
+  }
 }
 
 export async function scoreShare(url: string, at: Date): Promise<void> {
