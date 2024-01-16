@@ -196,7 +196,7 @@ export async function getUser(id: string): Promise<User> {
 
     // when fetching a user, update their superAdmin bit if it's in the hardcoded list of emails
     const hardCodedSuperAdmins = (process.env.SLACKERNEWS_ADMIN_USER_EMAILS || "").split(",");
-    const isSuperAdmin = hardCodedSuperAdmins.indexOf(user.email_address) !== -1;
+    const isSuperAdmin = user.is_super_admin || hardCodedSuperAdmins.indexOf(user.email_address) !== -1;
     if (isSuperAdmin && !user.is_super_admin ) {
       console.log(`flipping on super-admin permissions for user ${id} because their email was present in SLACKERNEWS_ADMIN_USER_EMAILS`)
       await setUserAdmin(user.id, true);
