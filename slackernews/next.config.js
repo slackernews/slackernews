@@ -13,9 +13,6 @@ const moduleExports = {
     ];
   },
   reactStrictMode: true,
-  images: {
-    domains: ["source.unsplash.com", "secure.gravatar.com"],
-  },
   output: "standalone",
   webpack(config) {
     config.resolve.fallback = {
@@ -28,7 +25,8 @@ const moduleExports = {
     };
 
     return config;
-  }, images: {
+  },
+  images: {
     domains: [
       "source.unsplash.com",
       "secure.gravatar.com",
