@@ -8,9 +8,9 @@ import { Filter } from "./filter";
 import { User } from "./user";
 import { Session } from "./session";
 import { DefaultIntegrations, Integration } from "./integration";
-import pg from 'pg';
 const { Sequelize } = require('sequelize');
 const sqlite3 = require('sqlite3');
+const pg = require('pg');
 
 let sequelize: any;
 let ensureSeedData: boolean = true;
@@ -30,7 +30,7 @@ export async function initDb(dbUri: string) {
   } else {
     options = {
       ...options,
-      dialectModule: sqlite3,
+      dialect: 'sqlite3',
     }
   }
   sequelize = new Sequelize(dbUri, options);
