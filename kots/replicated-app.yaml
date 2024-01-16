@@ -9,10 +9,10 @@ spec:
   allowRollback: true
   minKotsVersion: 1.79.0
   ports:
-    - serviceName: web
-      servicePort: 80
-      localPort: 80
-      applicationUrl: "http://slackernews-nginx"
+    - serviceName: slackernews
+      servicePort: 3000
+      localPort: 3000
+      applicationUrl: "http://slackernews"
   statusInformers:
     - deployment/slackernews
     - '{{repl if ConfigOptionEquals "deploy_postgres" "1"}}statefulset/postgres{{repl end}}'
