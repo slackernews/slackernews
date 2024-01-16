@@ -25,7 +25,7 @@ export async function initDb(dbUri: string) {
   if (dbUri.startsWith('postgresql://')) {
     options = {
       ...options,
-      dialectModule: pg,
+      dialectModule: pg.Client,
     }
   } else {
     options = {
