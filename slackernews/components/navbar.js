@@ -36,6 +36,14 @@ export default function Navbar({ username, userId, duration, hideFilter, departm
       </Link>);
   });
 
+  const durations = [
+    {name: "today", duration: "1d"},
+    {name: "this week", duration: "7d"},
+    {name: "this month", duration: "30d"},
+    {name: "this year", duration: "1y"},
+    {name: "all time", duration: "all"}
+  ]
+
   return (
     <nav className="navbar navbar-expand-lg navbar-default">
       <a className="navbar-brand" href="#" onClick={handleLogoClick}>
@@ -45,11 +53,13 @@ export default function Navbar({ username, userId, duration, hideFilter, departm
         <div className="align-items-center" style={{display: hideFilter ? "none" : "flex"}}>
           <ul className="navbar-nav" style={{paddingLeft: "30px"}}>
             <NavDropdown title={durationDisplay} id="collasible-nav-dropdown" className="duration-dropdown" >
-              <Link href={`/?t=1d&depart=${depart}`}><NavDropdown.Item>today</NavDropdown.Item></Link>
-              <Link href={`/?t=7d&depart=${depart}`}><NavDropdown.Item>this week</NavDropdown.Item></Link>
-              <Link href={`/?t=30d&depart=${depart}`}><NavDropdown.Item>this month</NavDropdown.Item></Link>
-              <Link href={`/?t=1y&depart=${depart}`}><NavDropdown.Item>this year</NavDropdown.Item></Link>
-              <Link href={`/?t=all&depart=${depart}`}><NavDropdown.Item>all time</NavDropdown.Item></Link>
+              {durations.map((d, i) => {
+                const href = `/?t=${d.duration}&depart=${depart}`;
+                return (
+                  <Link href={href} key={i}>
+                    <NavDropdown.Item href={href}>{d.name}</NavDropdown.Item>
+                  </Link>);
+              })}
             </NavDropdown>
           </ul>
           <span className="separator">{' '}|{' '}</span>
