@@ -58,6 +58,7 @@ spec:
       - secret:
           secretName: {{ .Values.service.tls.existingSecretName }}
         name: certs
+{{ end }}
 {{ if .Values.service.tls.enabled }}
       - secret:
           secretName: slackernews-nginx
