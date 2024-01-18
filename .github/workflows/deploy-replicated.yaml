@@ -11,7 +11,7 @@ jobs:
       - id: get-current-cluster-id
         uses: marccampbell/cloudflare-dns-action/get-dns-record@v1
         with:
-          # type: "TXT"
+          type: "TXT"
           name: "news-cluster-id"
           token: ${{ secrets.CLOUDFLARE_TOKEN }}
           zone: ${{ secrets.CLOUDFLARE_ZONE_ID }}
