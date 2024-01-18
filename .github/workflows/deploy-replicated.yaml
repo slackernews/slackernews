@@ -14,7 +14,7 @@ jobs:
           type: "TXT"
           name: "news-cluster-id"
           token: ${{ secrets.CLOUDFLARE_TOKEN }}
-          zone: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          zoneId: ${{ secrets.CLOUDFLARE_ZONE_ID }}
 
       # - id: create-cluster
       #   uses: replicatedhq/compatibility-actions/create-cluster@v1
