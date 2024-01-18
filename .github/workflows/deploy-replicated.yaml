@@ -12,7 +12,7 @@ jobs:
         uses: marccampbell/cloudflare-dns-action/get-dns-record@v1
         with:
           type: "TXT"
-          name: "news-cluster-id"
+          name: "news-cluster-id.replicated.com"
           token: ${{ secrets.CLOUDFLARE_TOKEN }}
           zoneId: ${{ secrets.CLOUDFLARE_ZONE_ID }}
 
