@@ -41,7 +41,8 @@ spec:
         - mountPath: /certs/tls.key
           name: certs
           subPath: {{ .Values.service.tls.existingSecretKeyKey }}
-{{ else }}
+{{ end }}
+{{ if .Values.service.tls.enabled }}
         - mountPath: /certs/tls.crt
           name: certs
           subPath: tls.crt
@@ -57,7 +58,7 @@ spec:
       - secret:
           secretName: {{ .Values.service.tls.existingSecretName }}
         name: certs
-{{ else }}
+{{ if .Values.service.tls.enabled }}
       - secret:
           secretName: slackernews-nginx
         name: certs
