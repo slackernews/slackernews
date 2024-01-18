@@ -7,13 +7,13 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      # - id: get-current-cluster-id
-      #   uses: rez0n/get-dns-record@v2.1
-      #   with:
-      #     type: "TXT"
-      #     name: "news-cluster-name"
-      #     token: ${{ secrets.CLOUDFLARE_TOKEN }}
-      #     zone: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+      - id: get-current-cluster-id
+        uses: marccampbell/cloudflare-dns-actions/create-dns-record@main
+        with:
+          type: "TXT"
+          name: "news-cluster-name"
+          token: ${{ secrets.CLOUDFLARE_TOKEN }}
+          zone: ${{ secrets.CLOUDFLARE_ZONE_ID }}
 
       # - id: create-cluster
       #   uses: replicatedhq/compatibility-actions/create-cluster@v1
