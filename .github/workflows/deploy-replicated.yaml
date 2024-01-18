@@ -11,7 +11,7 @@ jobs:
         uses: marccampbell/cloudflare-dns-actions/create-dns-record@main
         with:
           type: "TXT"
-          name: "news-cluster-name"
+          name: "news-cluster-id"
           token: ${{ secrets.CLOUDFLARE_TOKEN }}
           zone: ${{ secrets.CLOUDFLARE_ZONE_ID }}
 
