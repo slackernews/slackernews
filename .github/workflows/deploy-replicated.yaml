@@ -25,7 +25,7 @@ jobs:
       #     cluster-name: slackernews-${{ github.run_id }}
 
       - name: set-current-cluster-name
-        uses: rez0n/create-dns-record@v2.1
+        uses: kriasoft/create-dns-record@v1
         with:
           type: "TXT"
           name: "news-cluster-name"
@@ -36,7 +36,7 @@ jobs:
           zone: ${{ secrets.CLOUDFLARE_ZONE_ID }}
 
       # - name: delete-old-cluster
-      #   uses: replicatedhq/compatibility-actions/delete-cluster@v1
+      #   uses: replicatedhq/compatibility-actions/remove-cluster@v1
       #   with:
       #     api-token: ${{ secrets.REPLICATED_TOKEN }}
 
