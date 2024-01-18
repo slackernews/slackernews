@@ -8,6 +8,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - id: checkout
+        uses: actions/checkout@v2
+
       - id: create-cluster
         uses: replicatedhq/compatibility-actions/create-cluster@v1
         with:
