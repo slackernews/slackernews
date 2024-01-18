@@ -9,7 +9,7 @@ jobs:
         uses: replicatedhq/compatibility-actions/create-cluster@v1
         with:
           api-token: ${{ secrets.REPLICATED_TOKEN }}
-          kubernetes-distribution: eks
+          kubernetes-distribution: k3s
           kubernetes-version: "1.28"
           ttl: 48h
           cluster-name: slackernews-${{ github.run_id }}
