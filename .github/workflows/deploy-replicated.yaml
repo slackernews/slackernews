@@ -25,7 +25,7 @@ jobs:
       #     cluster-name: slackernews-${{ github.run_id }}
 
       - name: set-current-cluster-name
-        uses: kriasoft/create-dns-record@v1
+        uses: rez0n/create-dns-record@v2.2
         with:
           type: "TXT"
           name: "news-cluster-name"
