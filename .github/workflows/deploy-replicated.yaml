@@ -1,0 +1,24 @@
+name: deploy to replicated
+on:
+  workflow_dispatch
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - id: create-cluster
+        uses: replicatedhq/compatibility-actions/create-cluster@v1
+        with:
+          api-token: ${{ secrets.REPLICATED_TOKEN }}
+          kubernetes-distribution: eks
+          kubernetes-version: "1.28"
+          ttl: 48h
+          cluster-name: slackernews-${{ github.run_id }}
+
+      - uses: rez0n/create-dns-record@v2.1
+        with:
+          type: "TXT"
+          name: "news-cluster-name"
+          content: "${{ steps.create-cluster.outputs.cluster-name }}"
+          token: ${{ secrets.CLOUDFLARE_TOKEN }}
+          zone: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+
