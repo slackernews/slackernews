@@ -39,7 +39,6 @@ jobs:
         uses: azure/setup-helm@v1
         with:
           version: "3.9.0"
-        id: install-helm
 
       - id: install-ngrok-ingress
         uses: replicatedhq/compatibility-actions/helm-install@v1
