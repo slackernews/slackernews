@@ -8,14 +8,14 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      # - id: create-cluster
-      #   uses: replicatedhq/compatibility-actions/create-cluster@v1
-      #   with:
-      #     api-token: ${{ secrets.REPLICATED_TOKEN }}
-      #     kubernetes-distribution: k3s
-      #     kubernetes-version: "1.28"
-      #     ttl: 48h
-      #     cluster-name: slackernews-${{ github.run_id }}
+      - id: create-cluster
+        uses: replicatedhq/compatibility-actions/create-cluster@v1
+        with:
+          api-token: ${{ secrets.REPLICATED_TOKEN }}
+          kubernetes-distribution: k3s
+          kubernetes-version: "1.28"
+          ttl: 48h
+          cluster-name: slackernews-${{ github.run_id }}
 
       - id: get-current-cluster-id
         uses: marccampbell/cloudflare-dns-action/get-dns-record@v1
@@ -31,18 +31,71 @@ jobs:
           type: "TXT"
           name: "news-cluster-id.replicated.com"
           proxied: false
-          # content: "${{ steps.create-cluster.outputs.cluster-id }}"
-          content: "slackernews-${{ github.run_id }}"
+          content: "${{ steps.create-cluster.outputs.cluster-id }}"
           token: ${{ secrets.CLOUDFLARE_TOKEN }}
           zoneId: ${{ secrets.CLOUDFLARE_ZONE_ID }}
 
-      # - name: delete-old-cluster
-      #   uses: replicatedhq/compatibility-actions/remove-cluster@v1
-      #   with:
-      #     api-token: ${{ secrets.REPLICATED_TOKEN }}
+      - id: setup-helm
+        uses: azure/setup-helm@v1
+        with:
+          version: "3.9.0"
+        id: install-helm
 
-      # - id: delete-cluster
-      #   uses: replicatedhq/compatibility-actions/remove-cluster@v1
-      #   with:
-      #     cluster-id: ${{ steps.create-cluster.outputs.cluster-id }}
-      #     api-token: ${{ secrets.REPLICATED_TOKEN }}
+      - id: install-ngrok-ingress
+        uses: replicatedhq/compatibility-actions/helm-install@v1
+        with:
+          kubeconfig: ${{ steps.create-cluster.outputs.cluster-kubeconfig }}
+          repo-name: ngrok
+          repo-url: https://ngrok.github.io/kubernetes-ingress-controller
+          chart: ngrok/kubernetes-ingress-controller
+          name: 'ngrok-ingress-controller'
+          namespace: 'ngrok-ingress-controller'
+          helm-path: 'helm'
+          values: |
+            credentials:
+              authtoken: ${{ secrets.NGROK_AUTH_TOKEN }}
+              apiKey: ${{ secrets.NGROK_API_KEY }}
+
+      - id: helm-install
+        uses: replicatedhq/compatibility-actions/helm-install@v1
+        with:
+          kubeconfig: ${{ steps.create-cluster.outputs.cluster-kubeconfig }}
+          chart: oci://chart.slackernews.io/slackernews/slackernews
+          name: 'slackernews'
+          namespace: 'slackernews'
+          helm-path: 'helm'
+          registry-username: ${{ secrets.NEWS_REPLICATED_USERNAME }}
+          registry-password: ${{ secrets.NEWS_REPLICATED_PASSWORD }}
+          values: |
+            postgres:
+              deploy_postgres: false
+              uri: todo
+            slack:
+              clientId: todo
+              clientSecret: todo
+              botToken: todo
+              userToken: todo
+            slackrnews:
+              domain: todo
+            service:
+              type: ClusterIP
+            nginx:
+              service:
+                type: ClusterIP
+
+
+      - name: save the kubeconfig as a tmp file
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ steps.create-cluster.outputs.cluster-kubeconfig }}" > ~/.kube/config
+
+      - name: install an ngrok ingress for testing
+        run: |
+          sed -i "s/\$NGROK_HOST/news.replicated.com/g" ./test/ngrok-ingress.yaml
+          kubectl apply -f ./test/ngrok-ingress.yaml
+
+      - id: delete-cluster
+        uses: replicatedhq/compatibility-actions/remove-cluster@v1
+        with:
+          cluster-id: ${{ steps.get-current-cluster-id.outputs.record-content}}
+          api-token: ${{ secrets.REPLICATED_TOKEN }}
