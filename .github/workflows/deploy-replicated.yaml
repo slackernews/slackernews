@@ -1,4 +1,4 @@
-name: deploy to replicated
+name: deploy-replicated
 on:
   workflow_dispatch
   pull_request:
