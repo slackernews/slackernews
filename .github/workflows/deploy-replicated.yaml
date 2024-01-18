@@ -1,11 +1,8 @@
 name: deploy-replicated
 on:
-  workflow_dispatch:
-    inputs:
-      parameter:
-        description: My Parameter
-  pull_request:
-    branches: [ main ]
+  push:
+    branches:
+      - deploy-cmx
 jobs:
   deploy:
     runs-on: ubuntu-latest
