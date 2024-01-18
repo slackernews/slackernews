@@ -3,12 +3,13 @@ on:
   push:
     branches:
       - deploy-cmx
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - id: get-current-cluster-id
-        uses: marccampbell/cloudflare-dns-action/create-dns-record@main
+        uses: marccampbell/cloudflare-dns-action/create-dns-record@v1
         with:
           type: "TXT"
           name: "news-cluster-id"
