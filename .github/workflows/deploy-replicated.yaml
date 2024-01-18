@@ -26,7 +26,7 @@ jobs:
           zoneId: ${{ secrets.CLOUDFLARE_ZONE_ID }}
 
       - id: set-current-cluster-id
-        uses: marccampbell/cloudflare-dns-action/get-dns-record@v1
+        uses: marccampbell/cloudflare-dns-action/create-dns-record@v1
         with:
           type: "TXT"
           name: "news-cluster-name.replicated.com"
