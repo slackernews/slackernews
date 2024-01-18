@@ -25,7 +25,7 @@ jobs:
           token: ${{ secrets.CLOUDFLARE_TOKEN }}
           zoneId: ${{ secrets.CLOUDFLARE_ZONE_ID }}
 
-      - name: set-current-cluster-name
+      - id: set-current-cluster-id
         uses: marccampbell/cloudflare-dns-action/get-dns-record@v1
         with:
           type: "TXT"
@@ -34,7 +34,7 @@ jobs:
           # content: "${{ steps.create-cluster.outputs.cluster-id }}"
           content: "slackernews-${{ github.run_id }}"
           token: ${{ secrets.CLOUDFLARE_TOKEN }}
-          zone: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          zoneId: ${{ secrets.CLOUDFLARE_ZONE_ID }}
 
       # - name: delete-old-cluster
       #   uses: replicatedhq/compatibility-actions/remove-cluster@v1
