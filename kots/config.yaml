@@ -47,33 +47,10 @@ spec:
         - **NodePort** Using a NodePort and configuring an existing load balancer to route traffic to SlackerNews
         - **LoadBalancer** Using a LoadBalancer service and letting Kubernetes provision a load balancer for you
 
+        If you're running in a supported cloud provider and want Kubernetes to provision a Load Balancer, use LoadBalancer.
       items:
-        - name: slackernews_domain
-          title: Ingress Hostname
-          help_text: The domain name at which you'll access SlackerNews. Don't include the `https://` or any path elements.
-          type: text
-          required: true
-        - name: slackernews_service_type
-          title: Slackernews Service Type
-          type: select_one
-          items:
-            - name: ClusterIP
-              title: ClusterIP
-            - name: NodePort
-              title: NodePort
-            - name: LoadBalancer
-              title: LoadBalancer
-          default: ClusterIP
-        - name: slackernews_node_port_port
-          title: Slackernews Node Port
-          help_text: >
-              (Optional) - The port to use for the NodePort service type. Leave this blank to have Kubernetes choose a port for you.
-          type: text
-          default: ""
-          when: repl{{ ConfigOptionEquals "slackernews_service_type" "NodePort" }}
         - name: service_type
           title: Service Type
-              If you're running in a supported cloud provider and want Kubernetes to provision a Load Balancer, use LoadBalancer.
           type: select_one
           items:
             - name: cluster_ip
