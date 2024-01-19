@@ -46,20 +46,8 @@ spec:
         - **ClusterIP** Using a Cluster IP and configuring your existing ingress controller to route traffic to SlackerNews
         - **NodePort** Using a NodePort and configuring an existing load balancer to route traffic to SlackerNews
         - **LoadBalancer** Using a LoadBalancer service and letting Kubernetes provision a load balancer for you
-<<<<<<< HEAD
-        - **Nginx** Deploying the included nginx service to handle TLS and proxying traffic to SlackerNews, and exposing that with a ClusterIP, NodePort, or LoadBalancer
-
-        If you choose to use nginx, you'll see that this page has been pre-populated with self-signed certificates.
-=======
-        
-        If you choose to use nginx, you'll see that this page has been pre-populated with self-signed certificates. 
->>>>>>> bfb361c (Reworks the KOTS config to be more opinionated)
-        If you want, you can replace the self-signed certificates with your own.
-
-        If you'll be using your own ingress controller or external load balancer, use the DNS name of that external address.
 
       items:
-<<<<<<< HEAD
         - name: slackernews_domain
           title: Ingress Hostname
           help_text: The domain name at which you'll access SlackerNews. Don't include the `https://` or any path elements.
