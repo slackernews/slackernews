@@ -105,14 +105,6 @@ jobs:
           replace: 'proxy/${{ secrets.REPLICATED_APP }}/ghcr.io/${{ secrets.GHCR_NAMESPACE }}/slackernews-nginx:${{ steps.get_version.outputs.version-without-v }}'
           regex: false
 
-      - name: Update the KOTS HelmChart CR with the image path
-        uses: jacobtomlinson/gha-find-replace@v2
-        with:
-          include: 'kots/slackernews-chart.yaml'
-          find: '$IMAGE'
-          replace: 'ghcr.io/${{ secrets.GHCR_NAMESPACE }}/slackernews-web:${{ steps.get_version.outputs.version-without-v }}'
-          regex: false
-
       - id: package-helm-chart
         run: |
           cd chart/slackernews && \
@@ -127,13 +119,30 @@ jobs:
       - name: Copy the helm chart to the kots directory
         run: cp ./chart/slackernews-${{ steps.get_version.outputs.version-without-v }}.tgz ./kots
 
-      - name: Update the HelmChart kind
+      - name: Update the version in the KOTS HelmChart kind
         uses: jacobtomlinson/gha-find-replace@v2
         with:
           include: 'kots/slackernews-chart.yaml'
           find: '$VERSION'
           replace: '${{ steps.get_version.outputs.version-without-v }}'
           regex: false
+
+      - name: Update the KOTS HelmChart kind with the registry name
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          include: 'kots/slackernews-chart.yaml'
+          find: '$REGISTRY'
+          replace: '${{ secrets.REPLICATED_PROXY_REGISTRY_CNAME }}'
+          regex: false
+
+      - name: Update the KOTS HelmChart kind with the image namespace
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          include: 'kots/slackernews-chart.yaml'
+          find: '$NAMESPACE'
+          replace: '${{ secrets.GHCR_NAMESPACE }}'
+          regex: false
+
 
       - name: Create the unstable release
         uses: replicatedhq/action-kots-release@configurable-endpoint

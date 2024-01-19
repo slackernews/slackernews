@@ -42,7 +42,8 @@ spec:
           dockerconfigjson: ""
       slackernews:
         pullSecret: repl{{ ImagePullSecretName }}
-        repository: repl{{ LocalImageName "$IMAGE" }}
+        repository: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}/{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/ghcr.io/$NAMESPACE/slackernews" ) }}/slackernews-web:$VERSION'
+ 
   # builder values provide a way to render the chart with all images
   # and manifests. this is used in replicated to create airgap packages
   builder:
