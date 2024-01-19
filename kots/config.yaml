@@ -93,13 +93,13 @@ spec:
               If you're running in a supported cloud provider and want Kubernetes to provision a Load Balancer, use LoadBalancer.
           type: select_one
           items:
-            - name: ClusterIP
+            - name: cluster_ip
               title: ClusterIP
-            - name: NodePort
+            - name: node_port
               title: NodePort
-            - name: LoadBalancer
+            - name: load_balancer
               title: LoadBalancer
-          default: ClusterIP
+          default: cluster_ip
         - name: node_port_port
           title: Node Port
           help_text: > 
