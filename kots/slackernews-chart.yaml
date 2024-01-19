@@ -27,6 +27,9 @@ spec:
     replicated:
       enabled: false
       preflights: false
+    service:
+      tls:
+        enabled: true
     nginx:
       enabled: true 
       service:
@@ -60,6 +63,24 @@ spec:
       values:
         postgres:
           uri: '{{repl ConfigOption "postgres_external_uri" }}'
+
+    - when: '{{repl ConfigOptionEquals "service_type" "load_balancer"}}'
+      recursiveMerge: true
+      values:
+        nginx:
+          enabled: true
+          service:
+            type: LoadBalancer
+
+    - when: '{{repl ConfigOptionEquals "service_type" "node_port"}}'
+      recursiveMerge: true
+      values:
+        nginx:
+          enabled: true
+          service:
+            type: NodePort
+            nodePort:
+              port: '{{repl ConfigOption "node_port_port" }}'
 
     - when: '{{repl ConfigOptionEquals "certificate_source" "upload_existing"}}'
       recursiveMerge: true
