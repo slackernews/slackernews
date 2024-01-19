@@ -14,8 +14,6 @@ spec:
     postgres:
       enabled: true
       deploy_postgres: repl{{ ConfigOption "deploy_postgres" | ParseBool }}
-      password: repl{{ ConfigOption "postgres_password"}}
-      uri: repl{{ ConfigOption "postgres_external_uri" }}
     slack:
       botToken: repl{{ ConfigOption "slack_bot_token" | quote }}
       userToken: repl{{ ConfigOption "slack_user_token" | quote }}
@@ -51,6 +49,18 @@ spec:
       enabled: false
 
   optionalValues:
+    - when: '{{repl ConfigOptionEquals "deploy_postgres" "1"}}'
+      recursiveMerge: true
+      values:
+        postgres:
+          password: '{{repl ConfigOption "postgres_password" }}'
+        
+    - when: '{{repl ConfigOptionEquals "deploy_postgres" "0"}}'
+      recursiveMerge: true
+      values:
+        postgres:
+          uri: '{{repl ConfigOption "postgres_external_uri" }}'
+
     - when: '{{repl ConfigOptionEquals "certificate_source" "upload_existing"}}'
       recursiveMerge: true
       values:
