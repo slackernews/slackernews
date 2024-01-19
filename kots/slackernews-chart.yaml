@@ -34,8 +34,6 @@ spec:
       enabled: true 
       service:
         type: repl{{ ConfigOption "service_type" }}
-        nodePort:
-          port: repl{{ ConfigOption "node_port_port" }}
     images:
       pullSecrets:
         replicated:
@@ -69,7 +67,6 @@ spec:
       recursiveMerge: true
       values:
         nginx:
-          enabled: true
           service:
             type: LoadBalancer
 
@@ -77,11 +74,10 @@ spec:
       recursiveMerge: true
       values:
         nginx:
-          enabled: true
           service:
             type: NodePort
             nodePort:
-              port: '{{repl ConfigOption "node_port_port" }}'
+              port: repl{{ ConfigOption "node_port_port" }}
 
     - when: '{{repl ConfigOptionEquals "certificate_source" "upload_existing"}}'
       recursiveMerge: true
