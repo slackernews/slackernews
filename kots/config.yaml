@@ -105,6 +105,12 @@ spec:
 
         Instructions on how to configure your slack application and collect these values can be found in [the SlackerNews slack documentation](https://docs.slackernews.io/slack/).
       items:
+        - name: slack_clientid
+          title: Slack Client ID
+          type: text
+        - name: slack_clientsecret
+          title: Slack Client Secret
+          type: password
         - name: slack_user_token
           title: User OAuth Token
           type: password
@@ -119,12 +125,6 @@ spec:
             regex: 
               pattern: ^xoxb-.*$
               message: Please enter the Slack bot token for your instance of Slackernews
-        - name: slack_clientid
-          title: Slack Client ID
-          type: text
-        - name: slack_clientsecret
-          title: Slack Client Secret
-          type: password
 
     - name: postgres
       description: >
