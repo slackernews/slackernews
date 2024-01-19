@@ -71,11 +71,6 @@ spec:
           type: text
           default: ""
           when: repl{{ ConfigOptionEquals "slackernews_service_type" "NodePort" }}
-        - name: nginx_service_type
-          title: Nginx Service Type
-          help_text: >
-              The service type to use for the nginx service.
-              If you're using an external http or tcp load balancer, you should use NodePort.
         - name: service_type
           title: Service Type
               If you're running in a supported cloud provider and want Kubernetes to provision a Load Balancer, use LoadBalancer.
