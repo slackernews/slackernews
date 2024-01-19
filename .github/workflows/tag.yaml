@@ -115,7 +115,6 @@ jobs:
             --version=${{ steps.get_version.outputs.version-without-v }} \
             ./slackernews
 
-
       - name: Copy the helm chart to the kots directory
         run: cp ./chart/slackernews-${{ steps.get_version.outputs.version-without-v }}.tgz ./kots
 
@@ -142,7 +141,6 @@ jobs:
           find: '$NAMESPACE'
           replace: '${{ secrets.GHCR_NAMESPACE }}'
           regex: false
-
 
       - name: Create the unstable release
         uses: replicatedhq/action-kots-release@configurable-endpoint
