@@ -32,8 +32,6 @@ spec:
         enabled: true
     nginx:
       enabled: true 
-      service:
-        type: repl{{ ConfigOption "service_type" }}
     images:
       pullSecrets:
         replicated:
@@ -54,6 +52,13 @@ spec:
       values:
         postgres:
           uri: '{{repl ConfigOption "postgres_external_uri" }}'
+
+    - when: '{{repl ConfigOptionEquals "service_type" "cluster_ip"}}'
+      recursiveMerge: true
+      values:
+        nginx:
+          service:
+            type: ClusterIP
 
     - when: '{{repl ConfigOptionEquals "service_type" "load_balancer"}}'
       recursiveMerge: true
