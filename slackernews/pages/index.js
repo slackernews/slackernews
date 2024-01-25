@@ -9,6 +9,7 @@ import { listTopLinks } from "../lib/link";
 import { getParam } from "../lib/param";
 import { listAvailableUserGroups, listUsersInUserGroup } from "../lib/slack";
 import { sendMetrics } from "../lib/metrics/metric";
+import envConfig from "../lib/env-config";
 
 export default function Page({ renderableLinks, nextPageUrl, startCount, isSuperAdmin, isDebugMode }) {
   const onEdited = (link, newTitle) => {
@@ -88,6 +89,9 @@ export async function getServerSideProps(ctx) {
 
   await sendMetrics();
 
+  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
+
+
   return {
     props: {
       renderableLinks,
@@ -100,7 +104,9 @@ export async function getServerSideProps(ctx) {
       userId: sess ? sess.user.id : "",
       duration: duration,
       isSuperAdmin: sess ? sess.user.isSuperAdmin : false,
-      isReplicatedEnabled: process.env.REPLICATED_ENABLED === "true"
+      isReplicatedEnabled,
+      isKOTSManaged,
+      showChromePluginTab,
     },
   };
 }

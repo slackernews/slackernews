@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import cookies from 'next-cookies';
 import Layout from '../../components/layout';
 import { loadSession } from '../../lib/session';
+import envConfig from "../../lib/env-config";
 
 
-export default function Page({isReplicatedEnabled }) {
+export default function Page({isReplicatedEnabled, isKOTSManaged}) {
   return (
  <>
  </>
@@ -14,7 +15,7 @@ export default function Page({isReplicatedEnabled }) {
 
 Page.getLayout = function getLayout(page) {
   return (
-    <Layout isReplicatedEnabled={page.props.isReplicatedEnabled}>
+    <Layout isReplicatedEnabled={page.props.isReplicatedEnabled} isKOTSManaged={page.props.isKOTSManaged}>
       {page}
     </Layout>
   );
@@ -23,7 +24,7 @@ Page.getLayout = function getLayout(page) {
 export async function getServerSideProps(ctx) {
   const c = cookies(ctx);
   const sess = await loadSession(c.auth); 
-   const isReplicatedEnabled = process.env.REPLICATED_ENABLED === "true";
+  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
 
   if (!sess) {
     return {
@@ -31,7 +32,11 @@ export async function getServerSideProps(ctx) {
         permanent: false,
         destination: "/login",
       },
-      props:{isReplicatedEnabled},
+      props: {
+        isReplicatedEnabled,
+        isKOTSManaged,
+        showChromePluginTab,
+      },
     };
   }
 

@@ -8,6 +8,7 @@ import Link from "next/link";
 import Toggle from "react-toggle";
 import "react-toggle/style.css"; // for ES6 modules
 import Image from "next/image";
+import envConfig from "../../lib/env-config";
 
 export default function Page({ initialIntegrations, isReplicatedEnabled }) {
   const [integrations, setIntegrations] = useState(initialIntegrations);
@@ -101,6 +102,8 @@ Page.getLayout = function getLayout(page) {
     <AdminLayout
       currentPage="integrations"
       isReplicatedEnabled={page.props.isReplicatedEnabled}
+      isKOTSManaged={page.props.isKOTSManaged}
+      showChromePluginTab={page.props.showChromePluginTab}
     >
       {page}
     </AdminLayout>
@@ -131,7 +134,8 @@ export async function getServerSideProps(ctx) {
   }
 
   const integrations = await listIntegrations();
-  const isReplicatedEnabled = process.env.REPLICATED_ENABLED === "true";
+  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
+
 
   return {
     props: {
@@ -139,6 +143,8 @@ export async function getServerSideProps(ctx) {
       hideDuration: true,
       initialIntegrations: integrations,
       isReplicatedEnabled,
+      isKOTSManaged,
+      showChromePluginTab,
     },
   };
 }

@@ -27,6 +27,7 @@ spec:
     replicated:
       enabled: false
       preflights: false
+      isKOTSManaged: true
     service:
       tls:
         enabled: true

@@ -42,7 +42,11 @@ export default function Page({ integration }) {
 
 Page.getLayout = function getLayout(page) {
   return (
-    <AdminLayout currentPage="integrations">
+    <AdminLayout currentPage="integrations"
+                 isReplicatedEnabled={page.props.isReplicatedEnabled}
+                 isKOTSManaged={page.props.isKOTSManaged}
+                 showChromePluginTab={page.props.showChromePluginTab}
+    >
       {page}
     </AdminLayout>
   );

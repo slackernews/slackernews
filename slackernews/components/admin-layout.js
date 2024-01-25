@@ -7,7 +7,14 @@ import getConfig from 'next/config';
 
 const { publicRuntimeConfig } = getConfig();
 
-export default function Layout({ children, currentPage, isReplicatedEnabled, isUpdateAvailable, }) {
+export default function Layout({
+  children,
+  currentPage,
+  isReplicatedEnabled,
+  isUpdateAvailable,
+  isKOTSManaged,
+  showChromePluginTab
+}) {
 
   return (
     <>
@@ -79,6 +86,7 @@ export default function Layout({ children, currentPage, isReplicatedEnabled, isU
               </li>
               </>
               }
+              {isKOTSManaged &&
               <li>
                 <Link href="/admin/admin-console" className={`nav-link ${
                       currentPage === "admin-console" ? "active" : "link-dark"
@@ -87,6 +95,7 @@ export default function Layout({ children, currentPage, isReplicatedEnabled, isU
                     Admin Console
                 </Link>
               </li>
+              }
               <li>
                 <Link href="/admin/admin-notifications" className={`nav-link ${
                       currentPage === "admin-notifications"
@@ -113,6 +122,7 @@ export default function Layout({ children, currentPage, isReplicatedEnabled, isU
                     Slack
                 </Link>
               </li>
+              {showChromePluginTab &&
               <li className="nav-item">
                 <Link href="/admin/chrome-plugin" className={`nav-link ${
                       currentPage === "chrome-plugin" ? "active" : "link-dark"
@@ -121,6 +131,7 @@ export default function Layout({ children, currentPage, isReplicatedEnabled, isU
                     Chrome Plugin
                 </Link>
               </li>
+              }
             </ul>
           </div>
           <main style={{ paddingLeft: "24px", width: "100%" }}>{children}</main>
