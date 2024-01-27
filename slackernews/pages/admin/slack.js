@@ -132,7 +132,7 @@ export async function getServerSideProps(ctx) {
   }
 
   const isConfiguredInEnv = await isSlackLoadedFromEnv();
-  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
+  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab, slackernewsVersion} = envConfig();
   return {
     props: {
       username: sess ? sess.user.name : "Anomymous",
@@ -145,7 +145,7 @@ export async function getServerSideProps(ctx) {
       isReplicatedEnabled,
       isKOTSManaged,
       showChromePluginTab,
-      slackernewsVersion: process.env["SLACKERNEWS_VERSION"],
+      slackernewsVersion,
     },
   };
 }

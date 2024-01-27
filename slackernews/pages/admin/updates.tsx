@@ -421,7 +421,7 @@ export async function getServerSideProps(ctx: {
     const upgradeCmd = await ReplicatedClient.getUpgradeCommand();
     const versionHistory = await ReplicatedClient.getVersionHistory();
 
-    const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
+    const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab, slackernewsVersion} = envConfig();
 
 
     return {
@@ -432,7 +432,7 @@ export async function getServerSideProps(ctx: {
         installPreflightCmd,
         preflightCmd,
         upgradeCmd,
-        slackernewsVersion: process.env["SLACKERNEWS_VERSION"],
+        slackernewsVersion,
         isReplicatedEnabled,
         versionHistory,
         isKOTSManaged,

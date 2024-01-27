@@ -89,7 +89,7 @@ export async function getServerSideProps(ctx) {
 
   await sendMetrics();
 
-  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
+  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab, slackernewsVersion} = envConfig();
 
 
   return {
@@ -107,7 +107,7 @@ export async function getServerSideProps(ctx) {
       isReplicatedEnabled,
       isKOTSManaged,
       showChromePluginTab,
-      slackernewsVersion: process.env["SLACKERNEWS_VERSION"],
+      slackernewsVersion,
     },
   };
 }

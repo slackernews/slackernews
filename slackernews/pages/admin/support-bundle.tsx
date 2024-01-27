@@ -120,12 +120,17 @@ export async function getServerSideProps(ctx: {
       };
     }
 
-    const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
+    const {
+      isReplicatedEnabled,
+      isKOTSManaged,
+      showChromePluginTab,
+      slackernewsVersion
+    } = envConfig();
 
 
     return {
       props: {
-        slackernewsVersion: process.env["SLACKERNEWS_VERSION"],
+        slackernewsVersion,
         isReplicatedEnabled,
         isKOTSManaged,
         showChromePluginTab,

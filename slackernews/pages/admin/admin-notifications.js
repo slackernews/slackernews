@@ -104,7 +104,7 @@ export async function getServerSideProps(ctx) {
 
   const adminChannel = await ensureAdminNotificationChannel();
   const adminNotificationSettings = await getAdminNotificationSettings();  
-  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
+  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab, slackernewsVersion} = envConfig();
   return {
     props: {
       username: sess.user.name,
@@ -114,7 +114,7 @@ export async function getServerSideProps(ctx) {
       isReplicatedEnabled,
       isKOTSManaged,
       showChromePluginTab,
-      slackernewsVersion: process.env["SLACKERNEWS_VERSION"],
+      slackernewsVersion,
     },
   };
 }

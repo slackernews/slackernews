@@ -135,7 +135,7 @@ export async function getServerSideProps(ctx) {
   }
 
   const integrations = await listIntegrations();
-  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
+  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab, slackernewsVersion} = envConfig();
 
 
   return {
@@ -143,7 +143,7 @@ export async function getServerSideProps(ctx) {
       username: sess.user.name,
       hideDuration: true,
       initialIntegrations: integrations,
-      slackernewsVersion: process.env["SLACKERNEWS_VERSION"],
+      slackernewsVersion,
       isReplicatedEnabled,
       isKOTSManaged,
       showChromePluginTab,
