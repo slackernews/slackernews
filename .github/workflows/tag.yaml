@@ -81,6 +81,9 @@ jobs:
           version: "3.9.0"
         id: install
 
+      ###############
+      # Prepare Chart values.yaml
+      ###############
       - name: Update the values.yaml with the registry name
         uses: jacobtomlinson/gha-find-replace@v2
         with:
@@ -113,19 +116,9 @@ jobs:
           replace: 'proxy/${{ secrets.REPLICATED_APP }}/ghcr.io/${{ secrets.GHCR_NAMESPACE }}/slackernews-nginx:${{ steps.get_version.outputs.version-without-v }}'
           regex: false
 
-      - id: package-helm-chart
-        run: |
-          cd chart/slackernews && \
-          helm dep up --debug && \
-          cd .. && \
-          helm package \
-            --app-version=${{ steps.get_version.outputs.version-without-v }} \
-            --version=${{ steps.get_version.outputs.version-without-v }} \
-            ./slackernews
-
-      - name: Copy the helm chart to the kots directory
-        run: cp ./chart/slackernews-${{ steps.get_version.outputs.version-without-v }}.tgz ./kots
-
+      ###############
+      # Prepare KOTS HelmChart kind
+      ###############
       - name: Update the version in the KOTS HelmChart kind
         uses: jacobtomlinson/gha-find-replace@v2
         with:
@@ -149,6 +142,22 @@ jobs:
           find: '$NAMESPACE'
           replace: '${{ secrets.GHCR_NAMESPACE }}'
           regex: false
+
+      ###############
+      # Package Helm Chart and Create Release
+      ###############
+      - id: package-helm-chart
+        run: |
+          cd chart/slackernews && \
+          helm dep up --debug && \
+          cd .. && \
+          helm package \
+            --app-version=${{ steps.get_version.outputs.version-without-v }} \
+            --version=${{ steps.get_version.outputs.version-without-v }} \
+            ./slackernews
+
+      - name: Copy the helm chart to the kots directory
+        run: cp ./chart/slackernews-${{ steps.get_version.outputs.version-without-v }}.tgz ./kots
 
       - name: Create the unstable release
         uses: replicatedhq/action-kots-release@configurable-endpoint
