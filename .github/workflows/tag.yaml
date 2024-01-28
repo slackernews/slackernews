@@ -111,6 +111,7 @@ jobs:
           include: 'chart/slackernews/values.yaml'
           find: '$NGINX_IMAGE'
           replace: 'proxy/${{ secrets.REPLICATED_APP }}/ghcr.io/${{ secrets.GHCR_NAMESPACE }}/slackernews-nginx:${{ steps.get_version.outputs.version-without-v }}'
+          regex: false
 
       - id: package-helm-chart
         run: |
