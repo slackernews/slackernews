@@ -6,22 +6,23 @@ import { titleCase } from "title-case";
 
 export function BreadCrumbs({currentPage, childPage}) {
   return (
-    <div className="breadcrumbs">
-      <Link href={"/"}>Home</Link>
-      {' '}
-      &raquo;
-      {' '}
-      <Link href={"/admin"}>Admin</Link>
-      {' '}
-      &raquo;
-      {' '}
-      {(!childPage) ? titleCase(currentPage) :
-        <>
-          <Link href={`/admin/${currentPage}`}>{titleCase(currentPage)}</Link>
-          {' '}
-          &raquo; {titleCase(childPage)}</>}
-    </div>
+      <div className="breadcrumbs">
+        <Link href={"/"}>Home</Link>
+        {' '}
+        &raquo;
+        {' '}
+        <Link href={"/admin"}>Admin</Link>
+        {' '}
+        &raquo;
+        {' '}
+        {(!childPage) ? titleCase(currentPage) :
+            <>
+              <Link href={`/admin/${currentPage}`}>{titleCase(currentPage)}</Link>
+              {' '}
+              &raquo; {titleCase(childPage)}</>}
+      </div>
   )
+}
 
 export default function Layout({
   children,

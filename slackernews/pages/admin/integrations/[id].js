@@ -14,7 +14,6 @@ export default function Page({integration}) {
     <>
       <h1>{integration.title}</h1>
       <div>
-        <p>description here</p>
         <a href={`https://docs.slackernews.io/integrations/${integration.id}`}>Docs</a>
         <Form
           schema={JSON.parse(integration.schema)}
@@ -46,7 +45,7 @@ Page.getLayout = function getLayout(page) {
                  isReplicatedEnabled={page.props.isReplicatedEnabled}
                  isKOTSManaged={page.props.isKOTSManaged}
                  showChromePluginTab={page.props.showChromePluginTab}
-                 childPage={page.props.integration.id
+                 childPage={page.props.integration.id}
     >
       {page}
     </AdminLayout>
