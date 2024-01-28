@@ -8,10 +8,12 @@ import envConfig from "../../lib/env-config";
 
 export default function Page({
   isReplicatedEnabled,
-    isKOTSManaged,
+  isKOTSManaged,
+  showChromePluginTab,
 }: {
   isReplicatedEnabled: boolean;
   isKOTSManaged: boolean;
+  showChromePluginTab: boolean;
 }) {
   const supportBundlePluginCmd = "curl https://krew.sh/support-bundle | bash";
   const collectSupportBundleCmd = "kubectl support-bundle --load-cluster-specs";
@@ -88,6 +90,7 @@ Page.getLayout = function getLayout(page: any) {
       isReplicatedEnabled={page.props.isReplicatedEnabled}
       isKOTSManaged={page.props.isKOTSManaged}
       showChromePluginTab={page.props.showChromePluginTab}
+      childPage={null} // cmon tsx
     >
       {page}
     </AdminLayout>
