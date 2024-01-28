@@ -4,22 +4,34 @@ import { loadSession } from "../../lib/session";
 import cookies from 'next-cookies';
 import envConfig from "../../lib/env-config";
 
-export default function Page({ isHelm, namespace , isReplicatedEnabled}) {
+export function Code({children}) {
+  return (
+    <code className="mb-4 text-black bg-dark-subtle p-1">
+      {children}
+    </code>
+  )
+}
+
+export default function Page({isHelm, namespace, isReplicatedEnabled}) {
 
   return (
-    <div className="admin-console">
+    <div className="flex-column gap-2">
       <h1>Connect to the Admin Console</h1>
       <p>
-        If you have <code>kubectl</code> to the Kubernetes cluster that
+        If you have <Code>kubectl</Code> access to the Kubernetes cluster
+        that
         you&apos;re running SlackerNews on, you can also access a lower
         level admin console.
       </p>
-      <h3>Run the following command to access the admin console:</h3>
-      <pre>
+      <p>Run the following command to access the admin console:</p>
+      <p></p>
+      <Code>
         kubectl -n {namespace} port-forward svc/kotsadm 8800:80
-      </pre>
-      <h3 className="admin-console-link">visit http://localhost:8800</h3>
-      <h2>With the Admin Console, you can:</h2>
+      </Code>
+      <p></p>
+      <p>Then visit <a href={"http://localhost:8800"}>http://localhost:8800</a> to access the
+        console.</p>
+      <h5>With the Admin Console, you can:</h5>
       <ul>
         <li>Manage update frequency</li>
         <li>Read release notes</li>
@@ -31,7 +43,7 @@ export default function Page({ isHelm, namespace , isReplicatedEnabled}) {
 }
 
 Page.getLayout = function getLayout(page) {
-  console.log(page,'page')
+  console.log(page, 'page')
 
   return (
     <AdminLayout currentPage="admin-console"
@@ -46,7 +58,7 @@ Page.getLayout = function getLayout(page) {
 
 export async function getServerSideProps(ctx) {
   const c = cookies(ctx);
-  const sess = await loadSession(c.auth);  
+  const sess = await loadSession(c.auth);
   const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
 
   if (!sess) {
@@ -55,7 +67,7 @@ export async function getServerSideProps(ctx) {
         permanent: false,
         destination: "/login",
       },
-      props:{},
+      props: {},
     };
   }
 
@@ -66,7 +78,7 @@ export async function getServerSideProps(ctx) {
         permanent: false,
         destination: "/",
       },
-      props:{},
+      props: {},
     };
   }
 
