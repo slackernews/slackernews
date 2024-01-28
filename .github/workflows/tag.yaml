@@ -112,14 +112,6 @@ jobs:
           find: '$NGINX_IMAGE'
           replace: 'proxy/${{ secrets.REPLICATED_APP }}/ghcr.io/${{ secrets.GHCR_NAMESPACE }}/slackernews-nginx:${{ steps.get_version.outputs.version-without-v }}'
 
-      - name: Update the slackernews-chart.yaml with the slackernews image path
-        uses: jacobtomlinson/gha-find-replace@v2
-        with:
-          include: 'kots/slackernews-chart.yaml'
-          find: '$IMAGE_WITH_TAG'
-          replace: 'ghcr.io/${{ secrets.GHCR_NAMESPACE }}/slackernews-web:${{ steps.get_version.outputs.version-without-v }}'
-          regex: false
-
       - id: package-helm-chart
         run: |
           cd chart/slackernews && \
