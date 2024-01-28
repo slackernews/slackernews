@@ -3,6 +3,7 @@ import Footer from "./footer";
 import Head from "next/head";
 import Link from "next/link";
 import { titleCase } from "title-case";
+import * as React from "react";
 
 export function BreadCrumbs({currentPage, childPage}) {
   return (
@@ -24,15 +25,18 @@ export function BreadCrumbs({currentPage, childPage}) {
   )
 }
 
-export default function Layout({
-  children,
-  currentPage,
-  isReplicatedEnabled,
-  isUpdateAvailable,
-  isKOTSManaged,
-  showChromePluginTab,
-  childPage,
-}) {
+export default function Layout(
+  {
+    children,
+    currentPage,
+    isReplicatedEnabled,
+    isUpdateAvailable,
+    slackernewsVersion,
+    isKOTSManaged,
+    showChromePluginTab,
+    childPage,
+  }
+) {
 
   return (
     <>
@@ -154,7 +158,8 @@ export default function Layout({
             {children}
           </main>
         </div>
-        <Footer hideSearch={true}/>
+        <i style={{fontSize: "12px", textAlign: "center"}}>Slackernews version {slackernewsVersion}</i>
+        <Footer hideSearch={true} />
       </div>
     </>
   );

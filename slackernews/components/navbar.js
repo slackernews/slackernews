@@ -3,8 +3,8 @@ import { useRouter } from 'next/router'
 import Link from 'next/link';
 import { NavDropdown } from 'react-bootstrap';
 
+export default function Navbar({ username, userId, duration, hideFilter, departments = [], depart}) {
 
-export default function Navbar({username, userId, duration, hideFilter, departments = [], depart}) {
   const router = useRouter();
 
   const handleLogoClick = () => {

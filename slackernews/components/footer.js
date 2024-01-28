@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useRouter } from 'next/router'
+import * as React from "react";
 
 export default function Footer({ hideSearch }) {
   const [searchInput, setSearchInput] = useState("");
