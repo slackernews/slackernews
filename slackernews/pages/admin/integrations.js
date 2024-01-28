@@ -30,7 +30,7 @@ export default function Page({initialIntegrations, isReplicatedEnabled}) {
             </label>
           </div>
           <div className="mb-2">
-            <Link href={`/admin/integrations/${integration.id}`} className="btn btn-outline-secondary">Configure
+            <Link href={`/admin/integrations/${integration.id}`} className="btn btn-outline-secondary me-1">Configure
             </Link>
             <Link
               href={`https://docs.slackernews.io/integrations/${integration.id}`}
