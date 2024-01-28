@@ -1,0 +1,42 @@
+name: trivy
+
+on:
+  workflow_run:
+    workflows: [development, release]
+    types: [completed]
+      
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  run-trivy-web:
+    runs-on: ubuntu-22.04
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Trivy Scan web
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: '${{ env.REGISTRY }}/${{ secrets.GHCR_NAMESPACE }}/slackernews-web:sha-${{ github.event.workflow_run.head_sha }}'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+        env:
+          # these creds assume that user associated with the configured GHCR_PAT
+          # is the one creating the git tags that trigger releases.
+          # Probably a safe assumption for now, but needs to be made more flexible over time
+          # From what I can tell, ${{ secrets.GITHUB_TOKEN }} does not have sufficient permissions for this
+          # see https://github.com/slackernews/slackernews/issues/31#issuecomment-1879730820
+          # for more details
+          TRIVY_USERNAME: ${{ github.event.workflow_run.actor.login }}
+          TRIVY_PASSWORD: ${{ secrets.GHCR_PAT }}
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        if: always() # run even if the scan fails
+        with:
+          sarif_file: 'trivy-results.sarif'
+          sha: ${{ github.event.workflow_run.head_sha }}
+          # the upstream workflow_run was triggered by a tag, so head_branch will be the tag
+          ref: refs/tags/${{ github.event.workflow_run.head_branch }}
