@@ -34,15 +34,15 @@ service:
     key: ""
 
 slack:
-  botToken: ""
-  userToken: ""
   clientId: ""
   clientSecret: ""
+  userToken: ""
+  botToken: ""
   existingSecretName: ""
-  existingSecretBotTokenKey: ""
-  existingSecretUserTokenKey: ""
   existingSecretClientIdKey: ""
   existingSecretClientSecretKey: ""
+  existingSecretUserTokenKey: ""
+  existingSecretBotTokenKey: ""
 
 slackernews:
   domain: ""
