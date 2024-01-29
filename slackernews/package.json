@@ -36,6 +36,8 @@
     "pg": "^8.11.3",
     "pg-hstore": "^2.3.4",
     "pg-pool": "^3.6.1",
+    "posthog-js": "^1.103.1",
+    "posthog-node": "^3.6.1",
     "querystring": "^0.2.1",
     "react": "^18.2.0",
     "react-bootstrap": "^2.4.0",

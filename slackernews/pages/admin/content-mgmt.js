@@ -7,6 +7,10 @@ import { getTotalLinkCount, getUntitledLinkCount, listTopLinks } from "../../lib
 import LinkRow from "../../components/link-row";
 import { getTotalScoreCount } from "../../lib/score";
 import envConfig from "../../lib/env-config";
+import { PostHog } from 'posthog-node'
+import {ReplicatedClient} from "../../lib/replicated-sdk";
+
+
 
 export default function Page({
   linkCount,
@@ -109,6 +113,30 @@ export async function getServerSideProps(ctx) {
       props: {},
     };
   }
+
+  const client = new PostHog(
+    process.env.NEXT_PUBLIC_POSTHOG_KEY,
+    {
+      host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
+    }
+  )
+
+  // const {licenseID} = await ReplicatedClient.getLicenseInfo();
+  const {licenseID} = {licenseID: "local"};
+
+  client.capture({
+    distinctId: licenseID,
+    event: 'loaded_content_management',
+    properties: {
+      $current_url: ctx.req.url,
+      userEmail: sess.user.email,
+      licenseId: licenseID,
+      slackernewsVersion: process.env.NEXT_PUBLIC_SLACKERNEWS_VERSION,
+      nginxVersion: process.env.NEXT_PUBLIC_NGINX_VERSION,
+    },
+  });
+
+  await client.shutdownAsync()
 
   const linkCount = await getTotalLinkCount();
 
