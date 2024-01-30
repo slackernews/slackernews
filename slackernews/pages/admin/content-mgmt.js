@@ -92,6 +92,7 @@ Page.getLayout = function getLayout(page) {
 }
 
 export async function getServerSideProps(ctx) {
+  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
   const c = cookies(ctx);
   const sess = await loadSession(c.auth);
   if (!sess) {
@@ -121,11 +122,12 @@ export async function getServerSideProps(ctx) {
     }
   )
 
-  // const {licenseID} = await ReplicatedClient.getLicenseInfo();
-  const {licenseID} = {licenseID: "local"};
+  const {licenseID} = isReplicatedEnabled ?
+      await ReplicatedClient.getLicenseInfo():
+      {licenseID: "local"};
 
   client.capture({
-    distinctId: licenseID,
+    distinctId: licenseID + "-" + sess.user.email,
     event: 'loaded_content_management',
     properties: {
       $current_url: ctx.req.url,
@@ -156,7 +158,6 @@ export async function getServerSideProps(ctx) {
     `/?p=${parseInt(page) + 1}`
   : null;
 
-  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
 
 
   return {
