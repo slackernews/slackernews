@@ -91,6 +91,42 @@ Page.getLayout = function getLayout(page) {
   );
 }
 
+async function sendTelemetryEvent(isReplicatedEnabled, userEmail, currentUrl ) {
+  // locally these come from license fields
+  const postHogAPIKey = isReplicatedEnabled ?
+      (await ReplicatedClient.getEntitlement("posthog_api_key")).value :
+      process.env.NEXT_PUBLIC_POSTHOG_KEY;
+
+  const postHogHost = isReplicatedEnabled ?
+      (await ReplicatedClient.getEntitlement("posthog_api_host")).value :
+      process.env.NEXT_PUBLIC_POSTHOG_KEY;
+
+  const client = new PostHog(
+      postHogAPIKey,
+      {
+        host: postHogHost,
+      }
+  )
+
+  const {licenseID} = isReplicatedEnabled ?
+      await ReplicatedClient.getLicenseInfo() :
+      {licenseID: "local"};
+
+  client.capture({
+    distinctId: licenseID + "-" + userEmail,
+    event: 'loaded_content_management',
+    properties: {
+      $current_url: currentUrl,
+      userEmail: userEmail,
+      licenseId: licenseID,
+      slackernewsVersion: process.env.NEXT_PUBLIC_SLACKERNEWS_VERSION,
+      nginxVersion: process.env.NEXT_PUBLIC_NGINX_VERSION,
+    },
+  });
+
+  await client.shutdownAsync()
+}
+
 export async function getServerSideProps(ctx) {
   const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
   const c = cookies(ctx);
@@ -115,30 +151,11 @@ export async function getServerSideProps(ctx) {
     };
   }
 
-  const client = new PostHog(
-    process.env.NEXT_PUBLIC_POSTHOG_KEY,
-    {
-      host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
-    }
-  )
-
-  const {licenseID} = isReplicatedEnabled ?
-      await ReplicatedClient.getLicenseInfo():
-      {licenseID: "local"};
-
-  client.capture({
-    distinctId: licenseID + "-" + sess.user.email,
-    event: 'loaded_content_management',
-    properties: {
-      $current_url: ctx.req.url,
-      userEmail: sess.user.email,
-      licenseId: licenseID,
-      slackernewsVersion: process.env.NEXT_PUBLIC_SLACKERNEWS_VERSION,
-      nginxVersion: process.env.NEXT_PUBLIC_NGINX_VERSION,
-    },
-  });
-
-  await client.shutdownAsync()
+  try {
+    await sendTelemetryEvent(isReplicatedEnabled, sess, ctx.req.url);
+  } catch (e) {
+    console.log("Failed to send telemetry event: " + e);
+  }
 
   const linkCount = await getTotalLinkCount();
 

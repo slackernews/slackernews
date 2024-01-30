@@ -108,7 +108,7 @@ class ReplicatedSdk {
     return response.data
   }
 
-  async getEntitlement(fieldName: string): Promise<any> {
+  async getEntitlement(fieldName: string): Promise<LicenseField> {
     const response: AxiosResponse<LicenseField> = await axios.get(`${this.baseURL}/api/v1/license/fields/${fieldName}`);
     const obj = response.data;
     if (!verifySignature(obj)) {
