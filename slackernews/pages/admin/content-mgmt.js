@@ -102,7 +102,7 @@ export async function sendTelemetryEvent(isReplicatedEnabled, userEmail, current
       process.env.NEXT_PUBLIC_POSTHOG_KEY;
 
   const postHogHost = // isReplicatedEnabled ? (await ReplicatedClient.getEntitlement("posthog_api_host")).value :
-      process.env.NEXT_PUBLIC_POSTHOG_KEY;
+      process.env.NEXT_PUBLIC_POSTHOG_HOST;
 
   const client = new PostHog(
       postHogAPIKey,
@@ -111,14 +111,14 @@ export async function sendTelemetryEvent(isReplicatedEnabled, userEmail, current
       }
   )
 
-  console.log(`posthog api key - ${postHogAPIKey.slice(0,5)}`)
-  console.log(`posthog api host - ${postHogHost.slice(0,5)}`)
+  console.log(`posthog api key - ${postHogAPIKey?.slice(0,5)}`)
+  console.log(`posthog api host - ${postHogHost?.slice(0,5)}`)
 
   const {licenseID} = isReplicatedEnabled ?
       await ReplicatedClient.getLicenseInfo() :
       {licenseID: "local"};
 
-  console.log(`replicated license id - ${licenseID.slice(0,5)}`)
+  console.log(`replicated license id - ${licenseID?.slice(0,5)}`)
 
   // technically this is not guaranteed unique in the way we probably want it to be,
   // should maybe be instanceId if we can get it (instead of licenseId)
@@ -134,7 +134,7 @@ export async function sendTelemetryEvent(isReplicatedEnabled, userEmail, current
       nginxVersion: process.env.NEXT_PUBLIC_NGINX_VERSION || null,
     },
   });
-  console.log(`sent identify for user ${userEmail.slice(0,5)}`)
+  console.log(`sent identify for user ${userEmail?.slice(0,5)}`)
   client.capture({
     distinctId: distinctId,
     event: eventName,
@@ -147,7 +147,7 @@ export async function sendTelemetryEvent(isReplicatedEnabled, userEmail, current
     },
   });
 
-  console.log(`sent capture event for user ${userEmail.slice(0,5)}`)
+  console.log(`sent capture event for user ${userEmail?.slice(0,5)}`)
   await client.shutdownAsync()
 }
 
