@@ -35,18 +35,17 @@ function verifySignature(obj: LicenseField) {
   const altPublicKey: crypto.KeyObject = crypto.createPublicKey({ key: altPublicKeyText });
   const decodedSignature: Buffer = Buffer.from(obj.signature.v1, 'base64');
 
-  const sigValid =
-      crypto.verify('md5', encodedMessage,
-          {
-            key: publicKey,
-            padding: crypto.constants.RSA_PKCS1_PSS_PADDING
-          }, decodedSignature);
+  const sigValid = crypto.verify('md5', encodedMessage,
+  {
+    key: publicKey,
+    padding: crypto.constants.RSA_PKCS1_PSS_PADDING
+  }, decodedSignature);
 
   const altSigValid = crypto.verify('md5', encodedMessage,
-          {
-            key: altPublicKey,
-            padding: crypto.constants.RSA_PKCS1_PSS_PADDING
-          }, decodedSignature)
+  {
+    key: altPublicKey,
+    padding: crypto.constants.RSA_PKCS1_PSS_PADDING
+  }, decodedSignature)
 
   return sigValid || altSigValid;
 }
