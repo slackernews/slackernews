@@ -92,13 +92,14 @@ Page.getLayout = function getLayout(page) {
 }
 
 async function sendTelemetryEvent(isReplicatedEnabled, userEmail, currentUrl ) {
-  // locally these come from license fields
-  const postHogAPIKey = // isReplicatedEnabled ?
-      // (await ReplicatedClient.getEntitlement("posthog_api_key")).value :
+  // locally these come from env vars, otherwise check license fields
+  // leaving as env vars for now to do the "A State" view where there are not
+  // license fields and these get provisioned through config or helm values
+
+  const postHogAPIKey = // isReplicatedEnabled ? (await ReplicatedClient.getEntitlement("posthog_api_key")).value :
       process.env.NEXT_PUBLIC_POSTHOG_KEY;
 
-  const postHogHost = // isReplicatedEnabled ?
-      // (await ReplicatedClient.getEntitlement("posthog_api_host")).value :
+  const postHogHost = // isReplicatedEnabled ? (await ReplicatedClient.getEntitlement("posthog_api_host")).value :
       process.env.NEXT_PUBLIC_POSTHOG_KEY;
 
   const client = new PostHog(
