@@ -149,3 +149,12 @@ spec:
           title: Postgresql URI
           required: true
           when: repl{{ ConfigOptionEquals "deploy_postgres" "0"}}
+    - name: telemetry
+      title: Telemetry
+      items:
+        - name: posthog_api_key
+          type: password
+          title: Posthog API Key
+          help_text: >
+            (Optional) - If you want to opt-in to telemetry, 
+            input the Posthog API key provided to you by Slackernews Enterprise Support

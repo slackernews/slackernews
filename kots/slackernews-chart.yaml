@@ -22,6 +22,7 @@ spec:
     slackernews:
       domain: repl{{ ConfigOption "slackernews_domain" }}
       adminUserEmails: repl{{ ConfigOption "slackernews_admin_user_emails" | quote }}
+      postHogAPIKey: repl{{ ConfigOption "posthog_api_key" | quote }}
     admin-console:
       enabled: false
     replicated:
