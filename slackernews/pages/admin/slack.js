@@ -5,6 +5,7 @@ import cookies from 'next-cookies';
 import Link from "next/link";
 import { getParam, isSlackLoadedFromEnv } from "../../lib/param";
 import envConfig from "../../lib/env-config";
+import {sendTelemetryEvent} from "./content-mgmt";
 
 export default function Page({
   isConfiguredInEnv,
@@ -20,6 +21,8 @@ export default function Page({
   const [clientSecret, setClientSecret] = useState("");
 
   const buttonClassNames = buttonError ? "mt-2 btn btn-primary bg-danger border-danger" : "mt-2 btn btn-primary";
+
+
 
   const onSaveClick = async (ev) => {
     ev.preventDefault();
@@ -158,6 +161,12 @@ export async function getServerSideProps(ctx) {
       },
       props:{},
     };
+  }
+
+  try {
+    await sendTelemetryEvent(isReplicatedEnabled, sess, ctx.req.url, 'pageview.admin.slack');
+  } catch (e) {
+    console.log("Failed to send telemetry event: " + e);
   }
 
   const isConfiguredInEnv = await isSlackLoadedFromEnv();

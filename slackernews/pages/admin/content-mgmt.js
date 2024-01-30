@@ -91,10 +91,12 @@ Page.getLayout = function getLayout(page) {
   );
 }
 
-async function sendTelemetryEvent(isReplicatedEnabled, userEmail, currentUrl, loadedContentManagement = 'loaded_content_management') {
+export async function sendTelemetryEvent(isReplicatedEnabled, userEmail, currentUrl, eventName) {
   // locally these come from env vars, otherwise check license fields
   // leaving as env vars for now to do the "A State" view where there are not
   // license fields and these get provisioned through config or helm values
+
+  console.log(`sending telemetry event for ${userEmail} / ${currentUrl}`)
 
   const postHogAPIKey = // isReplicatedEnabled ? (await ReplicatedClient.getEntitlement("posthog_api_key")).value :
       process.env.NEXT_PUBLIC_POSTHOG_KEY;
@@ -109,9 +111,14 @@ async function sendTelemetryEvent(isReplicatedEnabled, userEmail, currentUrl, lo
       }
   )
 
+  console.log(`posthog api key - ${postHogAPIKey.slice(0,5)}`)
+  console.log(`posthog api host - ${postHogHost.slice(0,5)}`)
+
   const {licenseID} = isReplicatedEnabled ?
       await ReplicatedClient.getLicenseInfo() :
       {licenseID: "local"};
+
+  console.log(`replicated license id - ${licenseID.slice(0,5)}`)
 
   // technically this is not guaranteed unique in the way we probably want it to be,
   // should maybe be instanceId if we can get it (instead of licenseId)
@@ -127,9 +134,10 @@ async function sendTelemetryEvent(isReplicatedEnabled, userEmail, currentUrl, lo
       nginxVersion: process.env.NEXT_PUBLIC_NGINX_VERSION || null,
     },
   });
+  console.log(`sent identify for user ${userEmail.slice(0,5)}`)
   client.capture({
     distinctId: distinctId,
-    event: loadedContentManagement,
+    event: eventName,
     properties: {
       $current_url: currentUrl,
       userEmail: userEmail,
@@ -139,6 +147,7 @@ async function sendTelemetryEvent(isReplicatedEnabled, userEmail, currentUrl, lo
     },
   });
 
+  console.log(`sent capture event for user ${userEmail.slice(0,5)}`)
   await client.shutdownAsync()
 }
 
@@ -167,7 +176,7 @@ export async function getServerSideProps(ctx) {
   }
 
   try {
-    await sendTelemetryEvent(isReplicatedEnabled, sess, ctx.req.url);
+    await sendTelemetryEvent(isReplicatedEnabled, sess, ctx.req.url, 'pageview.admin.content_management');
   } catch (e) {
     console.log("Failed to send telemetry event: " + e);
   }

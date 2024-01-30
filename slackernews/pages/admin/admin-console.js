@@ -3,6 +3,7 @@ import React from 'react';
 import { loadSession } from "../../lib/session";
 import cookies from 'next-cookies';
 import envConfig from "../../lib/env-config";
+import {sendTelemetryEvent} from "./content-mgmt";
 
 export function Code({children}) {
   return (
@@ -85,6 +86,12 @@ export async function getServerSideProps(ctx) {
   let namespace = process.env["KUBERNETES_NAMESPACE"];
   if (!namespace) {
     namespace = "default";
+  }
+
+  try {
+    await sendTelemetryEvent(isReplicatedEnabled, sess, ctx.req.url, 'pageview.admin.admin_console');
+  } catch (e) {
+    console.log("Failed to send telemetry event: " + e);
   }
 
   return {

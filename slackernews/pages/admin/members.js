@@ -26,6 +26,7 @@ import ListGroup from "react-bootstrap/ListGroup";
 import { ReplicatedClient } from "../../lib/replicated-sdk";
 import Image from "next/image";
 import envConfig from "../../lib/env-config";
+import {sendTelemetryEvent} from "./content-mgmt";
 
 export default function Page({
   initialUsers,
@@ -362,6 +363,12 @@ export async function getServerSideProps(ctx) {
   const memberCountMax = isReplicatedEnabled
     ? (await ReplicatedClient.getEntitlement("member_count_max")).value
     : 9999;
+
+  try {
+    await sendTelemetryEvent(isReplicatedEnabled, sess, ctx.req.url, 'pageview.admin.members');
+  } catch (e) {
+    console.log("Failed to send telemetry event: " + e);
+  }
 
   return {
     props: {
