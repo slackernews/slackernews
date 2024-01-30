@@ -5,7 +5,8 @@ import cookies from 'next-cookies';
 import Link from "next/link";
 import { getParam, isSlackLoadedFromEnv } from "../../lib/param";
 import envConfig from "../../lib/env-config";
-import {sendTelemetryEvent} from "./content-mgmt";
+
+import {sendTelemetryEvent} from "../../lib/send-telemetry-event";
 
 export default function Page({
   isConfiguredInEnv,
@@ -164,7 +165,7 @@ export async function getServerSideProps(ctx) {
   }
 
   try {
-    await sendTelemetryEvent(isReplicatedEnabled, sess, ctx.req.url, 'pageview.admin.slack');
+    await sendTelemetryEvent(isReplicatedEnabled, sess.user.email, ctx.req.url, 'pageview.admin.slack');
   } catch (e) {
     console.log("Failed to send telemetry event: " + e);
   }

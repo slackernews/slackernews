@@ -3,7 +3,8 @@ import React from 'react';
 import { loadSession } from "../../lib/session";
 import cookies from 'next-cookies';
 import envConfig from "../../lib/env-config";
-import {sendTelemetryEvent} from "./content-mgmt";
+
+import {sendTelemetryEvent} from "../../lib/send-telemetry-event";
 
 export function Code({children}) {
   return (
@@ -89,7 +90,7 @@ export async function getServerSideProps(ctx) {
   }
 
   try {
-    await sendTelemetryEvent(isReplicatedEnabled, sess, ctx.req.url, 'pageview.admin.admin_console');
+    await sendTelemetryEvent(isReplicatedEnabled, sess.user.email, ctx.req.url, 'pageview.admin.admin_console');
   } catch (e) {
     console.log("Failed to send telemetry event: " + e);
   }
