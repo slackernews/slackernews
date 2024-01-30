@@ -17,18 +17,38 @@ YlCLaD/b+lCEdYqLc+E8mNe+RpdmCzCUrb3WICdJKSnDlotgJndsofXnELd1IQLZ
 nwIDAQAB
 -----END PUBLIC KEY-----`
 
+const altPublicKeyText = `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5J7ncdb+Xa4EWzgHRbH8
+57suoDvFRGya0mmvrYHVYHTsYQbuaEzyGt7X+XSXYD2mLIpYXWnkWwdF9TNSAFQH
+56/Y0pUSlaVoBKxWr65r7dsWW9U+oL+qgJ8DBO5e0yr/hoIuvFbPWzYnBlRb2YKq
+X3aYgPSRPmvAXjXMvRuHsJZYkLOhZnn1Li0p1pjejHg21wA4MDbYvLW6kgevodRJ
+IhVYFF4T/TTcNAZdou5ZxhYzyvKWfUeSvQ8e96iL4gB9RTY1rCLRq5DhUmDMq+F+
+kjwDSOdqxhnOHzGOAGLF5WErc8UaXZ0KKlMzBQAYBp3buaxKEDAmnkPSctKxLhjI
+TQIDAQAB
+-----END PUBLIC KEY-----`
+
 
 function verifySignature(obj: LicenseField) {
   const valueType = typeof obj.value;
   const encodedMessage: Uint8Array = new TextEncoder().encode(obj.value.toString());
   const publicKey: crypto.KeyObject = crypto.createPublicKey({ key: publicKeyTxt });
+  const altPublicKey: crypto.KeyObject = crypto.createPublicKey({ key: altPublicKeyText });
   const decodedSignature: Buffer = Buffer.from(obj.signature.v1, 'base64');
 
-  return crypto.verify('md5', encodedMessage,
-  {
-      key: publicKey,
-      padding: crypto.constants.RSA_PKCS1_PSS_PADDING
-  }, decodedSignature);
+  const sigValid =
+      crypto.verify('md5', encodedMessage,
+          {
+            key: publicKey,
+            padding: crypto.constants.RSA_PKCS1_PSS_PADDING
+          }, decodedSignature);
+
+  const altSigValid = crypto.verify('md5', encodedMessage,
+          {
+            key: altPublicKey,
+            padding: crypto.constants.RSA_PKCS1_PSS_PADDING
+          }, decodedSignature)
+
+  return sigValid || altSigValid;
 }
 
 
