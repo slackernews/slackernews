@@ -164,14 +164,16 @@ export async function getServerSideProps(ctx) {
     };
   }
 
+
+  const isConfiguredInEnv = await isSlackLoadedFromEnv();
+  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
+
   try {
     await sendTelemetryEvent(isReplicatedEnabled, sess.user.email, ctx.req.url, 'pageview.admin.slack');
   } catch (e) {
     console.log("Failed to send telemetry event: " + e);
   }
 
-  const isConfiguredInEnv = await isSlackLoadedFromEnv();
-  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
   return {
     props: {
       username: sess ? sess.user.name : "Anomymous",
