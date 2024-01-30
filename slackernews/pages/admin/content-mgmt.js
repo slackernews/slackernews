@@ -91,7 +91,7 @@ Page.getLayout = function getLayout(page) {
   );
 }
 
-async function sendTelemetryEvent(isReplicatedEnabled, userEmail, currentUrl ) {
+async function sendTelemetryEvent(isReplicatedEnabled, userEmail, currentUrl, loadedContentManagement = 'loaded_content_management') {
   // locally these come from env vars, otherwise check license fields
   // leaving as env vars for now to do the "A State" view where there are not
   // license fields and these get provisioned through config or helm values
@@ -113,15 +113,29 @@ async function sendTelemetryEvent(isReplicatedEnabled, userEmail, currentUrl ) {
       await ReplicatedClient.getLicenseInfo() :
       {licenseID: "local"};
 
-  client.capture({
-    distinctId: licenseID + "-" + userEmail,
-    event: 'loaded_content_management',
+  // technically this is not guaranteed unique in the way we probably want it to be,
+  // should maybe be instanceId if we can get it (instead of licenseId)
+  const distinctId = licenseID + "-" + userEmail;
+
+  client.identify({
+    distinctId: distinctId,
     properties: {
       $current_url: currentUrl,
       userEmail: userEmail,
       licenseId: licenseID,
-      slackernewsVersion: process.env.NEXT_PUBLIC_SLACKERNEWS_VERSION,
-      nginxVersion: process.env.NEXT_PUBLIC_NGINX_VERSION,
+      slackernewsVersion: process.env.NEXT_PUBLIC_SLACKERNEWS_VERSION || null,
+      nginxVersion: process.env.NEXT_PUBLIC_NGINX_VERSION || null,
+    },
+  });
+  client.capture({
+    distinctId: distinctId,
+    event: loadedContentManagement,
+    properties: {
+      $current_url: currentUrl,
+      userEmail: userEmail,
+      licenseId: licenseID,
+      slackernewsVersion: process.env.NEXT_PUBLIC_SLACKERNEWS_VERSION || null,
+      nginxVersion: process.env.NEXT_PUBLIC_NGINX_VERSION || null,
     },
   });
 
