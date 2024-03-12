@@ -114,7 +114,6 @@ jobs:
           - { distribution: eks, version: v1.25 }
           - { distribution: eks, version: v1.26 }
           - { distribution: eks, version: v1.27 }
-          - { distribution: gke, version: v1.24 }
           - { distribution: gke, version: v1.25 }
           - { distribution: gke, version: v1.26 }
           - { distribution: gke, version: v1.27 }
