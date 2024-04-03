@@ -31,6 +31,7 @@ export async function collectLicenseEntitlements() {
   const entitlements = await ReplicatedClient.listEntitlements();
   for ( var entitlement of entitlements ) {
     var value = entitlement.value ;
+    console.log(value)
     if ( typeof(value) === "number" ) {
       licenseEntitlement.set({ 
           "name": entitlement.name, 
