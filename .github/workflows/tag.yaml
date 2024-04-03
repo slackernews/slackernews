@@ -49,7 +49,7 @@ jobs:
                 type=ref,event=branch
                 type=ref,event=tag
                 type=ref,event=pr
-          images: ${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-nginx
+          images: ${{ env.REGISTRY }}/${{ secrets.GHCR_NAMESPACE }}/slackernews-nginx
 
       - uses: int128/docker-build-cache-config-action@v1
         id: cache
