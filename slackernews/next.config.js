@@ -37,7 +37,7 @@ const moduleExports = {
     return [
       {
         source: '/metrics',
-        destination: '/api/metrics'
+        destination: '/api/prometheus'
       }
     ]
   }

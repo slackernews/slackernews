@@ -1,5 +1,5 @@
 import { getSequelize } from "./db";
-import { sendMetrics } from "./metrics/metric";
+import { sendMetrics } from "./metrics/replicated";
 const { Sequelize, DataTypes } = require('sequelize');
 const { Op } = require('sequelize');
 
