@@ -18,8 +18,10 @@ spec:
     - deployment/slackernews-nginx
     - '{{repl if ConfigOptionEquals "deploy_postgres" "1"}}statefulset/postgres{{repl end}}'
   graphs:
-    - title: DAU
-      query: 'sum(user_signup_events_total)'
+    - title: Daily Active Users (DAU)
+      query: 'sum(slackernews_daily_user_count)'
+    - title: Monthly Active Users (MAU)
+      query: 'sum(slackernews_monthly_user_count)'
 images:
   slackernews:
     pullSecret: repl{{ ImagePullSecretName }}
