@@ -8,7 +8,7 @@ import { loadSession } from "../lib/session";
 import { listTopLinks } from "../lib/link";
 import { getParam } from "../lib/param";
 import { listAvailableUserGroups, listUsersInUserGroup } from "../lib/slack";
-import { sendMetrics } from "./metrics/replicated";
+import { sendMetrics } from "../lib/metrics/replicated";
 import envConfig from "../lib/env-config";
 
 export default function Page({ renderableLinks, nextPageUrl, startCount, isSuperAdmin, isDebugMode }) {

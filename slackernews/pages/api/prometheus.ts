@@ -4,7 +4,7 @@ import { sendMetrics } from "../../lib/metrics/replicated";
 import { collectUserMetrics, collectLicenseEntitlements } from "../../lib/metrics/prometheus";
 
 // send replicated metrics when sending prometheus metrics
-await sendMetrics();
+sendMetrics();
 
 collectDefaultMetrics({ prefix: 'slackernews_' });
 collectUserMetrics();
