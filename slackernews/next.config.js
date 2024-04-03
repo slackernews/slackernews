@@ -33,7 +33,16 @@ const moduleExports = {
       "avatars.slack-edge.com",
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/metrics',
+        destination: '/api/metrics'
+      }
+    ]
+  }
 };
+
 // default-src unsafe-eval is needed for departments page
 // img-src entries are needed for the avatar images
 const ContentSecurityPolicy = `
