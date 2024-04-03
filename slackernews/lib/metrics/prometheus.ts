@@ -1,5 +1,4 @@
 import { Gauge } from 'prom-client';
-import { CounterLogDetailsType, HistogramLogDetailsType } from 'types';
 import { listDailyActiveUsers, listMonthlyActiveUsers } from "../user";
 
 const monthlyUser = new Gauge({
