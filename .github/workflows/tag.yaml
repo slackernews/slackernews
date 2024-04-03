@@ -38,6 +38,19 @@ jobs:
                 type=ref,event=pr
           images: ${{ env.REGISTRY }}/${{ secrets.GHCR_NAMESPACE }}/slackernews-web
 
+      - name: Extract metadata (tags, labels) for nginx image
+        id: nginx-meta
+        uses: docker/metadata-action@v5
+        with:
+          tags: |
+                type=sha,format=long
+                type=schedule
+                type=raw,${{ inputs.version }}
+                type=ref,event=branch
+                type=ref,event=tag
+                type=ref,event=pr
+          images: ${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-nginx
+
       - uses: int128/docker-build-cache-config-action@v1
         id: cache
         with:
@@ -55,10 +68,12 @@ jobs:
           cache-to: ${{ steps.cache.outputs.cache-to }}
 
       - name: Build nginx image
-        uses: docker/build-push-action@v4
+        id: build-nginx
+        uses: docker/build-push-action@v5
         with:
           context: .
-          tags: ${{ env.REGISTRY }}/${{ secrets.GHCR_NAMESPACE }}/slackernews-nginx:0.0.0-alpha.${{ steps.vars.outputs.sha_short }}
+          tags: ${{ steps.nginx-meta.outputs.tags }}
+          labels: ${{ steps.nginx-meta.outputs.labels }}
           file: ./deploy/Dockerfile.nginx
           push: true
           cache-from: ${{ steps.cache.outputs.cache-from }}
