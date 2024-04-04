@@ -42,7 +42,7 @@ export async function collectLicenseEntitlements() {
 const currentVersion = new Gauge({
   name: 'slackernews_current_version',
   help: 'The currently installed version of Slackernews',
-  labelNames: [ 'major', 'minor', 'patch', 'original', 'deployed' ],
+  labelNames: [ 'major', 'minor', 'patch', 'original', 'created' ],
 });
 
 async function collectCurrentVersion() {
@@ -56,8 +56,8 @@ async function collectCurrentVersion() {
             "minor": version.minor,
             "patch": version.patch,
             "original": version.raw,
-            "deployed": release.deployedAt
-          }, new Date(release.createdAt).getTime()/1000 );
+            "created": release.createdAt
+          }, new Date(release.deployedAt).getTime());
   } catch {
     console.log("version could not be parsed as semver: ", release.versionLabel);
   }
@@ -80,7 +80,7 @@ async function collectAvailableVersions() {
               "minor": version.minor,
               "patch": version.patch,
               "original": version.raw,
-            }, new Date(update.createdAt).getTime()/1000 );
+            }, new Date(update.createdAt).getTime());
     } catch {
       console.log("version could not be parsed as semver: ", update.versionLabel);
     }
@@ -104,7 +104,7 @@ async function collectHistoricalVersions() {
               "patch": version.patch,
               "original": version.raw,
               "deployed": release.deployedAt
-            }, new Date(release.createdAt).getTime()/1000 );
+            }, new Date(release.createdAt).getTime());
     } catch {
       console.log("version could not be parsed as semver: ", release.versionLabel);
     }
