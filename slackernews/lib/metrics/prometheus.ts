@@ -1,7 +1,7 @@
 import { Gauge } from 'prom-client';
 import { listDailyActiveUsers, listMonthlyActiveUsers } from "../user";
-
 import { ReplicatedClient, LicenseField } from '../replicated-sdk';
+import { SemVer } from 'semver';
 
 const monthlyUser = new Gauge({
    name: 'slackernews_monthly_user_count',
@@ -28,7 +28,6 @@ const licenseEntitlement = new Gauge({
 });
 
 export async function collectLicenseEntitlements() {
-  console.log("geting entitlements")
   const entitlements = await ReplicatedClient.listEntitlements();
   for ( const entitlement of entitlements ) {
     if ( entitlement.valueType === "Integer" ) {
@@ -38,4 +37,49 @@ export async function collectLicenseEntitlements() {
         }, entitlement.value as number);
     }
   }
+}
+
+const currentVersion = new Gauge({
+  name: 'current_version',
+  help: 'The currently installed version of Slackernews',
+  labelNames: [ 'major', 'minor', 'patch', 'pre', 'meta', 'original' ],
+});
+
+async function collectCurrentVersion() {
+  const appInfo = await ReplicatedClient.getAppInfo();
+  const release = appInfo.currentRelease;
+  const version = new SemVer(release.versionLabel, { loose: true, includePrerelease: true })
+  currentVersion.set({ 
+          "major": version.major,
+          "minor": version.minor,
+          "patch": version.patch,
+  //         "pre": version.prerelease
+  //         "meta": version.
+           "original": version.raw
+        }, new Date(release.createdAt).getTime()/1000 );
+
+} 
+
+// const availableVersion = new Gauge({
+//   name: 'available_version',
+//   help: 'Versions of the Slackernews that have been released but are not installed',
+//   labelNames: [ 'major', 'minor', 'patch', 'pre', 'meta', 'original' ],
+// });
+
+// async function collectAvailableVersions() {
+// } 
+
+// const historicalVersion = new Gauge({
+//   name: 'historical_version',
+//   help: 'Versions of the Slackernews that have been installed previously',
+//   labelNames: [ 'major', 'minor', 'patch', 'pre', 'meta', 'original' ],
+// });
+
+// async function collectHistoricalVersions() {
+// } 
+
+export async function collectVersionMetrics() {
+  await collectCurrentVersion()
+  // await collectAvailableVersions()
+  // await collectHistoricalVersions()
 }
