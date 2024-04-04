@@ -63,7 +63,6 @@ async function collectCurrentVersion() {
   //         "pre": version.prerelease
   //         "meta": version.
            "original": version.raw,
-           "deployed": release.deployedAt
         }, new Date(release.createdAt).getTime()/1000 );
 
 } 

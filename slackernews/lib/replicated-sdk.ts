@@ -35,6 +35,7 @@ function verifySignature(obj: LicenseField) {
 export interface AppInfo {
   appSlug: string
   appName: string
+  appStatus: string
   helmChartURL: string
   currentRelease: Release
 }
@@ -43,10 +44,10 @@ export interface AppInfo {
 
 export interface Release {
   versionLabel: string
-  isRequired: boolean
+  channelID: string
+  channelName: string
   releaseNotes: string
   createdAt: string
-  deployedAt: string
   helmReleaseName: string
   helmReleaseRevision: number
   helmReleaseNamespace: string
@@ -95,7 +96,9 @@ class ReplicatedSdk {
   }
 
   async getAppInfo(): Promise<AppInfo> {
+    console.log("getting app info")
     const response: AxiosResponse<AppInfo> = await axios.get(`${this.baseURL}/api/v1/app/info`);
+    console.log("response: ", repsonse)
     return response.data;
   }
 
