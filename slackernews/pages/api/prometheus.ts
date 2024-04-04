@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { register, collectDefaultMetrics } from 'prom-client';
 import { sendMetrics } from "../../lib/metrics/replicated";
-import { collectUserMetrics, collectLicenseEntitlements } from "../../lib/metrics/prometheus";
+import { collectUserMetrics, collectLicenseEntitlements, collectVersionMetrics } from "../../lib/metrics/prometheus";
 
 // send custom metrics to replicated metrics when sending prometheus metrics
 sendMetrics();
@@ -10,7 +10,7 @@ sendMetrics();
 collectDefaultMetrics({ prefix: 'slackernews_' });
 collectUserMetrics();
 collectLicenseEntitlements();
-collectLicenseEntitlements();
+collectVersionMetrics();
 
 export default async function handler(_: NextApiRequest, res: NextApiResponse) {
   res.setHeader('Content-type', register.contentType);
