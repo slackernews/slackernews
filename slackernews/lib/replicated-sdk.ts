@@ -77,6 +77,7 @@ interface LicenseInfo {
 export interface LicenseField {
   name: string
   title: string
+  description: string
   value: string|number|boolean
   valueType: string
   signature: Signature
@@ -108,7 +109,7 @@ class ReplicatedSdk {
     return response.data
   }
 
-  async getEntitlement(fieldName: string): Promise<any> {
+  async getEntitlement(fieldName: string): Promise<LicenseField> {
     const response: AxiosResponse<LicenseField> = await axios.get(`${this.baseURL}/api/v1/license/fields/${fieldName}`);
     const obj = response.data;
     if (!verifySignature(obj)) {
@@ -117,9 +118,16 @@ class ReplicatedSdk {
     return obj;
   }
 
-  async listEntitlements(): Promise<any[]> {
-    const response: AxiosResponse<any[]> = await axios.get(`${this.baseURL}/api/v1/license/fields`);
-    return response.data;
+  async listEntitlements(): Promise<LicenseField[]> {
+    const response: AxiosResponse<Object> = await axios.get(`${this.baseURL}/api/v1/license/fields`);
+    var entitlements: LicenseField[] = []
+    for ( const [ name, field ] of Object.entries(response.data) ) {
+      if (!verifySignature(field)) {
+        throw new Error('License signature verification failed');
+      }
+      entitlements.push(field) 
+    }
+    return entitlements;
   }
 
   async getLicenseInfo(): Promise<LicenseInfo> {

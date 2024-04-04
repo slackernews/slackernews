@@ -24,22 +24,18 @@ export async function collectUserMetrics() {
 const licenseEntitlement = new Gauge({
   name: 'license_entitlement',
   help: 'Slackernews license entitlement',
-  labelNames: [ 'name', 'title'],
+  labelNames: [ 'name', 'title', 'description' ],
 });
 
 export async function collectLicenseEntitlements() {
   console.log("geting entitlements")
   const entitlements = await ReplicatedClient.listEntitlements();
-  console.log(typeof(entitlements))
-  console.log("entitlements: ", entitlements)
-  for ( var entitlement of entitlements ) {
-    var value = entitlement.value ;
-    console.log("entitlement: ", value)
-    if ( typeof(value) === "number" ) {
+  for ( const entitlement of entitlements ) {
+    if ( entitlement.valueType === "Integer" ) {
       licenseEntitlement.set({ 
           "name": entitlement.name, 
           "title": entitlement.title
-        }, entitlement.value);
+        }, entitlement.value as number);
     }
   }
 }
