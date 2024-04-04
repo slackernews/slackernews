@@ -22,8 +22,8 @@ export async function collectUserMetrics() {
 }
 
 const licenseEntitlement = new Gauge({
-  name: 'license_entitlement',
-  help: 'Slackernews license entitlement',
+  name: 'slackernews_license_entitlement',
+  help: 'Current value of an entitlement of the Slackernews license',
   labelNames: [ 'name', 'title', 'description' ],
 });
 
