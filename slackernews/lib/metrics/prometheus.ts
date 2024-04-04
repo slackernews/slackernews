@@ -48,18 +48,19 @@ const currentVersion = new Gauge({
 async function collectCurrentVersion() {
   const appInfo = await ReplicatedClient.getAppInfo();
   const release = appInfo.currentRelease;
-  const version = new SemVer(release.versionLabel, { loose: true, includePrerelease: true })
-  if ( version == null ) {
+  try {
+    const version = new SemVer(release.versionLabel, { loose: true, includePrerelease: true })
+
+    currentVersion.set({ 
+            "major": version.major,
+            "minor": version.minor,
+            "patch": version.patch,
+            "original": version.raw,
+            "deployed": release.deployedAt
+          }, new Date(release.createdAt).getTime()/1000 );
+  } catch {
     console.log("version could not be parsed as semver: ", release.versionLabel);
   }
-
-  currentVersion.set({ 
-          "major": version.major,
-          "minor": version.minor,
-          "patch": version.patch,
-          "original": version.raw,
-          "deployed": release.deployedAt
-        }, new Date(release.createdAt).getTime()/1000 );
 } 
 
 const availableVersion = new Gauge({
@@ -72,17 +73,17 @@ const availableVersion = new Gauge({
 async function collectAvailableVersions() {
   const updates = await ReplicatedClient.getUpdates();
   for ( const update of updates ) {
-    const version = new SemVer(update.versionLabel, { loose: true, includePrerelease: true })
-    if ( version == null ) {
+    try {
+      const version = new SemVer(update.versionLabel, { loose: true, includePrerelease: true })
+      availableVersion.set({ 
+              "major": version.major,
+              "minor": version.minor,
+              "patch": version.patch,
+              "original": version.raw,
+            }, new Date(update.createdAt).getTime()/1000 );
+    } catch {
       console.log("version could not be parsed as semver: ", update.versionLabel);
     }
-
-    availableVersion.set({ 
-            "major": version.major,
-            "minor": version.minor,
-            "patch": version.patch,
-            "original": version.raw,
-          }, new Date(update.createdAt).getTime()/1000 );
   }
 } 
 
@@ -95,18 +96,18 @@ const historicalVersion = new Gauge({
 async function collectHistoricalVersions() {
   const releaseHistory = await ReplicatedClient.getVersionHistory();
   for ( const release of releaseHistory.releases ) {
-    const version = new SemVer(release.versionLabel, { loose: true, includePrerelease: true })
-    if ( version == null ) {
+    try {
+      const version = new SemVer(release.versionLabel, { loose: true, includePrerelease: true })
+      historicalVersion.set({ 
+              "major": version.major,
+              "minor": version.minor,
+              "patch": version.patch,
+              "original": version.raw,
+              "deployed": release.deployedAt
+            }, new Date(release.createdAt).getTime()/1000 );
+    } catch {
       console.log("version could not be parsed as semver: ", release.versionLabel);
     }
-
-    historicalVersion.set({ 
-            "major": version.major,
-            "minor": version.minor,
-            "patch": version.patch,
-            "original": version.raw,
-            "deployed": release.deployedAt
-          }, new Date(release.createdAt).getTime()/1000 );
   }
 } 
 
