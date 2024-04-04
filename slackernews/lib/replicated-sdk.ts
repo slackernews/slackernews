@@ -108,8 +108,8 @@ class ReplicatedSdk {
     return response.data;
   }
 
-  async getVersionHistory(): Promise<VersionHistory[]> {
-    const response: AxiosResponse<VersionHistory[]> = await axios.get(`${this.baseURL}/api/v1/app/history`);
+  async getVersionHistory(): Promise<VersionHistory> {
+    const response: AxiosResponse<VersionHistory> = await axios.get(`${this.baseURL}/api/v1/app/history`);
     return response.data
   }
 

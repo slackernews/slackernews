@@ -42,48 +42,65 @@ export async function collectLicenseEntitlements() {
 const currentVersion = new Gauge({
   name: 'slackernews_current_version',
   help: 'The currently installed version of Slackernews',
-  labelNames: [ 'major', 'minor', 'patch', 'pre', 'meta', 'original', 'deployed' ],
+  labelNames: [ 'major', 'minor', 'patch', 'original', 'deployed' ],
 });
 
 async function collectCurrentVersion() {
-  console.log("collecting appinfo");
   const appInfo = await ReplicatedClient.getAppInfo();
-  console.log("appInfo: ", appInfo);
   const release = appInfo.currentRelease;
-  console.log("release: ", release);
   const version = new SemVer(release.versionLabel, { loose: true, includePrerelease: true })
   if ( version == null ) {
     console.log("version could not be parsed as semver: ", release.versionLabel);
   }
-  console.log("setting slackernews_current_version: ", version);
+
   currentVersion.set({ 
           "major": version.major,
           "minor": version.minor,
           "patch": version.patch,
-  //         "pre": version.prerelease
-  //         "meta": version.
-           "original": version.raw,
+          "original": version.raw,
+          "deployed": release.deployedAt
         }, new Date(release.createdAt).getTime()/1000 );
-
 } 
 
-// const availableVersion = new Gauge({
-//   name: 'slackernews_available_version',
-//   help: 'Versions of the Slackernews that have been released but are not installed',
-//   labelNames: [ 'major', 'minor', 'patch', 'pre', 'meta', 'original' ],
-// });
+const availableVersion = new Gauge({
+  name: 'slackernews_available_version',
+  help: 'Versions of the Slackernews that have been released but are not installed',
+  labelNames: [ 'major', 'minor', 'patch', 'original' ],
+});
 
-// async function collectAvailableVersions() {
-// } 
 
-// const historicalVersion = new Gauge({
-//   name: 'slackernews_historical_version',
-//   help: 'Versions of the Slackernews that have been installed previously',
-//   labelNames: [ 'major', 'minor', 'patch', 'pre', 'meta', 'original' ],
-// });
+async function collectAvailableVersions() {
+  const updates = await ReplicatedClient.getUpdates();
+  for ( const update of updates ) {
+    const version = new SemVer(update.versionLabel, { loose: true, includePrerelease: true })
+    availableVersion.set({ 
+            "major": version.major,
+            "minor": version.minor,
+            "patch": version.patch,
+            "original": version.raw,
+          }, new Date(update.createdAt).getTime()/1000 );
+  }
+} 
 
-// async function collectHistoricalVersions() {
-// } 
+const historicalVersion = new Gauge({
+  name: 'slackernews_historical_version',
+  help: 'Versions of the Slackernews that have been installed previously',
+  labelNames: [ 'major', 'minor', 'patch', 'original' ],
+});
+
+async function collectHistoricalVersions() {
+  const releaseHistory = await ReplicatedClient.getVersionHistory();
+  for ( const release of releaseHistory.releases ) {
+    const version = new SemVer(release.versionLabel, { loose: true, includePrerelease: true })
+    availableVersion.set({ 
+            "major": version.major,
+            "minor": version.minor,
+            "patch": version.patch,
+            "original": version.raw,
+            "deployed": release.deployedAt
+          }, new Date(release.createdAt).getTime()/1000 );
+  }
+} 
 
 export async function collectVersionMetrics() {
   await collectCurrentVersion()
