@@ -80,6 +80,7 @@ async function collectAvailableVersions() {
               "minor": version.minor,
               "patch": version.patch,
               "original": version.raw,
+              "releaseNotes": update.releaseNotes
             }, new Date(update.createdAt).getTime());
     } catch {
       console.log("version could not be parsed as semver: ", update.versionLabel);
