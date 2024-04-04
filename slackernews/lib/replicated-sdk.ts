@@ -48,6 +48,7 @@ export interface Release {
   channelName: string
   releaseNotes: string
   createdAt: string
+  deployedAt: string
   helmReleaseName: string
   helmReleaseRevision: number
   helmReleaseNamespace: string
@@ -98,7 +99,7 @@ class ReplicatedSdk {
   async getAppInfo(): Promise<AppInfo> {
     console.log("getting app info")
     const response: AxiosResponse<AppInfo> = await axios.get(`${this.baseURL}/api/v1/app/info`);
-    console.log("response: ", repsonse)
+    console.log("response: ", response)
     return response.data;
   }
 
