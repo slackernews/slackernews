@@ -28,11 +28,12 @@ const licenseEntitlement = new Gauge({
 });
 
 export async function collectLicenseEntitlements() {
+  console.log("geting entitlements")
   const entitlements = await ReplicatedClient.listEntitlements();
-  console.log(entitlements)
+  console.log("entitlements: ", entitlements)
   for ( var entitlement of entitlements ) {
     var value = entitlement.value ;
-    console.log(value)
+    console.log("entitlement: ", value)
     if ( typeof(value) === "number" ) {
       licenseEntitlement.set({ 
           "name": entitlement.name, 
