@@ -112,6 +112,6 @@ async function collectHistoricalVersions() {
 
 export async function collectVersionMetrics() {
   await collectCurrentVersion()
-  // await collectAvailableVersions()
-  // await collectHistoricalVersions()
+  await collectAvailableVersions()
+  await collectHistoricalVersions()
 }
