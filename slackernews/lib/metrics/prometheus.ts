@@ -73,6 +73,10 @@ async function collectAvailableVersions() {
   const updates = await ReplicatedClient.getUpdates();
   for ( const update of updates ) {
     const version = new SemVer(update.versionLabel, { loose: true, includePrerelease: true })
+    if ( version == null ) {
+      console.log("version could not be parsed as semver: ", release.versionLabel);
+    }
+
     availableVersion.set({ 
             "major": version.major,
             "minor": version.minor,
@@ -92,6 +96,10 @@ async function collectHistoricalVersions() {
   const releaseHistory = await ReplicatedClient.getVersionHistory();
   for ( const release of releaseHistory.releases ) {
     const version = new SemVer(release.versionLabel, { loose: true, includePrerelease: true })
+    if ( version == null ) {
+      console.log("version could not be parsed as semver: ", release.versionLabel);
+    }
+
     historicalVersion.set({ 
             "major": version.major,
             "minor": version.minor,

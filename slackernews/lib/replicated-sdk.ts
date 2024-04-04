@@ -97,19 +97,21 @@ class ReplicatedSdk {
   }
 
   async getAppInfo(): Promise<AppInfo> {
-    console.log("getting app info")
     const response: AxiosResponse<AppInfo> = await axios.get(`${this.baseURL}/api/v1/app/info`);
-    console.log("response: ", response)
     return response.data;
   }
 
   async getUpdates(): Promise<UpdateInfo[]> {
+    console.log("getting updates")
     const response: AxiosResponse<UpdateInfo[]> = await axios.get(`${this.baseURL}/api/v1/app/updates`);
+    console.log("response data: ", repsonse.data)
     return response.data;
   }
 
   async getVersionHistory(): Promise<VersionHistory> {
+    console.log("getting version history")
     const response: AxiosResponse<VersionHistory> = await axios.get(`${this.baseURL}/api/v1/app/history`);
+    console.log("response data: ", repsonse.data)
     return response.data
   }
 
