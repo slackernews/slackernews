@@ -66,7 +66,7 @@ async function collectCurrentVersion() {
 const availableVersion = new Gauge({
   name: 'slackernews_available_version',
   help: 'Versions of the Slackernews that have been released but are not installed',
-  labelNames: [ 'major', 'minor', 'patch', 'original' ],
+  labelNames: [ 'major', 'minor', 'patch', 'original', 'releaseNotes' ],
 });
 
 
