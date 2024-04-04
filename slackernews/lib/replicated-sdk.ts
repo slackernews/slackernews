@@ -104,14 +104,14 @@ class ReplicatedSdk {
   async getUpdates(): Promise<UpdateInfo[]> {
     console.log("getting updates")
     const response: AxiosResponse<UpdateInfo[]> = await axios.get(`${this.baseURL}/api/v1/app/updates`);
-    console.log("response data: ", repsonse.data)
+    console.log("response data: ", response.data)
     return response.data;
   }
 
   async getVersionHistory(): Promise<VersionHistory> {
     console.log("getting version history")
     const response: AxiosResponse<VersionHistory> = await axios.get(`${this.baseURL}/api/v1/app/history`);
-    console.log("response data: ", repsonse.data)
+    console.log("response data: ", response.data)
     return response.data
   }
 

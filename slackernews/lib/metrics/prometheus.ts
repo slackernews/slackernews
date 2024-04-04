@@ -74,7 +74,7 @@ async function collectAvailableVersions() {
   for ( const update of updates ) {
     const version = new SemVer(update.versionLabel, { loose: true, includePrerelease: true })
     if ( version == null ) {
-      console.log("version could not be parsed as semver: ", release.versionLabel);
+      console.log("version could not be parsed as semver: ", update.versionLabel);
     }
 
     availableVersion.set({ 
