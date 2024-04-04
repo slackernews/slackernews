@@ -1,0 +1,18 @@
+{{- if eq .Values.metrics.serviceMonitor.enabled true }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: slackernews
+spec:
+  jobLabel: app
+  selector:
+    matchLabels: 
+      app: slackernews
+  namespaceSelector:
+    matchNames: 
+      - {{ .Release.Namespace }}
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
+{{- end }}

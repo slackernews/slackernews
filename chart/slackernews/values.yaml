@@ -58,3 +58,7 @@ images:
   slackernews:
     repository: $REGISTRY/$IMAGE
     pullPolicy: IfNotPresent
+
+metrics:
+  serviceMonitor:
+    enabled: false
