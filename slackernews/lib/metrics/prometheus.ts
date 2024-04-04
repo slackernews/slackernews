@@ -46,15 +46,16 @@ const currentVersion = new Gauge({
 });
 
 async function collectCurrentVersion() {
+  console.log("collecting appinfo");
   const appInfo = await ReplicatedClient.getAppInfo();
-  console.log("appInfo: ", appInfo)
+  console.log("appInfo: ", appInfo);
   const release = appInfo.currentRelease;
-  console.log("release: ", release)
+  console.log("release: ", release);
   const version = new SemVer(release.versionLabel, { loose: true, includePrerelease: true })
   if ( version == null ) {
-    console.log("version could not be parsed as semver: ", release.versionLabel)
+    console.log("version could not be parsed as semver: ", release.versionLabel);
   }
-  console.log("setting slackernews_current_version: ", version)
+  console.log("setting slackernews_current_version: ", version);
   currentVersion.set({ 
           "major": version.major,
           "minor": version.minor,
