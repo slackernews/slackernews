@@ -85,14 +85,14 @@ async function collectAvailableVersions() {
 const historicalVersion = new Gauge({
   name: 'slackernews_historical_version',
   help: 'Versions of the Slackernews that have been installed previously',
-  labelNames: [ 'major', 'minor', 'patch', 'original' ],
+  labelNames: [ 'major', 'minor', 'patch', 'original', 'deployed' ],
 });
 
 async function collectHistoricalVersions() {
   const releaseHistory = await ReplicatedClient.getVersionHistory();
   for ( const release of releaseHistory.releases ) {
     const version = new SemVer(release.versionLabel, { loose: true, includePrerelease: true })
-    availableVersion.set({ 
+    historicalVersion.set({ 
             "major": version.major,
             "minor": version.minor,
             "patch": version.patch,
