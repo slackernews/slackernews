@@ -122,7 +122,6 @@ class ReplicatedSdk {
     const response: AxiosResponse<Object> = await axios.get(`${this.baseURL}/api/v1/license/fields`);
     var entitlements: LicenseField[] = []
     for ( const [ name, field ] of Object.entries(response.data) ) {
-      console.log( "field: ", name, ", content: ", field )
       if (!verifySignature(field)) {
         throw new Error('License signature verification failed');
       }
