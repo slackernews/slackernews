@@ -1,0 +1,41 @@
+{{- if eq .Values.metrics.alerting.enabled true -}}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: daily-user-count-exceeds-license
+spec:
+  groups:
+  - name: slackernews_alerts
+    rules:
+    - alert: UserCountExceedsLicenseEntitlement
+      expr: |
+        max_over_time(slackernews_daily_user_count{job="slackernews", service="slackernews"}[1m])
+        >
+        max_over_time(slackernews_license_entitlement{job="slackernews", service="slackernews", name="member_count_max"}[1m])
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: "User count exceeds license entitlement"
+        description: "The daily user count is currently exceeding the license entitlement."
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: monthly-user-count-exceeds-license
+spec:
+  groups:
+  - name: slackernews_alerts
+    rules:
+    - alert: UserCountExceedsLicenseEntitlement
+      expr: |
+        max_over_time(slackernews_monthly_user_count{job="slackernews", service="slackernews"}[1m])
+        >
+        max_over_time(slackernews_license_entitlement{job="slackernews", service="slackernews", name="member_count_max"}[1m])
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: "User count exceeds license entitlement"
+        description: "The monthly user count is currently exceeding the license entitlement."
+{{- end -}}

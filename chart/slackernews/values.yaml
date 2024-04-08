@@ -62,5 +62,7 @@ images:
 metrics:
   serviceMonitor:
     enabled: false
+  alerting:
+    enabled: false
   demo:
     enabled: false
