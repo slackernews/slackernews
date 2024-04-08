@@ -69,7 +69,7 @@ spec:
           - name: REPLICATED_ENDPOINT
             value: "http://replicated:3000"
           - name: METRICS_DEMO_MODE
-            value: {{ .Values.metrics.demo.enable | quote }}
+            value: {{ .Values.metrics.demo.enabled | quote }}
         ports:
         - containerPort: 3000
           name: http
