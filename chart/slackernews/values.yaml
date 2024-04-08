@@ -62,3 +62,5 @@ images:
 metrics:
   serviceMonitor:
     enabled: false
+  demo:
+    enabled: false

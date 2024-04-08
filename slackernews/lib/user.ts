@@ -111,6 +111,11 @@ export async function listDailyActiveUsers(): Promise<User[]> {
   });
 }
 
+export async function dailyActiveUsers() {
+  const users = await listDailyActiveUsers();
+  return users.length;
+}
+
 export async function listMonthlyActiveUsers(): Promise<User[]> {
   const users = await (await User()).findAll({
     where: {
@@ -132,6 +137,11 @@ export async function listMonthlyActiveUsers(): Promise<User[]> {
       isSuperAdmin: user.is_super_admin,
     };
   });
+}
+
+export async function monthlyActiveUsers() {
+  const users = await listMonthlyActiveUsers();
+  return users.length;
 }
 
 export async function listUsers(): Promise<User[]> {

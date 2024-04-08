@@ -1,9 +1,11 @@
 import { Gauge } from 'prom-client';
-import { listDailyActiveUsers, listMonthlyActiveUsers } from "../user";
+import UserStatistics from "./user-statistics" ;
 import { ReplicatedClient, LicenseField } from '../replicated-sdk';
 import { SemVer } from 'semver';
 
-const monthlyUser = new Gauge({
+const userStatistics = new UserStatistics()
+
+const monthlyUsers = new Gauge({
    name: 'slackernews_monthly_user_count',
    help: 'Slackernews monthly active user count',
 });
@@ -14,11 +16,10 @@ const dailyUsers = new Gauge({
 });
 
 export async function collectUserMetrics() {
-  const dailyUserList = await listDailyActiveUsers();
-  dailyUsers.set(dailyUserList.length);
-
-  const monthlyUserList = await listMonthlyActiveUsers();
-  monthlyUser.set(monthlyUserList.length);
+  const dailyUserCount = await userStatistics.getDailyUsers();
+  dailyUsers.set(dailyUserCount);
+  const monthlyUserCount = await userStatistics.getDailyUsers();
+  monthlyUsers.set(monthlyUserCount);
 }
 
 const licenseEntitlement = new Gauge({
