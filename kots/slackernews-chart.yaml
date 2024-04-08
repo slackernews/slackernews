@@ -42,6 +42,10 @@ spec:
       slackernews:
         pullSecret: repl{{ ImagePullSecretName }}
         repository: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}/{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/ghcr.io/$NAMESPACE" ) }}/slackernews-web:$VERSION'
+
+    metrics:
+      serviceMonitor:
+        enabled: true
  
   optionalValues:
     - when: '{{repl ConfigOptionEquals "deploy_postgres" "1"}}'
