@@ -1,13 +1,14 @@
-import { listDailyActiveUsers, listMonthlyActiveUsers } from "../user";
+import UserStatistics from "./user-statistics" ;
 
+const userStatistics = new UserStatistics(); 
 
 export async function sendMetrics(): Promise<any> {
   if (process.env.REPLICATED_ENABLED !== "true") {
     return;
   }
 
-  const dailyUsers = await listDailyActiveUsers();
-  const monthlyUsers = await listMonthlyActiveUsers();
+  const dailyUsers = await userStatistics.getDailyUsers();
+  const monthlyUsers = await userStatistics.getMonthlyUsers();
 
   const licenseId = await getLicenseId();
 
@@ -20,8 +21,8 @@ export async function sendMetrics(): Promise<any> {
       },
       body: JSON.stringify({
         data: {
-          dailyUsers: dailyUsers.length,
-          monthlyUsers: monthlyUsers.length,
+          dailyUsers: dailyUsers,
+          monthlyUsers: monthlyUsers,
         }
       }),
     });
