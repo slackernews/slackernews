@@ -1,4 +1,4 @@
-import { Gauge } from 'prom-client';
+import { register, Gauge } from 'prom-client';
 import UserStatistics from "./user-statistics" ;
 import { ReplicatedClient, LicenseField } from '../replicated-sdk';
 import { SemVer } from 'semver';
@@ -9,11 +9,13 @@ const monthlyUsers = new Gauge({
    name: 'slackernews_monthly_user_count',
    help: 'Slackernews monthly active user count',
 });
+register.registerMetric(monthlyUsers);
 
 const dailyUsers = new Gauge({
    name: 'slackernews_daily_user_count',
    help: 'Slackernews daily active user count',
 });
+register.registerMetric(dailyUsers);
 
 export async function collectUserMetrics() {
   const dailyUserCount = await userStatistics.getDailyUsers();
@@ -27,6 +29,7 @@ const licenseEntitlement = new Gauge({
   help: 'Current value of an entitlement of the Slackernews license',
   labelNames: [ 'name', 'title', 'description' ],
 });
+register.registerMetric(licenseEntitlement);  
 
 export async function collectLicenseEntitlements() {
   const entitlements = await ReplicatedClient.listEntitlements();
@@ -45,6 +48,7 @@ const currentVersion = new Gauge({
   help: 'The currently installed version of Slackernews',
   labelNames: [ 'major', 'minor', 'patch', 'original', 'created' ],
 });
+register.registerMetric(currentVersion);
 
 async function collectCurrentVersion() {
   const appInfo = await ReplicatedClient.getAppInfo();
@@ -69,7 +73,7 @@ const availableVersion = new Gauge({
   help: 'Versions of the Slackernews that have been released but are not installed',
   labelNames: [ 'major', 'minor', 'patch', 'original', 'releaseNotes' ],
 });
-
+register.registerMetric(availableVersion);
 
 async function collectAvailableVersions() {
   const updates = await ReplicatedClient.getUpdates();
@@ -94,6 +98,7 @@ const historicalVersion = new Gauge({
   help: 'Versions of the Slackernews that have been installed previously',
   labelNames: [ 'major', 'minor', 'patch', 'original', 'deployed' ],
 });
+register.registerMetric(historicalVersion);
 
 async function collectHistoricalVersions() {
   const releaseHistory = await ReplicatedClient.getVersionHistory();
