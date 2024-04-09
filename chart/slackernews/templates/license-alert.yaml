@@ -9,9 +9,9 @@ spec:
     rules:
     - alert: UserCountExceedsLicenseEntitlement
       expr: |
-        max(slackernews_daily_user_count{job="slackernews", service="slackernews"}[1m])
+        max(slackernews_daily_user_count{job="slackernews", service="slackernews"})
         >
-        max(slackernews_license_entitlement{job="slackernews", service="slackernews", name="member_count_max"}[1m])
+        max(slackernews_license_entitlement{job="slackernews", service="slackernews", name="member_count_max"})
       for: 1m
       labels:
         severity: critical
@@ -29,9 +29,9 @@ spec:
     rules:
     - alert: UserCountExceedsLicenseEntitlement
       expr: |
-        max(slackernews_monthly_user_count{job="slackernews", service="slackernews"}[1m])
+        max(slackernews_monthly_user_count{job="slackernews", service="slackernews"})
         >
-        max(slackernews_license_entitlement{job="slackernews", service="slackernews", name="member_count_max"}[1m])
+        max(slackernews_license_entitlement{job="slackernews", service="slackernews", name="member_count_max"})
       for: 1m
       labels:
         severity: critical
