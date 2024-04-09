@@ -46,7 +46,7 @@ export async function collectLicenseEntitlements() {
 const currentVersion = new Gauge({
   name: 'slackernews_current_version',
   help: 'The currently installed version of Slackernews',
-  labelNames: [ 'major', 'minor', 'patch', 'original', 'created' ],
+  labelNames: [ 'major', 'minor', 'patch', 'original', 'deployed' ],
 });
 register.registerMetric(currentVersion);
 
@@ -61,8 +61,8 @@ async function collectCurrentVersion() {
             "minor": version.minor,
             "patch": version.patch,
             "original": version.raw,
-            "created": release.createdAt
-          }, new Date(release.deployedAt).getTime());
+            "deployed": release.deployedAt
+          }, new Date(release.createdAt).getTime());
   } catch {
     console.log("version could not be parsed as semver: ", release.versionLabel);
   }
