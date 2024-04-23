@@ -2,9 +2,9 @@ name: cmx-test-with-portforward
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 env:
   REGISTRY: ttl.sh
 
@@ -66,17 +66,17 @@ jobs:
       - name: Update the values.yaml with the registry name
         uses: jacobtomlinson/gha-find-replace@v2
         with:
-          include: 'chart/slackernews/values.yaml'
-          find: '$REGISTRY'
-          replace: 'ttl.sh'
+          include: "chart/slackernews/values.yaml"
+          find: "$REGISTRY"
+          replace: "ttl.sh"
           regex: false
 
       - name: Update the values.yaml with the image path
         uses: jacobtomlinson/gha-find-replace@v2
         with:
-          include: 'chart/slackernews/values.yaml'
-          find: '$IMAGE'
-          replace: 'slackernews/slackernews0.0.0-alpha.${{ steps.vars.outputs.sha_short }}:1h'
+          include: "chart/slackernews/values.yaml"
+          find: "$IMAGE"
+          replace: "slackernews/slackernews0.0.0-alpha.${{ steps.vars.outputs.sha_short }}:1h"
           regex: false
 
       - id: package-helm-chart
@@ -96,7 +96,7 @@ jobs:
           path: chart/slackernews-0.0.0-alpha.${{ steps.vars.outputs.sha_short }}.tgz
 
   compatibility-matrix:
-    if: false  ## disabled until we figure out how to make playwright work with port-forward
+    if: false ## disabled until we figure out how to make playwright work with port-forward
     needs:
       - chart
     strategy:
@@ -143,7 +143,7 @@ jobs:
         id: install-helm
 
       - id: create-cluster
-        uses: replicatedhq/compatibility-actions/create-cluster@v1
+        uses: replicatedhq/replicated-actions/create-cluster@v1
         with:
           api-token: ${{ secrets.REPLICATED_TOKEN }}
           kubernetes-distribution: ${{ matrix.cluster.distribution }}
@@ -158,14 +158,14 @@ jobs:
           tar xzvf ../chart/slackernews/slackernews-0.0.0-alpha.${{ steps.vars.outputs.sha_short }}.tgz
 
       - id: helm-install
-        uses: replicatedhq/compatibility-actions/helm-install@v1
+        uses: replicatedhq/replicated-actions/helm-install@v1
         with:
           kubeconfig: ${{ steps.create-cluster.outputs.cluster-kubeconfig }}
           chart: ./slackernews-0.0.0-alpha.${{ steps.vars.outputs.sha_short }}/slackernews
-          name: 'slackernews'
-          version: 'alpha.0.0.0-${{ steps.vars.outputs.sha_short }}'
-          namespace: 'slackernews'
-          helm-path: 'helm'
+          name: "slackernews"
+          version: "alpha.0.0.0-${{ steps.vars.outputs.sha_short }}"
+          namespace: "slackernews"
+          helm-path: "helm"
           values: |
             replicated:
               integration:
@@ -192,9 +192,9 @@ jobs:
         env:
           KUBECONFIG: ./kubeconfig
         with:
-          workload: 'svc/slackernews'
-          mappings: '3000:3000'
-          options: '--namespace=slackernews'
+          workload: "svc/slackernews"
+          mappings: "3000:3000"
+          options: "--namespace=slackernews"
 
       - uses: actions/setup-node@v3
         with:
@@ -218,7 +218,7 @@ jobs:
           retention-days: 30
 
       - id: delete-cluster
-        uses: replicatedhq/compatibility-actions/remove-cluster@v1
+        uses: replicatedhq/replicated-actions/remove-cluster@v1
         with:
           cluster-id: ${{ steps.create-cluster.outputs.cluster-id }}
           api-token: ${{ secrets.REPLICATED_TOKEN }}
