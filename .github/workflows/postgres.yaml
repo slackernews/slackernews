@@ -96,7 +96,6 @@ jobs:
           path: chart/slackernews-0.0.0-alpha.${{ steps.vars.outputs.sha_short }}.tgz
 
   compatibility-matrix:
-    if: false ## disabled until we figure out how to make playwright work with port-forward
     needs:
       - chart
     strategy:
@@ -116,6 +115,7 @@ jobs:
           - { distribution: eks, version: v1.27 }
           - { distribution: eks, version: v1.28 }
           - { distribution: eks, version: v1.29 }
+          - { distribution: eks, version: v1.29, postgres: true }
           - { distribution: gke, version: v1.26 }
           - { distribution: gke, version: v1.27 }
           - { distribution: gke, version: v1.28 }
@@ -150,13 +150,38 @@ jobs:
           ttl: 4h
           cluster-name: slackernews-${{ matrix.cluster.distribution }}-${{ matrix.cluster.version }}-${{ steps.vars.outputs.sha_short }}
 
+      - id: create-postgres
+        if: ${{ matrix.cluster.postgres }}
+        uses: replicatedhq/replicated-actions/create-postgres@v1
+        with:
+          api-token: ${{ secrets.REPLICATED_TOKEN }}
+          cluster-id: ${{ steps.create-cluster.outputs.cluster-id }}
+
       - name: extract chart
         run: |
           mkdir -p ./slackernews-0.0.0-alpha.${{ steps.vars.outputs.sha_short }}
           cd ./slackernews-0.0.0-alpha.${{ steps.vars.outputs.sha_short }}
           tar xzvf ../chart/slackernews/slackernews-0.0.0-alpha.${{ steps.vars.outputs.sha_short }}.tgz
 
-      - id: helm-install
+      - id: helm-install-external-postgres
+        if: ${{ matrix.cluster.postgres }}
+        uses: replicatedhq/replicated-actions/helm-install@v1
+        with:
+          kubeconfig: ${{ steps.create-cluster.outputs.cluster-kubeconfig }}
+          chart: ./slackernews-0.0.0-alpha.${{ steps.vars.outputs.sha_short }}/slackernews
+          name: "slackernews"
+          version: "alpha.0.0.0-${{ steps.vars.outputs.sha_short }}"
+          namespace: "slackernews"
+          helm-path: "helm"
+          values: |
+            postgres:
+              uri: ${{ steps.create-postgres.outputs.uri }}
+            replicated:
+              integration:
+                licenseID: ${{ secrets.REPLICATED_LICENSE_ID }}
+
+      - id: helm-install-embedded-postgres
+        if: ${{ !matrix.cluster.postgres }}
         uses: replicatedhq/replicated-actions/helm-install@v1
         with:
           kubeconfig: ${{ steps.create-cluster.outputs.cluster-kubeconfig }}
@@ -186,14 +211,23 @@ jobs:
         run: |
           kubectl --kubeconfig ./kubeconfig get pods -n slackernews
 
-      - name: Setup Kubernetes port-forward daemon, using the kubeconfig from the previous step
-        uses: vbem/k8s-port-forward@v1
-        env:
-          KUBECONFIG: ./kubeconfig
+      - name: Install Chainsaw
+        uses: kyverno/chainsaw/.github/actions/install@v0.0.9
         with:
-          workload: "svc/slackernews"
-          mappings: "3000:3000"
-          options: "--namespace=slackernews"
+          release: v0.0.9
+
+      - name: Test with Chainsaw
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          cd ./test/conformance && chainsaw test --test-dir ./
+
+      - name: install an ngrok ingress for testing
+        run: |
+          sed -i "s/\$NGROK_HOST/slackernews-${{ steps.create-cluster.outputs.cluster-id }}.ngrok.app/g" ./test/ngrok-ingress.yaml
+          kubectl apply -f ./test/ngrok-ingress.yaml
 
       - uses: actions/setup-node@v3
         with:
@@ -205,9 +239,9 @@ jobs:
       - name: Install Playwright Browsers
         run: cd slackernews && yarn playwright install --with-deps
 
-      - name: Run Playwright tests on a port-forward instance
+      - name: Run Playwright tests on the ngrok endpoint
         run: |
-          cd slackernews && NODE_ENV=test TEST_URL=http://localhost:3000 yarn playwright test
+          cd slackernews && NODE_ENV=test TEST_URL=https://slackernews-${{ steps.create-cluster.outputs.cluster-id }}.ngrok.app yarn playwright test
 
       - uses: actions/upload-artifact@v3
         if: always()
@@ -216,8 +250,46 @@ jobs:
           path: slackernews/playwright-report/
           retention-days: 30
 
+      - id: delete-ingress
+        if: always()
+        run: kubectl delete -f ./test/ngrok-ingress.yaml
+
+      - id: wait-for-ingress-delete
+        if: always()
+        run: kubectl  wait --for=delete ingress/slackernews -n slackernews --timeout=300s
+
       - id: delete-cluster
         uses: replicatedhq/replicated-actions/remove-cluster@v1
         with:
           cluster-id: ${{ steps.create-cluster.outputs.cluster-id }}
           api-token: ${{ secrets.REPLICATED_TOKEN }}
+
+      - id: install-ngrok
+        if: always()
+        run: |
+          wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz && \
+          sudo tar xvzf ngrok-v3-stable-linux-amd64.tgz -C ./
+
+      - id: delete-edge
+        if: always()
+        run: |
+          EDGE_ID=$(./ngrok api edges https list --api-key ${{ secrets.NGROK_API_KEY }} 2>/dev/null \
+                    | jq -r '.https_edges[] | select(.hostports[0] == "slackernews-${{ steps.create-cluster.outputs.cluster-id }}.ngrok.app:443").id')
+
+          if [ -n "$EDGE_ID" ]; then
+            ./ngrok api edges https delete --api-key ${{ secrets.NGROK_API_KEY }} $EDGE_ID
+          else
+            echo "No edges to delete."
+          fi
+
+      - id: delete-tunnel
+        if: always()
+        run: |
+          DOMAIN_ID=$(./ngrok api reserved-domains list --api-key ${{ secrets.NGROK_API_KEY }} 2>/dev/null \
+                    | jq -r '.reserved_domains[] | select(.domain == "slackernews-${{ steps.create-cluster.outputs.cluster-id }}.ngrok.app").id')
+
+          if [ -n "$DOMAIN_ID" ]; then
+            ./ngrok api reserved-domains delete --api-key ${{ secrets.NGROK_API_KEY }} $DOMAIN_ID
+          else
+            echo "No reserved domains to delete."
+          fi
