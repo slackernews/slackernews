@@ -96,31 +96,30 @@ jobs:
           path: chart/slackernews-0.0.0-alpha.${{ steps.vars.outputs.sha_short }}.tgz
 
   compatibility-matrix:
-    if: false ## disabled until we figure out how to make playwright work with port-forward
     needs:
       - chart
     strategy:
       fail-fast: false
       matrix:
         cluster:
-          - { distribution: kind, version: v1.26 }
-          - { distribution: kind, version: v1.27 }
-          - { distribution: kind, version: v1.28 }
-          - { distribution: kind, version: v1.29 }
-          - { distribution: k3s, version: v1.26 }
-          - { distribution: k3s, version: v1.27 }
-          - { distribution: k3s, version: v1.28 }
-          - { distribution: k3s, version: v1.29 }
-          - { distribution: openshift, version: v4.14.0-okd }
-          - { distribution: eks, version: v1.26 }
-          - { distribution: eks, version: v1.27 }
-          - { distribution: eks, version: v1.28 }
-          - { distribution: eks, version: v1.29 }
-          - { distribution: gke, version: v1.26 }
-          - { distribution: gke, version: v1.27 }
-          - { distribution: gke, version: v1.28 }
-          - { distribution: gke, version: v1.29 }
-          - { distribution: aks, version: v1.29 }
+          - { distribution: kind, version: v1.26, expose-port: true }
+          - { distribution: kind, version: v1.27, expose-port: true }
+          - { distribution: kind, version: v1.28, expose-port: true }
+          - { distribution: kind, version: v1.29, expose-port: true }
+          - { distribution: k3s, version: v1.26, expose-port: true }
+          - { distribution: k3s, version: v1.27, expose-port: true }
+          - { distribution: k3s, version: v1.28, expose-port: true }
+          - { distribution: k3s, version: v1.29, expose-port: true }
+          - { distribution: openshift, version: v4.14.0-okd, expose-port: true }
+          - { distribution: eks, version: v1.26, expose-port: false }
+          - { distribution: eks, version: v1.27, expose-port: false }
+          - { distribution: eks, version: v1.28, expose-port: false }
+          - { distribution: eks, version: v1.29, expose-port: false }
+          - { distribution: gke, version: v1.26, expose-port: false }
+          - { distribution: gke, version: v1.27, expose-port: false }
+          - { distribution: gke, version: v1.28, expose-port: false }
+          - { distribution: gke, version: v1.29, expose-port: false }
+          - { distribution: aks, version: v1.29, expose-port: false }
 
     runs-on: ubuntu-22.04
     steps:
@@ -166,27 +165,34 @@ jobs:
           namespace: "slackernews"
           helm-path: "helm"
           values: |
+            nginx:
+              service:
+                type: NodePort
+                nodePort:
+                  port: 30080
             replicated:
               integration:
                 licenseID: ${{ secrets.REPLICATED_LICENSE_ID }}
 
       - name: save the kubeconfig as a tmp file, saving the filename as an output
         run: |
-          echo "${{ steps.create-cluster.outputs.cluster-kubeconfig }}" > ./kubeconfig
+          mkdir -p ~/.kube
+          echo "${{ steps.create-cluster.outputs.cluster-kubeconfig }}" > ~/.kube/config
 
       - name: wait for the slackernews pod to be running
         run: |
-          kubectl --kubeconfig ./kubeconfig wait --for=condition=Ready pod -l app=slackernews -n slackernews --timeout=300s
+          kubectl wait --for=condition=Ready pod -l app=slackernews -n slackernews --timeout=300s
 
       - name: wait for the replicated pod to be running
         run: |
-          kubectl --kubeconfig ./kubeconfig wait --for=condition=available --timeout=60s deployment/replicated  -n slackernews --timeout=300s
+          kubectl wait --for=condition=available --timeout=60s deployment/replicated  -n slackernews --timeout=300s
 
       - name: print the list of pods in the slackernews namespace
         run: |
-          kubectl --kubeconfig ./kubeconfig get pods -n slackernews
+          kubectl get pods -n slackernews
 
       - name: Setup Kubernetes port-forward daemon, using the kubeconfig from the previous step
+        if: ${{ !matrix.cluster.expose-port }}
         uses: vbem/k8s-port-forward@v1
         env:
           KUBECONFIG: ./kubeconfig
@@ -194,6 +200,24 @@ jobs:
           workload: "svc/slackernews"
           mappings: "3000:3000"
           options: "--namespace=slackernews"
+
+      - id: expose-port
+        if: ${{ matrix.cluster.expose-port }}
+        uses: replicatedhq/replicated-actions/expose-port@v1
+        with:
+          api-token: ${{ secrets.REPLICATED_TOKEN }}
+          cluster-id: ${{ steps.create-cluster.outputs.cluster-id }}
+          port: 30080
+          protocols: https
+
+      - id: test-url
+        name: Set test URL
+        run: |
+          if ${{ !matrix.cluster.expose-port }}; then
+            echo "test_url=http://localhost:3000" >> $GITHUB_OUTPUT
+          else
+            echo "test_url=https://${{ steps.expose-port.outputs.hostname }}" >> $GITHUB_OUTPUT
+          fi
 
       - uses: actions/setup-node@v3
         with:
@@ -207,7 +231,7 @@ jobs:
 
       - name: Run Playwright tests on a port-forward instance
         run: |
-          cd slackernews && NODE_ENV=test TEST_URL=http://localhost:3000 yarn playwright test
+          cd slackernews && NODE_ENV=test TEST_URL=${{ steps.test-url.outputs.test_url }} yarn playwright test
 
       - uses: actions/upload-artifact@v3
         if: always()
@@ -217,6 +241,7 @@ jobs:
           retention-days: 30
 
       - id: delete-cluster
+        if: always()
         uses: replicatedhq/replicated-actions/remove-cluster@v1
         with:
           cluster-id: ${{ steps.create-cluster.outputs.cluster-id }}

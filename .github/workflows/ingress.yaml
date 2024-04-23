@@ -95,6 +95,7 @@ jobs:
           path: chart/slackernews-0.0.0-alpha.${{ steps.vars.outputs.sha_short }}.tgz
 
   compatibility-matrix:
+    if: false ## disabled in favor of expose port and port forward
     needs:
       - chart
     strategy:
