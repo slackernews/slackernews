@@ -141,6 +141,21 @@ jobs:
           api-token: ${{ secrets.REPLICATED_TOKEN }}
           cluster-id: ${{ steps.create-cluster.outputs.cluster-id }}
 
+      - id: install-ngrok-ingress
+        uses: replicatedhq/replicated-actions/helm-install@v1
+        with:
+          kubeconfig: ${{ steps.create-cluster.outputs.cluster-kubeconfig }}
+          repo-name: ngrok
+          repo-url: https://ngrok.github.io/kubernetes-ingress-controller
+          chart: ngrok/kubernetes-ingress-controller
+          name: "ngrok-ingress-controller"
+          namespace: "ngrok-ingress-controller"
+          helm-path: "helm"
+          values: |
+            credentials:
+              authtoken: ${{ secrets.NGROK_AUTH_TOKEN }}
+              apiKey: ${{ secrets.NGROK_API_KEY }}
+
       - name: extract chart
         run: |
           mkdir -p ./slackernews-0.0.0-alpha.${{ steps.vars.outputs.sha_short }}
@@ -186,15 +201,15 @@ jobs:
 
       - name: wait for the slackernews pod to be running
         run: |
-          kubectl --kubeconfig ./kubeconfig wait --for=condition=Ready pod -l app=slackernews -n slackernews --timeout=300s
+          kubectl wait --for=condition=Ready pod -l app=slackernews -n slackernews --timeout=300s
 
       - name: wait for the replicated pod to be running
         run: |
-          kubectl --kubeconfig ./kubeconfig wait --for=condition=available --timeout=60s deployment/replicated  -n slackernews --timeout=300s
+          kubectl wait --for=condition=available --timeout=60s deployment/replicated  -n slackernews --timeout=300s
 
       - name: print the list of pods in the slackernews namespace
         run: |
-          kubectl --kubeconfig ./kubeconfig get pods -n slackernews
+          kubectl get pods -n slackernews
 
       - name: Install Chainsaw
         uses: kyverno/chainsaw/.github/actions/install@v0.0.9
