@@ -13,7 +13,7 @@ spec:
         app: slackernews-nginx
     spec:
       containers:
-      - image: nginxinc/nginx-unprivileged:1.25.3
+      - image: nginx:1.25.3
         name: slackernews-nginx
         ports:
 {{ if .Values.service.tls.enabled }}
@@ -34,6 +34,15 @@ spec:
         - mountPath: /etc/nginx/conf.d/default.conf
           name: config
           subPath: default.conf
+        - name: var-volume
+          mountPath: /var/log/nginx
+          readOnly: false
+        - name: var-volume
+          mountPath: /var/cache/nginx
+          readOnly: false
+        - name: var-volume
+          mountPath: /var/run
+          readOnly: false
 {{ if .Values.service.tls.existingSecretName }}
         - mountPath: /certs/tls.crt
           name: certs
@@ -51,6 +60,8 @@ spec:
           subPath: tls.key
 {{ end }}
       volumes:
+      - name: var-volume
+        emptyDir: {}
       - configMap:
           name: slackernews-nginx
         name: config
