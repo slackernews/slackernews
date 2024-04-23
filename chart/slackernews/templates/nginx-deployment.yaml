@@ -13,7 +13,7 @@ spec:
         app: slackernews-nginx
     spec:
       containers:
-      - image: nginx:1.25.3
+      - image: nginxinc/nginx-unprivileged:1.25.3
         name: slackernews-nginx
         ports:
 {{ if .Values.service.tls.enabled }}

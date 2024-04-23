@@ -208,7 +208,7 @@ jobs:
           api-token: ${{ secrets.REPLICATED_TOKEN }}
           cluster-id: ${{ steps.create-cluster.outputs.cluster-id }}
           port: 30080
-          protocols: http
+          protocols: https
 
       - id: test-url
         name: Set test URL
@@ -216,7 +216,7 @@ jobs:
           if ${{ !matrix.cluster.expose-port }}; then
             echo "test_url=http://localhost:3000" >> $GITHUB_OUTPUT
           else
-            echo "test_url=http://${{ steps.expose-port.outputs.hostname }}" >> $GITHUB_OUTPUT
+            echo "test_url=https://${{ steps.expose-port.outputs.hostname }}" >> $GITHUB_OUTPUT
           fi
 
       - uses: actions/setup-node@v3
