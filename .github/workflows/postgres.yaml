@@ -1,6 +1,7 @@
 name: cmx-test-with-postgres-add-on
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
   pull_request:
@@ -180,7 +181,8 @@ jobs:
 
       - name: save the kubeconfig as a tmp file, saving the filename as an output
         run: |
-          echo "${{ steps.create-cluster.outputs.cluster-kubeconfig }}" > ./kubeconfig
+          mkdir -p ~/.kube
+          echo "${{ steps.create-cluster.outputs.cluster-kubeconfig }}" > ~/.kube/config
 
       - name: wait for the slackernews pod to be running
         run: |
