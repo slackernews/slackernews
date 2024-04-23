@@ -247,6 +247,7 @@ jobs:
         run: kubectl  wait --for=delete ingress/slackernews -n slackernews --timeout=300s
 
       - id: delete-cluster
+        if: always()
         uses: replicatedhq/replicated-actions/remove-cluster@v1
         with:
           cluster-id: ${{ steps.create-cluster.outputs.cluster-id }}
