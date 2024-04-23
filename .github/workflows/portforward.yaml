@@ -187,9 +187,9 @@ jobs:
         run: |
           kubectl wait --for=condition=available --timeout=60s deployment/replicated  -n slackernews --timeout=300s
 
-      - name: print the list of pods in the slackernews namespace
+      - name: print the list of services in the slackernews namespace
         run: |
-          kubectl get pods -n slackernews
+          kubectl get services -n slackernews
 
       - name: Setup Kubernetes port-forward daemon, using the kubeconfig from the previous step
         if: ${{ !matrix.cluster.expose-port }}
