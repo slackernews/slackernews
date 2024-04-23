@@ -101,24 +101,24 @@ jobs:
       fail-fast: false
       matrix:
         cluster:
-          - { distribution: kind, version: v1.25 }
           - { distribution: kind, version: v1.26 }
           - { distribution: kind, version: v1.27 }
           - { distribution: kind, version: v1.28 }
-          - { distribution: k3s, version: v1.24 }
-          - { distribution: k3s, version: v1.25 }
+          - { distribution: kind, version: v1.29 }
           - { distribution: k3s, version: v1.26 }
           - { distribution: k3s, version: v1.27 }
+          - { distribution: k3s, version: v1.28 }
+          - { distribution: k3s, version: v1.29 }
           # - { distribution: openshift, version: v4.13.0-okd }
-          - { distribution: eks, version: v1.24 }
-          - { distribution: eks, version: v1.25 }
           - { distribution: eks, version: v1.26 }
           - { distribution: eks, version: v1.27 }
-          - { distribution: gke, version: v1.24 }
-          - { distribution: gke, version: v1.25 }
+          - { distribution: eks, version: v1.28 }
+          - { distribution: eks, version: v1.29 }
           - { distribution: gke, version: v1.26 }
           - { distribution: gke, version: v1.27 }
-          - { distribution: aks, version: v1.27 }
+          - { distribution: gke, version: v1.28 }
+          - { distribution: gke, version: v1.29 }
+          - { distribution: aks, version: v1.29 }
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4

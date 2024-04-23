@@ -1,4 +1,4 @@
-name: cmx-test-with-portforward
+name: cmx-test-with-postgres-add-on
 
 on:
   push:
