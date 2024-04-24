@@ -20,7 +20,7 @@ spec:
         - containerPort: 443
           name: https
 {{ else }}
-        - containerPort: 80
+        - containerPort: 8080
           name: http
 {{ end }}
         resources:

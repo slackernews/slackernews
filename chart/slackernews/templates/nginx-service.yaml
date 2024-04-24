@@ -14,7 +14,7 @@ spec:
     nodePort: {{ .Values.nginx.service.nodePort.port }}
   {{- end }}
 {{ else }}
-    port: 80
+    port: 8080
     targetPort: http
   {{- if ne .Values.nginx.service.nodePort.port nil }}
     nodePort: {{ .Values.nginx.service.nodePort.port }}
