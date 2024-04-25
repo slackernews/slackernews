@@ -226,7 +226,7 @@ jobs:
       - name: Install Playwright Browsers
         run: cd slackernews && yarn playwright install --with-deps
 
-      - name: Run Playwright tests on the ngrok endpoint
+      - name: Run Playwright tests on the port forward endpoint
         run: |
           cd slackernews && NODE_ENV=test TEST_URL=http://localhost:3000 yarn playwright test
 
