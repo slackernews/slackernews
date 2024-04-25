@@ -229,7 +229,7 @@ jobs:
       - name: Install Playwright Browsers
         run: cd slackernews && yarn playwright install --with-deps
 
-      - name: Run Playwright tests on a port-forward instance
+      - name: Run Playwright tests on an instance
         run: |
           cd slackernews && NODE_ENV=test TEST_URL=${{ steps.test-url.outputs.test_url }} yarn playwright test
 
