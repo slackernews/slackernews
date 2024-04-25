@@ -241,7 +241,7 @@ jobs:
           retention-days: 30
 
       - id: delete-cluster
-        # if: always()
+        if: always()
         uses: replicatedhq/replicated-actions/remove-cluster@v1
         with:
           cluster-id: ${{ steps.create-cluster.outputs.cluster-id }}
