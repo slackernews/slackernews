@@ -30,7 +30,7 @@ spec:
                 key: "{{ if .Values.postgres.existingSecretUriKey }}{{ .Values.postgres.existingSecretUriKey }}{{ else }}uri{{ end }}"
                 name: "{{ if .Values.postgres.existingSecretName }}{{ .Values.postgres.existingSecretName }}{{ else }}slackernews-postgres{{ end }}"
 {{ else }}
-            value: "sqlite:./slackernews.db"
+            value: "sqlite:/db/slackernews.db"
 {{ end }}
           - name: SLACKERNEWS_SLACK_AUTH_CLIENT_ID
             valueFrom:
@@ -77,4 +77,11 @@ spec:
           requests:
             cpu: 100m
             memory: 500Mi
+        volumeMounts:
+        - name: db-volume
+          mountPath: /db
+          readOnly: false
+      volumes:
+      - name: db-volume
+        emptyDir: {}      
       restartPolicy: Always
