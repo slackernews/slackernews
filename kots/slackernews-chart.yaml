@@ -42,6 +42,9 @@ spec:
       slackernews:
         pullSecret: repl{{ ImagePullSecretName }}
         repository: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}/{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/ghcr.io/$NAMESPACE" ) }}/slackernews-web:$VERSION'
+      nginx:
+        pullSecret: repl{{ ImagePullSecretName }}
+        repository: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}/{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/index.docker.io/library" ) }}/nginx:1.25.3'
 
     metrics:
       serviceMonitor:
