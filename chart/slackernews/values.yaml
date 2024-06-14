@@ -46,7 +46,10 @@ slack:
 
 slackernews:
   domain: ""
+  # set default admin users
   adminUserEmails: ""
+  # display running version on admin dashboard
+  version: "$TAG"
 
 images:
   pullSecrets:
@@ -56,5 +59,5 @@ images:
     repository: $REGISTRY/$NGINX_IMAGE
     pullPolicy: IfNotPresent
   slackernews:
-    repository: $REGISTRY/$IMAGE
+    repository: "$REGISTRY/$IMAGE:$TAG"
     pullPolicy: IfNotPresent

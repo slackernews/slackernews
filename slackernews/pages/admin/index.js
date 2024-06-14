@@ -15,7 +15,9 @@ export default function Page({isReplicatedEnabled, isKOTSManaged}) {
 
 Page.getLayout = function getLayout(page) {
   return (
-    <Layout isReplicatedEnabled={page.props.isReplicatedEnabled} isKOTSManaged={page.props.isKOTSManaged}>
+    <Layout slackernewsVersion={page.props.slackernewsVersion}
+            isReplicatedEnabled={page.props.isReplicatedEnabled}
+            isKOTSManaged={page.props.isKOTSManaged}>
       {page}
     </Layout>
   );
@@ -24,7 +26,7 @@ Page.getLayout = function getLayout(page) {
 export async function getServerSideProps(ctx) {
   const c = cookies(ctx);
   const sess = await loadSession(c.auth); 
-  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
+  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab, slackernewsVersion} = envConfig();
 
   if (!sess) {
     return {
@@ -36,6 +38,7 @@ export async function getServerSideProps(ctx) {
         isReplicatedEnabled,
         isKOTSManaged,
         showChromePluginTab,
+        slackernewsVersion,
       },
     };
   }
@@ -45,6 +48,9 @@ export async function getServerSideProps(ctx) {
       permanent: false,
       destination: "/admin/members",
     },
-    props:{isReplicatedEnabled},
+    props:{
+      slackernewsVersion,
+      isReplicatedEnabled,
+    },
   };
 }

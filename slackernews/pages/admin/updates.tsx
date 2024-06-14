@@ -377,6 +377,7 @@ Page.getLayout = function getLayout(page: any) {
     <AdminLayout
       currentPage="updates"
       isUpdateAvailable={undefined}
+      slackernewsVersion={page.props.slackernewsVersion}
       isReplicatedEnabled={page.props.isReplicatedEnabled}
       isKOTSManaged={page.props.isKOTSManaged}
       showChromePluginTab={page.props.showChromePluginTab}
@@ -421,7 +422,7 @@ export async function getServerSideProps(ctx: {
     const upgradeCmd = await ReplicatedClient.getUpgradeCommand();
     const versionHistory = await ReplicatedClient.getVersionHistory();
 
-    const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
+    const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab, slackernewsVersion} = envConfig();
 
 
     return {
@@ -432,6 +433,7 @@ export async function getServerSideProps(ctx: {
         installPreflightCmd,
         preflightCmd,
         upgradeCmd,
+        slackernewsVersion,
         isReplicatedEnabled,
         versionHistory,
         isKOTSManaged,

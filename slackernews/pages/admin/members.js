@@ -357,7 +357,7 @@ export async function getServerSideProps(ctx) {
 
   const dailyUsers = await listDailyActiveUsers();
   const monthlyUsers = await listMonthlyActiveUsers();
-  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
+  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab, slackernewsVersion} = envConfig();
   //TODO: Pass this value from helm chart in for non-sdk installs
   const memberCountMax = isReplicatedEnabled
     ? (await ReplicatedClient.getEntitlement("member_count_max")).value
@@ -372,6 +372,7 @@ export async function getServerSideProps(ctx) {
       username: sess.user.name,
       hideDuration: true,
       memberCountMax: memberCountMax,
+      slackernewsVersion,
       isReplicatedEnabled,
       isKOTSManaged,
       showChromePluginTab,

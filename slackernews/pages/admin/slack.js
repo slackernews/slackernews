@@ -126,6 +126,7 @@ Page.getLayout = function getLayout(page) {
   return (
     <AdminLayout currentPage="slack"
                  isReplicatedEnabled={page.props.isReplicatedEnabled}
+                 slackernewsVersion={page.props.slackernewsVersion}
                  isKOTSManaged={page.props.isKOTSManaged}
                  showChromePluginTab={page.props.showChromePluginTab}
     >
@@ -161,7 +162,7 @@ export async function getServerSideProps(ctx) {
   }
 
   const isConfiguredInEnv = await isSlackLoadedFromEnv();
-  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
+  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab, slackernewsVersion} = envConfig();
   return {
     props: {
       username: sess ? sess.user.name : "Anomymous",
@@ -171,6 +172,7 @@ export async function getServerSideProps(ctx) {
       isReplicatedEnabled,
       isKOTSManaged,
       showChromePluginTab,
+      slackernewsVersion,
     },
   };
 }

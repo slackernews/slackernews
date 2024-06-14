@@ -79,6 +79,7 @@ Page.getLayout = function getLayout(page) {
   return (
     <AdminLayout currentPage="content-mgmt"
                  isReplicatedEnabled={page.props.isReplicatedEnabled}
+                 slackernewsVersion={page.props.slackernewsVersion}
                  isKOTSManaged={page.props.isKOTSManaged}
                  showChromePluginTab={page.props.showChromePluginTab}
     >
@@ -128,7 +129,7 @@ export async function getServerSideProps(ctx) {
     `/?p=${parseInt(page) + 1}`
   : null;
 
-  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
+  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab, slackernewsVersion} = envConfig();
 
 
   return {
@@ -145,6 +146,7 @@ export async function getServerSideProps(ctx) {
       isReplicatedEnabled,
       isKOTSManaged,
       showChromePluginTab,
+      slackernewsVersion,
     },
   };
 }

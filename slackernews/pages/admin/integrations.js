@@ -103,6 +103,7 @@ Page.getLayout = function getLayout(page) {
   return (
     <AdminLayout
       currentPage="integrations"
+      slackernewsVersion={page.props.slackernewsVersion}
       isReplicatedEnabled={page.props.isReplicatedEnabled}
       isKOTSManaged={page.props.isKOTSManaged}
       showChromePluginTab={page.props.showChromePluginTab}
@@ -136,7 +137,7 @@ export async function getServerSideProps(ctx) {
   }
 
   const integrations = await listIntegrations();
-  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
+  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab, slackernewsVersion} = envConfig();
 
 
   return {
@@ -144,6 +145,7 @@ export async function getServerSideProps(ctx) {
       username: sess.user.name,
       hideDuration: true,
       initialIntegrations: integrations,
+      slackernewsVersion,
       isReplicatedEnabled,
       isKOTSManaged,
       showChromePluginTab,
