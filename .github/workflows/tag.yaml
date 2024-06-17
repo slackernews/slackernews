@@ -91,7 +91,7 @@ jobs:
 
       - id: package-helm-chart
         run: |
-          helm -u package source/chart/slackernews  \
+          helm package -u source/chart/slackernews  \
             --app-version=${{ steps.get_version.outputs.version-without-v }} \
             --version=${{ steps.get_version.outputs.version-without-v }} \
             -d ./repository
