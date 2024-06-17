@@ -5,7 +5,7 @@ on:
     tags:
     - "v*.*.*"
 env:
-  REGISTRY: ghcr.io
+  REGISTRY: index.docker.io
 
 jobs:
   build:
@@ -36,7 +36,7 @@ jobs:
                 type=ref,event=branch
                 type=ref,event=tag
                 type=ref,event=pr
-          images: ${{ env.REGISTRY }}/${{ secrets.GHCR_NAMESPACE }}/slackernews-web
+          images: ${{ env.REGISTRY }}/${{ secrets.REGISTRY_NAMESPACE }}/slackernews-web
 
       - uses: int128/docker-build-cache-config-action@v1
         id: cache
@@ -50,16 +50,6 @@ jobs:
           tags: ${{ steps.web-meta.outputs.tags }}
           labels: ${{ steps.web-meta.outputs.labels }}
           file: ./deploy/Dockerfile.web
-          push: true
-          cache-from: ${{ steps.cache.outputs.cache-from }}
-          cache-to: ${{ steps.cache.outputs.cache-to }}
-
-      - name: Build nginx image
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          tags: ${{ env.REGISTRY }}/${{ secrets.GHCR_NAMESPACE }}/slackernews-nginx:0.0.0-alpha.${{ steps.vars.outputs.sha_short }}
-          file: ./deploy/Dockerfile.nginx
           push: true
           cache-from: ${{ steps.cache.outputs.cache-from }}
           cache-to: ${{ steps.cache.outputs.cache-to }}
@@ -81,20 +71,12 @@ jobs:
           version: "3.9.0"
         id: install
 
-      - name: Update the values.yaml with the registry name
-        uses: jacobtomlinson/gha-find-replace@v2
-        with:
-          include: 'chart/slackernews/values.yaml'
-          find: '$REGISTRY'
-          replace: ${{ secrets.REPLICATED_PROXY_REGISTRY_CNAME || 'proxy.replicated.com' }}
-          regex: false
-
       - name: Update the values.yaml with the image path
         uses: jacobtomlinson/gha-find-replace@v2
         with:
           include: 'chart/slackernews/values.yaml'
           find: '$IMAGE'
-          replace: 'proxy/${{ secrets.REPLICATED_APP }}/ghcr.io/${{ secrets.GHCR_NAMESPACE }}/slackernews-web:${{ steps.get_version.outputs.version-without-v }}'
+          replace: '${{ secrets.REGISTRY_NAMESPACE }}/slackernews-web:${{ steps.get_version.outputs.version-without-v }}'
           regex: false
 
       - name: Update the values.yaml with the nginx image path
@@ -102,7 +84,7 @@ jobs:
         with:
           include: 'chart/slackernews/values.yaml'
           find: '$NGINX_IMAGE'
-          replace: 'proxy/${{ secrets.REPLICATED_APP }}/ghcr.io/${{ secrets.GHCR_NAMESPACE }}/slackernews-nginx:${{ steps.get_version.outputs.version-without-v }}'
+          replace: '${{ secrets.REGISTRY_NAMESPACE }}/slackernews-nginx:${{ steps.get_version.outputs.version-without-v }}'
           regex: false
 
       - id: package-helm-chart
@@ -114,40 +96,3 @@ jobs:
             --app-version=${{ steps.get_version.outputs.version-without-v }} \
             --version=${{ steps.get_version.outputs.version-without-v }} \
             ./slackernews
-
-      - name: Copy the helm chart to the kots directory
-        run: cp ./chart/slackernews-${{ steps.get_version.outputs.version-without-v }}.tgz ./kots
-
-      - name: Update the version in the KOTS HelmChart kind
-        uses: jacobtomlinson/gha-find-replace@v2
-        with:
-          include: 'kots/slackernews-chart.yaml'
-          find: '$VERSION'
-          replace: '${{ steps.get_version.outputs.version-without-v }}'
-          regex: false
-
-      - name: Update the KOTS HelmChart kind with the registry name
-        uses: jacobtomlinson/gha-find-replace@v2
-        with:
-          include: 'kots/slackernews-chart.yaml'
-          find: '$REGISTRY'
-          replace: '${{ secrets.REPLICATED_PROXY_REGISTRY_CNAME }}'
-          regex: false
-
-      - name: Update the KOTS HelmChart kind with the image namespace
-        uses: jacobtomlinson/gha-find-replace@v2
-        with:
-          include: 'kots/slackernews-chart.yaml'
-          find: '$NAMESPACE'
-          replace: '${{ secrets.GHCR_NAMESPACE }}'
-          regex: false
-
-      - name: Create the unstable release
-        uses: replicatedhq/action-kots-release@configurable-endpoint
-        with:
-          replicated-app: ${{ secrets.REPLICATED_APP }}
-          replicated-api-token: ${{ secrets.REPLICATED_TOKEN }}
-          replicated-api-origin: https://api.replicated.com/vendor
-          yaml-dir: ./kots
-          promote-channel: "Unstable"
-          version: ${{ steps.get_version.outputs.version-without-v }}
