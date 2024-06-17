@@ -92,20 +92,17 @@ jobs:
 
       - id: package-helm-chart
         run: |
-          cd chart/slackernews && \
-          helm dep up --debug && \
-          cd .. && \
           helm -u package source/chart/slackernews  \
             --app-version=${{ steps.get_version.outputs.version-without-v }} \
             --version=${{ steps.get_version.outputs.version-without-v }} \
             -d ./repository
 
-        - id: index-chart-repo
-          run: |
-            helm repo index repository --url https://shortrib-labs.github.io/charts
+      - id: index-chart-repo
+        run: |
+          helm repo index repository --url https://shortrib-labs.github.io/charts
 
-        - id: commit-repostiory
-          uses: stefanzweifel/git-auto-commit-action@v4
-          with:
-            repository: repository
-            commit_message: "Release chart version ${{ steps.get_version.outputs.version-without-v }}"
+      - id: commit-repostiory
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          repository: repository
+          commit_message: "Release chart version ${{ steps.get_version.outputs.version-without-v }}"
