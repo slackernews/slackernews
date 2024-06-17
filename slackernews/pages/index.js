@@ -8,7 +8,6 @@ import { loadSession } from "../lib/session";
 import { listTopLinks } from "../lib/link";
 import { getParam } from "../lib/param";
 import { listAvailableUserGroups, listUsersInUserGroup } from "../lib/slack";
-import { sendMetrics } from "../lib/metrics/metric";
 import envConfig from "../lib/env-config";
 
 export default function Page({ renderableLinks, nextPageUrl, startCount, isSuperAdmin, isDebugMode }) {
@@ -87,9 +86,7 @@ export async function getServerSideProps(ctx) {
       `/?p=${parseInt(page) + 1}`
     : null;
 
-  await sendMetrics();
-
-  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
+  const {showChromePluginTab} = envConfig();
 
 
   return {
@@ -104,8 +101,6 @@ export async function getServerSideProps(ctx) {
       userId: sess ? sess.user.id : "",
       duration: duration,
       isSuperAdmin: sess ? sess.user.isSuperAdmin : false,
-      isReplicatedEnabled,
-      isKOTSManaged,
       showChromePluginTab,
     },
   };

@@ -14,10 +14,6 @@ spec:
       labels:
         app: slackernews
     spec:
-      {{ if hasKey ((.Values.global).replicated) "dockerconfigjson" }}
-      imagePullSecrets:
-        - name: replicated-pull-secret
-      {{ end }}
       containers:
       - image: {{ .Values.images.slackernews.repository }}
         imagePullPolicy: {{ .Values.images.slackernews.pullPolicy }}
@@ -54,10 +50,6 @@ spec:
               secretKeyRef:
                 key: "{{ if .Values.slack.existingSecretSlackTokenKey }}{{ .Values.slack.existingSecretTokenKey }}{{ else }}userToken{{ end }}"
                 name: "{{ if .Values.slack.existingSecretName }}{{ .Values.slack.existingSecretName }}{{ else }}slackernews-slack{{ end }}"
-          - name: REPLICATED_ENABLED
-            value: "true"
-          - name: REPLICATED_KOTS_MANAGED
-            value: {{ .Values.replicated.isKOTSManaged  | quote }}
           - name: INSTALL_METHOD
             value: helm
           - name: SLACKERNEWS_ADMIN_USER_EMAILS
@@ -66,8 +58,6 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.namespace
-          - name: REPLICATED_ENDPOINT
-            value: "http://replicated:3000"
         ports:
         - containerPort: 3000
           name: http
