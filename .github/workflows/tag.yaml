@@ -102,6 +102,9 @@ jobs:
 
       - id: commit-repostiory
         uses: stefanzweifel/git-auto-commit-action@v4
+        permissions:
+          contents: write
+          metadata: read
         with:
           repository: repository
           commit_message: "Release chart version ${{ steps.get_version.outputs.version-without-v }}"
