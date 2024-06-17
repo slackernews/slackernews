@@ -60,11 +60,13 @@ jobs:
       - build
     steps:
       - uses: actions/checkout@v4
-        path: source
+        with:
+          path: source
 
       - uses: actions/checkout@v4
-        repository: shortrib-labs/charts
-        path: repository
+        with:
+          repository: shortrib-labs/charts
+          path: repository
 
       - id: get_version
         uses: battila7/get-version-action@v2
