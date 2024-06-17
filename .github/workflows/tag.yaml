@@ -55,6 +55,9 @@ jobs:
     runs-on: ubuntu-22.04
     needs:
       - build
+    permissions:
+      contents: write
+      metadata: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -102,9 +105,6 @@ jobs:
 
       - id: commit-repostiory
         uses: stefanzweifel/git-auto-commit-action@v4
-        permissions:
-          contents: write
-          metadata: read
         with:
           repository: repository
           commit_message: "Release chart version ${{ steps.get_version.outputs.version-without-v }}"
