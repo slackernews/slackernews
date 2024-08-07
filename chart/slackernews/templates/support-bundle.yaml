@@ -115,7 +115,7 @@ stringData:
                   when: "true"
                   message: Slack Bot Token valid
         - distribution:
-            exclude {{ eq .Values.replicated.isEmbeddedCluster true }}
+            exclude: {{ eq .Values.replicated.isEmbeddedCluster true }}
             outcomes:
               - pass:
                   when: "== kurl"
