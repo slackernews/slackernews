@@ -146,7 +146,7 @@ jobs:
         uses: replicatedhq/replicated-actions/create-release@v1
         with:
           replicated-app: ${{ secrets.REPLICATED_APP }}
-          replicated-api-token: ${{ secrets.REPLICATED_TOKEN }}
+          api-token: ${{ secrets.REPLICATED_TOKEN }}
           yaml-dir: ./kots
           promote-channel: "Unstable"
           version: ${{ steps.get_version.outputs.version-without-v }}
