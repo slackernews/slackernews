@@ -143,7 +143,7 @@ jobs:
           regex: false
 
       - name: Create the unstable release
-        uses: replicatedhq/action-kots-release@latest
+        uses: replicatedhq/replicated-actions/create-release@latest
         with:
           replicated-app: ${{ secrets.REPLICATED_APP }}
           replicated-api-token: ${{ secrets.REPLICATED_TOKEN }}
