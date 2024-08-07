@@ -23,10 +23,10 @@ spec:
             the `https://` or any path elements.
           type: text
           required: true
-          validation:
-            regex:
-              pattern: ^(?!-)[A-Za-z0-9-]{1,63}(?<!-)(\.(?!-)[A-Za-z0-9-]{1,63}(?<!-))*\.[A-Za-z]{2,}$
-              message: Please enter a valid hostname
+          # validation:
+          #   regex:
+          #     pattern: ^(?!-)[A-Za-z0-9-]{1,63}(?<!-)(\.(?!-)[A-Za-z0-9-]{1,63}(?<!-))*\.[A-Za-z]{2,}$
+          #     message: Please enter a valid hostname
         - name: slackernews_admin_user_emails
           title: Admin Users
           type: text
