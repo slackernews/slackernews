@@ -143,11 +143,10 @@ jobs:
           regex: false
 
       - name: Create the unstable release
-        uses: replicatedhq/action-kots-release@configurable-endpoint
+        uses: replicatedhq/action-kots-release@latest
         with:
           replicated-app: ${{ secrets.REPLICATED_APP }}
           replicated-api-token: ${{ secrets.REPLICATED_TOKEN }}
-          replicated-api-origin: https://api.replicated.com/vendor
           yaml-dir: ./kots
           promote-channel: "Unstable"
           version: ${{ steps.get_version.outputs.version-without-v }}

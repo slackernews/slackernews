@@ -18,6 +18,7 @@ ingress:
   annotations: {}
   enabled: false
   ingressClassName: ""
+
 nginx:
   service:
     type: ClusterIP

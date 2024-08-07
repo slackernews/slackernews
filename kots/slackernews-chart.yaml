@@ -34,6 +34,9 @@ spec:
         enabled: true
     nginx:
       enabled: true
+      service:
+        nodePort:
+          port: 443
     images:
       pullSecrets:
         replicated:
