@@ -1,6 +1,7 @@
 name: cmx-test-with-portforward
 
 on:
+  workflow_dispatch:
   # push:
   #   branches: [main]
   # pull_request:
