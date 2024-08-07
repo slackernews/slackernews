@@ -65,7 +65,7 @@ spec:
           help_text: >
               (Optional) - The port to use for the NodePort service type. Leave this blank to have Kubernetes choose a port for you.
           type: text
-          default: ""
+          default: "443"
           when: repl{{ ConfigOptionEquals "service_type" "node_port" }}
 
     - name: tls

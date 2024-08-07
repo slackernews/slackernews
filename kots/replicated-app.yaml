@@ -11,7 +11,7 @@ spec:
   ports:
     - serviceName: slackernews
       servicePort: 443
-      localPort: 443
+      localPort: repl{{ ConfigOption "node_port_port" | ParseInt }}
       applicationUrl: "http://slackernews"
   statusInformers:
     - deployment/slackernews
