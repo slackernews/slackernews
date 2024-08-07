@@ -48,6 +48,9 @@ slackernews:
   domain: ""
   adminUserEmails: ""
 
+replicated:
+  isEmbeddedCluster: false
+
 images:
   pullSecrets:
     replicated:

@@ -4,14 +4,14 @@ metadata:
   name: slackernews-preflight
   labels:
     troubleshoot.sh/kind: preflight
-stringData: 
-  preflight.yaml: |- 
+stringData:
+  preflight.yaml: |-
     apiVersion: troubleshoot.sh/v1beta2
     kind: Preflight
     metadata:
       name: slackernews-preflight
     spec:
-      collectors:      
+      collectors:
         - clusterInfo: {}
         - clusterResources: {}
         - http:
@@ -32,6 +32,7 @@ stringData:
                 Authorization: Bearer {{.Values.slack.botToken}}
       analyzers:
         - clusterVersion:
+            exclude: {{ eq .Values.replicated.isEmbeddedCluster true }}
             outcomes:
             - fail:
                 message: This application relies on kubernetes features only present in 1.16.0

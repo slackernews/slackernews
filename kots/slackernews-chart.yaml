@@ -25,6 +25,7 @@ spec:
     admin-console:
       enabled: false
     replicated:
+      isEmbeddedCluster: repl{{ eq Distribution "embedded-cluster"}}
       enabled: false
       preflights: false
       isKOTSManaged: true
@@ -32,7 +33,7 @@ spec:
       tls:
         enabled: true
     nginx:
-      enabled: true 
+      enabled: true
     images:
       pullSecrets:
         replicated:
@@ -40,14 +41,14 @@ spec:
       slackernews:
         pullSecret: repl{{ ImagePullSecretName }}
         repository: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}/{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/ghcr.io/$NAMESPACE" ) }}/slackernews-web:$VERSION'
- 
+
   optionalValues:
     - when: '{{repl ConfigOptionEquals "deploy_postgres" "1"}}'
       recursiveMerge: true
       values:
         postgres:
           password: '{{repl ConfigOption "postgres_password" }}'
-        
+
     - when: '{{repl ConfigOptionEquals "deploy_postgres" "0"}}'
       recursiveMerge: true
       values:
@@ -86,7 +87,7 @@ spec:
             cert: repl{{ ConfigOptionData "tls_cert" | nindent 14 }}
             key: repl{{ ConfigOptionData "tls_key" | nindent 14 }}
             ca: repl{{ ConfigOptionData "tls_ca" | nindent 14 }}
-        
+
     - when: '{{repl ConfigOptionEquals "certificate_source" "generate_internal"}}'
       recursiveMerge: true
       values:
@@ -101,7 +102,7 @@ spec:
               {{repl $cert.Cert | nindent 14 }}
             key: |-
               {{repl $cert.Key | nindent 14 }}
- 
+
   # builder values provide a way to render the chart with all images
   # and manifests. this is used in replicated to create airgap packages
   builder:
