@@ -12,7 +12,7 @@ spec:
     - serviceName: slackernews
       servicePort: 443
       localPort: 443
-      applicationUrl: "http://slackernews"
+      applicationUrl: "https://slackernews"
   statusInformers:
     - deployment/slackernews
     - deployment/slackernews-nginx
