@@ -23,5 +23,5 @@ spec:
     type: slackernews
     links:
       - description: 🔗 Open Slackernews
-        url: "http://slackernews"
+        url: "https://slackernews"
 #      - description: Slackernews Admin

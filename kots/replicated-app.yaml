@@ -9,7 +9,7 @@ spec:
   allowRollback: true
   minKotsVersion: 1.79.0
   ports:
-    - serviceName: slackernews
+    - serviceName: slackernews-nginx
       servicePort: 443
       localPort: 443
       applicationUrl: "https://slackernews"
