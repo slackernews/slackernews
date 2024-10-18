@@ -49,6 +49,10 @@ spec:
       postgres:
         registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
         repository: '{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/index.docker.io/library" ) }}/postgres'
+    replicated:
+      image:
+        registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
+        repository: '{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/index.docker.io/replicated" ) }}/replicated-sdk'
   optionalValues:
     - when: '{{repl ConfigOptionEquals "deploy_postgres" "1"}}'
       recursiveMerge: true
@@ -109,6 +113,12 @@ spec:
               {{repl $cert.Cert | nindent 14 }}
             key: |-
               {{repl $cert.Key | nindent 14 }}
+
+    - when: '{{repl HasLocalRegistry }}'
+      recursiveMerge: true
+      values:
+        replicated:
+          isAirgap: true
 
   # builder values provide a way to render the chart with all images
   # and manifests. this is used in replicated to create airgap packages
