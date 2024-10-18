@@ -37,21 +37,22 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 
 {{/*
 Image pull secrets
-*}}
+*/}}
 {{- define "slackernews.imagePullSecrets" -}}
   {{- $pullSecrets := list }}
 
-  {{/* use any global pull secrets */}}
-  {{- range ((.global).imagePullSecrets) -}}
-    {{- if kindIs "map" . -}}
-      {{- $pullSecrets = append $pullSecrets .name -}}
-    {{- else -}}
-      {{- $pullSecrets = append $pullSecrets . -}}
-    {{- end }}
+  {{- with ((.Values.global).imagePullSecrets) -}}
+    {{- range . -}}
+      {{- if kindIs "map" . -}}
+        {{- $pullSecrets = append $pullSecrets .name -}}
+      {{- else -}}
+        {{- $pullSecrets = append $pullSecrets . -}}
+      {{- end }}
+    {{- end -}}
   {{- end -}}
 
   {{/* use image pull secrets provided as values */}}
-  {{- range .images -}}
+  {{- with .Values.images -}}
     {{- range .pullSecrets -}}
       {{- if kindIs "map" . -}}
         {{- $pullSecrets = append $pullSecrets .name -}}
@@ -62,7 +63,7 @@ Image pull secrets
   {{- end -}}
 
   {{/* use secret created with injected docker config */}}
-  {{ if hasKey ((.Values.global).replicated) "dockerconfigjson" }}
+  {{- if hasKey ((.Values.global).replicated) "dockerconfigjson" }}
     {{- $pullSecrets = append $pullSecrets "slackernews-pull-secret" -}}
   {{- end -}}
 
