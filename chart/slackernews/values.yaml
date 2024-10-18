@@ -57,7 +57,9 @@ images:
     replicated:
       name: proxypullsecret
   nginx:
-    repository: $REGISTRY/$NGINX_IMAGE
+    registry: index.docker.io
+    repository: library/nginx
+    tag: 1.25.3
     pullPolicy: IfNotPresent
   slackernews:
     repository: $REGISTRY/$IMAGE

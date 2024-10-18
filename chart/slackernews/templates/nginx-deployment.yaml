@@ -13,7 +13,7 @@ spec:
         app: slackernews-nginx
     spec:
       containers:
-      - image: nginx:1.25.3
+      - image: {{ .Values.images.nginx.registry }}/{{ .Values.images.nginx.repository }}:{{ .Values.images.nginx.tag }}
         name: slackernews-nginx
         ports:
 {{ if .Values.service.tls.enabled }}
