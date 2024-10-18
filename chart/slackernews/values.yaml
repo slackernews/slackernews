@@ -66,3 +66,8 @@ images:
     repository: $IMAGE
     tag: $VERSION
     pullPolicy: IfNotPresent
+  postgres:
+    registry: index.docker.io
+    repository: library/postgres
+    tag: 14
+    pullPolicy: IfNotPresent
