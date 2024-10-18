@@ -62,5 +62,7 @@ images:
     tag: 1.25.3
     pullPolicy: IfNotPresent
   slackernews:
-    repository: $REGISTRY/$IMAGE
+    registry: $REGISTRY
+    repository: $IMAGE
+    tag: $VERSION
     pullPolicy: IfNotPresent

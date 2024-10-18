@@ -19,7 +19,7 @@ spec:
         - name: replicated-pull-secret
       {{ end }}
       containers:
-      - image: {{ .Values.images.slackernews.repository }}
+      - image: {{ .Values.images.slackernews.registry }}/{{ .Values.images.slackernews.repository }}:{{ .Values.images.slackernews.tag }}
         imagePullPolicy: {{ .Values.images.slackernews.pullPolicy }}
         name: slackernews
         env:
