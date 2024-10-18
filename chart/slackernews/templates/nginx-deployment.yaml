@@ -12,6 +12,7 @@ spec:
       labels:
         app: slackernews-nginx
     spec:
+      {{- include "slackernews.imagePullSecrets" . | nindent 6 }}
       containers:
       - image: {{ .Values.images.nginx.registry }}/{{ .Values.images.nginx.repository }}:{{ .Values.images.nginx.tag }}
         name: slackernews-nginx
