@@ -53,9 +53,7 @@ replicated:
   isEmbeddedCluster: false
 
 images:
-  pullSecrets:
-    replicated:
-      name: proxypullsecret
+  pullSecrets: []
   slackernews:
     registry: $REGISTRY
     repository: $IMAGE
