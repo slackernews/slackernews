@@ -13,6 +13,7 @@ spec:
       labels:
         app: postgres
     spec:
+      {{- include "slackernews.imagePullSecrets" . | nindent 6 }}
       containers:
       - env:
         - name: PGDATA
