@@ -40,7 +40,7 @@ spec:
           port: 443
     images:
       pullSecrets:
-        - name: '{{repl ImagePullSecret }}'
+        - name: '{{repl ImagePullSecretName }}'
       slackernews:
         registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
         repository: '{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/ghcr.io/$NAMESPACE" ) }}/slackernews-web'
