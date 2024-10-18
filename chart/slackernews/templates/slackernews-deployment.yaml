@@ -14,12 +14,9 @@ spec:
       labels:
         app: slackernews
     spec:
-      {{ if hasKey ((.Values.global).replicated) "dockerconfigjson" }}
-      imagePullSecrets:
-        - name: replicated-pull-secret
-      {{ end }}
+      {{- include "slackernews.imagePullSecrets" . | nindent 6 }}
       containers:
-      - image: {{ .Values.images.slackernews.repository }}
+      - image: {{ .Values.images.slackernews.registry }}/{{ .Values.images.slackernews.repository }}:{{ .Values.images.slackernews.tag }}
         imagePullPolicy: {{ .Values.images.slackernews.pullPolicy }}
         name: slackernews
         env:

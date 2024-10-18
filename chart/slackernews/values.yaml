@@ -53,12 +53,19 @@ replicated:
   isEmbeddedCluster: false
 
 images:
-  pullSecrets:
-    replicated:
-      name: proxypullsecret
-  nginx:
-    repository: $REGISTRY/$NGINX_IMAGE
-    pullPolicy: IfNotPresent
+  pullSecrets: []
   slackernews:
-    repository: $REGISTRY/$IMAGE
+    registry: $REGISTRY
+    repository: $IMAGE
+    tag: $VERSION
+    pullPolicy: IfNotPresent
+  nginx:
+    registry: index.docker.io
+    repository: library/nginx
+    tag: 1.25.3
+    pullPolicy: IfNotPresent
+  postgres:
+    registry: index.docker.io
+    repository: library/postgres
+    tag: 14
     pullPolicy: IfNotPresent

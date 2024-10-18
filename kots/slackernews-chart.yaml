@@ -26,9 +26,12 @@ spec:
       enabled: false
     replicated:
       isEmbeddedCluster: repl{{ eq Distribution "embedded-cluster"}}
-      enabled: false
-      preflights: false
       isKOTSManaged: true
+      imagePullSecrets:
+        - name: '{{repl ImagePullSecretName }}'
+      image:
+        registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
+        repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/index.docker.io/replicated" ) }}/replicated-sdk'
     service:
       tls:
         enabled: true
@@ -39,12 +42,16 @@ spec:
           port: 443
     images:
       pullSecrets:
-        replicated:
-          dockerconfigjson: ""
+        - name: '{{repl ImagePullSecretName }}'
       slackernews:
-        pullSecret: repl{{ ImagePullSecretName }}
-        repository: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}/{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/ghcr.io/$NAMESPACE" ) }}/slackernews-web:$VERSION'
-
+        registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
+        repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/ghcr.io/$NAMESPACE" ) }}/slackernews-web'
+      nginx:
+        registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
+        repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/index.docker.io/library" ) }}/nginx'
+      postgres:
+        registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
+        repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/index.docker.io/library" ) }}/postgres'
   optionalValues:
     - when: '{{repl ConfigOptionEquals "deploy_postgres" "1"}}'
       recursiveMerge: true
@@ -106,11 +113,31 @@ spec:
             key: |-
               {{repl $cert.Key | nindent 14 }}
 
+    - when: '{{repl HasLocalRegistry }}'
+      recursiveMerge: true
+      values:
+        replicated:
+          isAirgap: true
+
   # builder values provide a way to render the chart with all images
   # and manifests. this is used in replicated to create airgap packages
   builder:
     postgres:
-      password: repl{{ ConfigOption "postgres_password"}}
-    admin-console:
-      enabled: false
+      password: this-is-not-used-but-needed-for-builder
+      deploy_postgres: true
+      enabled: true
 
+    images:
+      slackernews:
+        registry: ghcr.io
+        repository: $NAMESPACE/slackernews-web
+      nginx:
+        registry: index.docker.io
+        repository: library/nginx
+      postgres:
+        registry: index.docker.io
+        repository: library/postgres
+    replicated:
+      image:
+        registry: index.docker.io
+        repository: replicated/replicated-sdk
