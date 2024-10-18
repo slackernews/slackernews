@@ -26,8 +26,6 @@ spec:
       enabled: false
     replicated:
       isEmbeddedCluster: repl{{ eq Distribution "embedded-cluster"}}
-      enabled: false
-      preflights: false
       isKOTSManaged: true
     service:
       tls:
