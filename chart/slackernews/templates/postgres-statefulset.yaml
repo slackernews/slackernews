@@ -27,7 +27,7 @@ spec:
               name: "{{ if .Values.postgres.existingSecretName }}{{ .Values.postgres.existingSecretName }}{{ else }}slackernews-postgres{{ end }}"
         - name: POSTGRES_DB
           value: slackernews
-        image: {[ .Values.images.postgres.registry }}/{{ .Values.images.postgres.repository }}:{{ .Values.images.postgres.tag }}
+        image: {{ .Values.images.postgres.registry }}/{{ .Values.images.postgres.repository }}:{{ .Values.images.postgres.tag }}
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
