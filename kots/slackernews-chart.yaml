@@ -39,12 +39,16 @@ spec:
           port: 443
     images:
       pullSecrets:
-        replicated:
-          dockerconfigjson: ""
+        - name: '{{repl ImagePullSecret }}'
       slackernews:
-        pullSecret: repl{{ ImagePullSecretName }}
-        repository: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}/{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/ghcr.io/$NAMESPACE" ) }}/slackernews-web:$VERSION'
-
+        registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
+        repository: '{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/ghcr.io/$NAMESPACE" ) }}/slackernews-web'
+      nginx:
+        registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
+        repository: '{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/index.docker.io/library" ) }}/nginx'
+      postgres:
+        registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
+        repository: '{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/index.docker.io/library" ) }}/postgres'
   optionalValues:
     - when: '{{repl ConfigOptionEquals "deploy_postgres" "1"}}'
       recursiveMerge: true
