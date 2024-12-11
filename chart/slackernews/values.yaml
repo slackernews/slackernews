@@ -53,7 +53,7 @@ replicated:
   isEmbeddedCluster: false
   image:
     registry: $REGISTRY
-    repository: anonymous/index.docker.io/replicated/replicated-sdk"
+    repository: anonymous/index.docker.io/replicated/replicated-sdk
 
 images:
   pullSecrets:
