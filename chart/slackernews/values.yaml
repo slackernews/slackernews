@@ -62,11 +62,11 @@ images:
     pullPolicy: IfNotPresent
   nginx:
     registry: $REGISTRY
-    repository: proxy/anonymous/index.docker.io/library/nginx
+    repository: anonymous/index.docker.io/library/nginx
     tag: 1.25.3
     pullPolicy: IfNotPresent
   postgres:
     registry: $REGISTRY
-    repository: proxy/anonymous/index.docker.io/library/postgres
+    repository: anonymous/index.docker.io/library/postgres
     tag: 14
     pullPolicy: IfNotPresent
