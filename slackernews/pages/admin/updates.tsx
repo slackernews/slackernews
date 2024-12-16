@@ -298,7 +298,6 @@ export default function Page({
               text={loginCmd}
               language={"text"}
               showLineNumbers={false}
-              wrapLines
               // @ts-ignore
               theme={dracula}
               codeBlock
@@ -313,7 +312,6 @@ export default function Page({
               text={installPreflightCmd}
               language={"text"}
               showLineNumbers={false}
-              wrapLines
               // @ts-ignore
               theme={dracula}
               codeBlock
@@ -327,7 +325,6 @@ export default function Page({
               text={preflightCmd}
               language={"text"}
               showLineNumbers={false}
-              wrapLines
               // @ts-ignore
               theme={dracula}
               codeBlock
@@ -341,7 +338,6 @@ export default function Page({
               text={upgradeCmd}
               language={"text"}
               showLineNumbers={false}
-              wrapLines
               // @ts-ignore
               theme={dracula}
               codeBlock

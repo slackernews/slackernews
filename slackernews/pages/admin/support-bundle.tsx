@@ -41,7 +41,6 @@ export default function Page({
             text={supportBundlePluginCmd}
             language={"text"}
             showLineNumbers={false}
-            wrapLines
             // @ts-ignore
             theme={dracula}
             codeBlock
@@ -56,7 +55,6 @@ export default function Page({
             text={collectSupportBundleCmd}
             language={"text"}
             showLineNumbers={false}
-            wrapLines
             // @ts-ignore
             theme={dracula}
             codeBlock
