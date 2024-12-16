@@ -51,21 +51,25 @@ slackernews:
 
 replicated:
   isEmbeddedCluster: false
+  image:
+    registry: $REGISTRY
+    repository: anonymous/index.docker.io/replicated/replicated-sdk
 
 images:
-  pullSecrets: []
+  pullSecrets:
+    - name: slackernews-pull-secret
   slackernews:
     registry: $REGISTRY
     repository: $IMAGE
     tag: $VERSION
     pullPolicy: IfNotPresent
   nginx:
-    registry: index.docker.io
-    repository: library/nginx
+    registry: $REGISTRY
+    repository: anonymous/index.docker.io/library/nginx
     tag: 1.25.3
     pullPolicy: IfNotPresent
   postgres:
-    registry: index.docker.io
-    repository: library/postgres
+    registry: $REGISTRY
+    repository: anonymous/index.docker.io/library/postgres
     tag: 14
     pullPolicy: IfNotPresent
