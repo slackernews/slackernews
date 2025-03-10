@@ -19,19 +19,21 @@ stringData:
             collectorName: slack
             get:
               url: https://api.slack.com/methods/api.test
+              timeout: 90s
         - http:
             collectorName: helmValuesSlackUserToken
             post:
               url: https://slack.com/api/auth.test
               headers:
                 Authorization: Bearer {{.Values.slack.userToken}}
+              timeout: 90s
         - http:
             collectorName: helmValuesSlackBotToken
             post:
               url: https://slack.com/api/auth.test
               headers:
                 Authorization: Bearer {{.Values.slack.botToken}}
-
+              timeout: 90s
         - logs:
             namespace: {{ .Release.Namespace }}
             selector:
