@@ -123,3 +123,13 @@ spec:
       password: this-is-not-used-but-needed-for-builder
       deploy_postgres: true
       enabled: true
+    images:
+      slackernews:
+        registry: ghcr.io
+        repository: $NAMESPACE/slackernews-web
+      nginx:
+        registry: index.docker.io
+        repository: library/nginx
+      postgres:
+        registry: index.docker.io
+        repository: library/postgres
