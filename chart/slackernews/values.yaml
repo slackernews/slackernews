@@ -53,7 +53,7 @@ replicated:
   isEmbeddedCluster: false
   image:
     registry: $REGISTRY
-    repository: $SECUREBUILD_PATH/replicated-sdk
+    repository: proxy.replicated.com/library/replicated-sdk:1.7.0
 
 images:
   pullSecrets:
