@@ -53,7 +53,7 @@ replicated:
   isEmbeddedCluster: false
   image:
     registry: $REGISTRY
-    repository: anonymous/index.docker.io/replicated/replicated-sdk
+    repository: $SECUREBUILD_PATH/replicated-sdk
 
 images:
   pullSecrets:
@@ -70,6 +70,6 @@ images:
     pullPolicy: IfNotPresent
   postgres:
     registry: $REGISTRY
-    repository: anonymous/index.docker.io/library/postgres
+    repository: $SECUREBUILD_PATH/postgres
     tag: 14
     pullPolicy: IfNotPresent

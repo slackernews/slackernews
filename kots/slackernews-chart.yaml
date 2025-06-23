@@ -31,7 +31,7 @@ spec:
         - name: '{{repl ImagePullSecretName }}'
       image:
         registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
-        repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/index.docker.io/replicated" ) }}/replicated-sdk'
+        repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/cve0.io/replicated" ) }}/replicated-sdk'
     service:
       tls:
         enabled: true
@@ -48,7 +48,7 @@ spec:
         repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/index.docker.io/library" ) }}/nginx'
       postgres:
         registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
-        repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/index.docker.io/library" ) }}/postgres'
+        repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/cve0.io" ) }}/postgres'
   optionalValues:
     - when: '{{repl ConfigOptionEquals "deploy_postgres" "1"}}'
       recursiveMerge: true
