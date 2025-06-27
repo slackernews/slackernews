@@ -31,7 +31,7 @@ spec:
         - name: '{{repl ImagePullSecretName }}'
       image:
         registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
-        repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace "library/replicated-sdk"'
+        repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace "library/replicated-sdk"}}'
     service:
       tls:
         enabled: true
