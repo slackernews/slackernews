@@ -13,7 +13,7 @@ RUN \
   elif [ -f package-lock.json ]; then npm ci; \
   elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i --frozen-lockfile; \
   else echo "Lockfile not found." && exit 1; \
-  fi
+  fi && find .
 
 # Build the application
 FROM base AS builder
@@ -27,7 +27,7 @@ COPY . .
 RUN ["yarn", "build"]
 
 #
-FROM base AS skeleton
+FROM busybox AS skeleton
 RUN mkdir /app 
 
 # Set up the production image
