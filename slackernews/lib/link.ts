@@ -318,7 +318,7 @@ export async function listTopLinks(duration: string, pageNumber: number, userId:
     }
 
     const durationSec = parse(duration);
-    if(durationSec === undefined) {
+    if(durationSec === undefined || durationSec === null) {
       throw new Error("Invalid duration");
     }
     const latestTime = new Date();
