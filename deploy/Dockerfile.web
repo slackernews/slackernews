@@ -26,22 +26,11 @@ COPY . .
 
 RUN ["yarn", "build"]
 
-#
-FROM busybox AS skeleton
-RUN mkdir /app 
-
 # Set up the production image
 FROM cve0.io/node:20.19 AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
-
-# Uncomment to disable Next.js telemetry at runtime
-# ENV NEXT_TELEMETRY_DISABLED=1
-
-# Change ownership of the /app directory and its contents to nextjs
-# This ensures nextjs user has write permissions in /app
-COPY --from=skeleton --chown=1001:1001 /app /app
 
 # Copy the necessary files from the builder stage
 COPY --from=builder --chown=1001:1001 /app/public ./public
@@ -58,4 +47,4 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 # Run the application
-CMD ["node", "server.js"]
+CMD ["server.js"]
