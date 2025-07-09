@@ -65,8 +65,8 @@ images:
     pullPolicy: IfNotPresent
   nginx:
     registry: $REGISTRY
-    repository: anonymous/index.docker.io/library/nginx
-    tag: 1.25.3
+    repository: $SECUREBUILD_PATH/nginx
+    tag: 1.29.0
     pullPolicy: IfNotPresent
   postgres:
     registry: $REGISTRY

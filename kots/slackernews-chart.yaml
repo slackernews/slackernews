@@ -45,7 +45,7 @@ spec:
         repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/ghcr.io/$NAMESPACE" ) }}/slackernews-web'
       nginx:
         registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
-        repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/index.docker.io/library" ) }}/nginx'
+        repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/cve0.io" ) }}/nginx'
       postgres:
         registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
         repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/cve0.io" ) }}/postgres'
