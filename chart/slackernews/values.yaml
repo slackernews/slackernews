@@ -71,5 +71,5 @@ images:
   postgres:
     registry: $REGISTRY
     repository: $SECUREBUILD_PATH/postgres
-    tag: 14
+    tag: 16
     pullPolicy: IfNotPresent
