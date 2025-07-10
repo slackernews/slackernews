@@ -11,6 +11,6 @@ spec:
       localPort: 443
       applicationUrl: "https://slackernews"
   statusInformers:
-    - deployment/slackernews
-    - deployment/slackernews-nginx
-    - '{{repl if ConfigOptionEquals "deploy_postgres" "1"}}statefulset/postgres{{repl end}}'
+    - slackernews/deployment/slackernews
+    - slackernews/deployment/slackernews-nginx
+    - '{{repl if ConfigOptionEquals "deploy_postgres" "1"}}slackernews/statefulset/postgres{{repl end}}'
