@@ -14,3 +14,5 @@ spec:
     - slackernews/deployment/slackernews
     - slackernews/deployment/slackernews-nginx
     - '{{repl if ConfigOptionEquals "deploy_postgres" "1"}}slackernews/statefulset/postgres{{repl end}}'
+  additionalNamespaces:
+    - slackernews
