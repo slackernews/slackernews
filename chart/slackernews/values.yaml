@@ -53,7 +53,7 @@ replicated:
   isEmbeddedCluster: false
   image:
     registry: $REGISTRY
-    repository: proxy.replicated.com/library/replicated-sdk-image
+    repository: library/replicated-sdk-image
     tag: 1.7.0
 
 images:
