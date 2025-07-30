@@ -18,21 +18,21 @@ stringData:
             collectorName: slack
             get:
               url: https://api.slack.com/methods/api.test
-              timeout: 2m
+              timeout: 20s
         - http:
             collectorName: helmValuesSlackUserToken
             post:
               url: https://slack.com/api/auth.test
               headers:
                 Authorization: Bearer {{.Values.slack.userToken}}
-              timeout: 2m
+              timeout: 20s
         - http:
             collectorName: helmValuesSlackBotToken
             post:
               url: https://slack.com/api/auth.test
               headers:
                 Authorization: Bearer {{.Values.slack.botToken}}
-              timeout: 2m
+              timeout: 20s
       analyzers:
         - clusterVersion:
             exclude: {{ eq .Values.replicated.isEmbeddedCluster true }}
