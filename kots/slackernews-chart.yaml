@@ -40,13 +40,13 @@ spec:
         - name: '{{repl ImagePullSecretName }}'
       slackernews:
         registry: '$REGISTRY'
-        repository: 'proxy/{{repl LicenseFieldValue "appSlug"}}/ghcr.io/$NAMESPACE"/slackernews-web'
+        repository: 'proxy/{{repl LicenseFieldValue "appSlug"}}/ghcr.io/$NAMESPACE/slackernews-web'
       nginx:
         registry: '$REGISTRY'
-        repository: 'proxy/{{repl LicenseFieldValue "appSlug"}}/cve0.io"/nginx'
+        repository: 'proxy/{{repl LicenseFieldValue "appSlug"}}/cve0.io/nginx'
       postgres:
         registry: '$REGISTRY'
-        repository: 'proxy/{{repl LicenseFieldValue "appSlug"}}/cve0.io"/postgres'
+        repository: 'proxy/{{repl LicenseFieldValue "appSlug"}}/cve0.io/postgres'
 
   optionalValues:
     # load images from the local registry in an airgapped environment
