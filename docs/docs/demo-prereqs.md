@@ -15,6 +15,5 @@ minimal prerequisites.
 
 ## Next steps
 
-If you meet these prerequisites you should proceed with [domain setup](/domain).
 If you meet these prerequisites you should proceed with the
 [installation](/supported-installations).
