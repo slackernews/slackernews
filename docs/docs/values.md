@@ -20,8 +20,8 @@ who can administer it.
 
 ```yaml
 slackernews:
-  domain:  # your domain name
-  adminUserEmails: # the emails for your administrators, these must match the emails they use to login to Slack
+  domain:             # your domain name
+  adminUserEmails:    # the emails for your administrators, these must match the emails they use to login to Slack
 ```
 
 ### TLS certificates
@@ -34,57 +34,114 @@ supply the certificates as a base64 encoded string.
 service:
   tls:
     enabled: true
-    cert: repl{{ ConfigOptionData "tls_cert" | nindent 14 }}
-    key: repl{{ ConfigOptionData "tls_key" | nindent 14 }}
-    ca: repl{{ ConfigOptionData "tls_ca" | nindent 14 }}
+    cert:                  # base64 encoded certificate
+    key:                   # base64 encoded key  
+    ca:                    # base64 encoded certificate authority
 ```
 
 ### Slack configuration
 
-    slack:
-      botToken: repl{{ ConfigOption "slack_bot_token" | quote }}
-      userToken: repl{{ ConfigOption "slack_user_token" | quote }}
-      clientId: repl{{ ConfigOption "slack_clientid" | quote }}
-      clientSecret: repl{{ ConfigOption "slack_clientsecret" | quote }}
+You must [install the SlackerNews app into your Slack workspace](/slack) to
+use SlackerNews outside of demo mode. When you configure the app, Slack will
+give you the credentials you need to configure SlackerNews to connect. You use
+these values to provide them.
 
+```yaml
+slack:
+  clientId:            # OAuth client ID
+  clientSecret:        # OAuth client secret
+  botToken: xoxb-...   # bot OAuth token
+  userToken: xoxp-...  # user OAuth token
+```
 ### Configuring access to SlackerNews
 
-      nginx:
-          service:
-            type: ClusterIP
+For you team to access SlackerNews, you need to configure access the NGINX
+service that serves up the SlackerNews application. The easiest way to do this
+is to take advantaged of the `LoadBalancer` service type, which will create
+the appropriate load balancer configuration to send trffic to the NGINX
+service. 
 
-      nginx:
-        service:
-          type: NodePort
-          nodePort:
-            port: repl{{ ConfigOption "node_port_port" }}
+```yaml
+nginx:
+    service:
+      type: LoadBalancer
+```
+The next best way to configure access is to use an ingress controller.
+SlackerNews allows you to specify an ingress using the following values. Be
+sure to add and annotations your ingress controller needs.
 
-    <!-- add in ingress -->
+```yaml
+ingress:
+  enabled: true
+  ingressClassName:    # ingress class name
+  annotations:         # the annotations your ingress controller requires
+```
+
+You may also choose to configure the services as a `NodePort` service. This is
+the default for virtual machines installations and less common when installing
+into existing clusters. You are most likely to  use this approach if you use
+an external load balancer that you will manually configure to route traffic to
+the service.
+
+```yaml
+nginx:
+  service:
+    type: NodePort
+    nodePort:
+      port:            # the port to use for the NodePort service type
+```
+
+Regardless of how you route traffic to SlackerNews, make sure you configure
+the [domain name](/domain) for the instance to point at the right address.
 
 ## Using your own registry
 
-    images:
-      pullSecrets:
-        - name: '{{repl ImagePullSecretName }}'
-      slackernews:
-        registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
-        repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/ghcr.io/$NAMESPACE" ) }}/slackernews-web'
-      nginx:
-        registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
-        repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/cve0.io" ) }}/nginx'
-      postgres:
-        registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
-        repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/cve0.io" ) }}/postgres'
- 
-    replicated:
-      imagePullSecrets:
-        - name: '{{repl ImagePullSecretName }}'
-      image:
-        registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
-        repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace "library/replicated-sdk-image"}}'
+SlackerNews pulls the images it uses from the Replicated Proxy Registry, which
+uses your license as credentials to access the appropriate container images
+(and their signatures, SBOMs, etc.). You may have policies in your
+organization that limit your clusters from accessing registries outside of an
+approved list, or you may be running in an air-gapped environment where it is
+impossible to access the internet.
+
+In these cases, you will need to load the images into an appropriate registry
+following the instructions on the [SlackerNews Enterprise
+Portal](https://enterprise.slackernews.io). Once you have the images into your
+registry, you will need to provide the following values to access them.
+
+```yaml
+images:
+  pullSecrets:
+    - name:                  # pull secret with credentails for your registry
+  slackernews:
+    registry:                # your registry host
+    repository:              # the repository for the slackernews-web image in your registry
+  nginx:
+    registry:                # your registry host
+    repository:              # the repository for the nginx image in your registry
+  postgres:
+    registry:                # your registry host
+    repository:              # the repository for the postgresql image in your registry
+
+replicated:
+  imagePullSecrets:
+    - name:                  # pull secret with credentails for your registry
+  image:
+    registry:                # your registry host
+    repository:              # the repository for the replicated SDK image in your registry
+```
 
 ## Using an existing database
 
-        postgres:
-          uri: '{{repl ConfigOption "postgres_external_uri" }}'
+SlackerNews uses a Postgres database to store and track activity on shared
+links. The standard Helm chart includes a containerized version of Postgres to
+run, and defaults to enabling this.
+
+It may be preferrable to run your own Postgres database in production. If you
+want to run Postgres outside of the cluster, use the following values
+
+```yaml
+postgres:
+  deploy_postgres: false    # do not deploy postgres from the chart
+  uri: postgres://...       # the connection string for your postgres database
+```
 
