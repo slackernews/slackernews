@@ -71,11 +71,14 @@ spec:
     - name: tls
       title: Certificates
       description: |
-        You can secure the Slackernews application with certificates from a trusted certificate authority
-        or we can generate them for you. We recommend that you upload your own certificates for production installations.
+        You can secure the Slackernews application with certificates from a
+        trusted certificate authority or we can generate them for you. Because
+        Slack must connect to your application, generated certificates can only
+        be used with demo-mode installations. We recommend that you upload your
+        own certificates for production installations.
       items:
         - name: certificate_source
-          type: select_one
+          type: radio
           title: Certificate Source
           default: generate_internal
           items:
@@ -83,6 +86,7 @@ spec:
               title: Generate
             - name: upload_existing
               title: Upload
+              recommended: true
         - name: tls_cert
           title: Certificate
           type: file
@@ -99,18 +103,25 @@ spec:
     - name: slack
       title: Slack Settings
       description: |
+
         If desired, you can preconfigure the slack settings for SlackerNews.
-        These are required for logging into SlackerNews and pulling/organizing content from your slack instance.
-        If you don't preconfigure these settings, you'll be prompted to configure them when you first access SlackerNews.
+
+        These are required for logging into SlackerNews and pulling/organizing
+        content from your slack instance. If you don't preconfigure these
+        settings, you'll be prompted to configure them when you first access
+        SlackerNews. You may also use the demo mode without configuring them.
 
         Instructions on how to configure your slack application and collect these values can be found in [the SlackerNews slack documentation](https://docs.slackernews.io/slack/).
+
       items:
         - name: slack_clientid
           title: Slack Client ID
           type: text
+          recommended: true
         - name: slack_clientsecret
           title: Slack Client Secret
           type: password
+          recommended: true
         - name: slack_user_token
           title: User OAuth Token
           type: password
@@ -118,6 +129,7 @@ spec:
             regex:
               pattern: ^xoxp-.*$
               message: Please enter the Slack user token for your instance of Slackernews
+          recommended: true
         - name: slack_bot_token
           title: Bot User OAuth Token
           type: password
@@ -125,6 +137,7 @@ spec:
             regex:
               pattern: ^xoxb-.*$
               message: Please enter the Slack bot token for your instance of Slackernews
+          recommended: true
 
     - name: postgres
       description: >
