@@ -144,4 +144,3 @@ postgres:
   deploy_postgres: false    # do not deploy postgres from the chart
   uri: postgres://...       # the connection string for your postgres database
 ```
-
