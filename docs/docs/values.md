@@ -14,25 +14,30 @@ through providing the required configuration.
 
 ### Core configuration
 
-The core configuration required for SlackerNews is the domain name for the
-instance and a comma-separated list of email addresses for the users who can
-administer it.
+The core configuration required for SlackerNews is the [domain name](/domain)
+for the instance and a comma-separated list of email addresses for the users
+who can administer it.
 
 ```yaml
 slackernews:
-  domain:  # your [domain name for SlackerNews](/domain)
+  domain:  # your domain name
   adminUserEmails: # the emails for your administrators, these must match the emails they use to login to Slack
 ```
 
 ### TLS certificates
 
-        service:
-          tls:
-            enabled: true
-            cert: repl{{ ConfigOptionData "tls_cert" | nindent 14 }}
-            key: repl{{ ConfigOptionData "tls_key" | nindent 14 }}
-            ca: repl{{ ConfigOptionData "tls_ca" | nindent 14 }}
+SlackerNews requires [TLS certificates signed by a trusted certificate
+authority](/domain) for Slack to connect securely to your instance. You should
+supply the certificates as a base64 encoded string.
 
+```yaml
+service:
+  tls:
+    enabled: true
+    cert: repl{{ ConfigOptionData "tls_cert" | nindent 14 }}
+    key: repl{{ ConfigOptionData "tls_key" | nindent 14 }}
+    ca: repl{{ ConfigOptionData "tls_ca" | nindent 14 }}
+```
 
 ### Slack configuration
 
