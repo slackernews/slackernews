@@ -1,4 +1,4 @@
 apiVersion: embeddedcluster.replicated.com/v1beta1
 kind: Config
 spec:
-  version: 2.7.2+k8s-1.27
+  version: 2.7.4+k8s-1.31
