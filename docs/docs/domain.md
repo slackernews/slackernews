@@ -61,5 +61,5 @@ helm install \
     --set service.tls.enabled=true 
 ```
 
-For a virtual machine install, you will be prompted to updload your
+For a virtual machine install, you will be prompted to upload your
 certificate, private key, and CA certificate chain.
