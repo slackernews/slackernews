@@ -10,8 +10,11 @@ minimal prerequisites.
 
 1. A community license (registry username & password) to SlackerNews. Visit
    [SlackerNews.io](https://slackernews.io) to get a free license.
-4. Access to a Kubernetes cluster (1.23 or later) or Linux Virtual Machine
+2. Access to a Kubernetes cluster (1.23 or later) or Linux Virtual Machine
    with a minimum of 4GB RAM and 50GB of disk space.
 
+## Next steps
+
+If you meet these prerequisites you should proceed with [domain setup](/domain).
 If you meet these prerequisites you should proceed with the
 [installation](/supported-installations).

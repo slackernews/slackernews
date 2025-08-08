@@ -1,4 +1,4 @@
-# Custom Domain Name
+# Domain Name Setup
 
 SlackerNews must be configured with a fully qualified domain name. The
 application uses [Slack
@@ -63,3 +63,9 @@ helm install \
 
 For a virtual machine install, you will be prompted to upload your
 certificate, private key, and CA certificate chain.
+
+## Next steps
+
+Once you have your domain and TLS configured, you can create and install the
+[the Slack app](/slack) or install SlackerNews using one of the [supported
+installation methods](/supported-installations).
