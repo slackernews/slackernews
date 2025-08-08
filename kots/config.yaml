@@ -60,8 +60,7 @@ spec:
               title: NodePort
             - name: load_balancer
               title: LoadBalancer
-              when: repl{{ not isEmbeddedCluster }}
-          default: cluster_ip
+          default: {{repl if isEmbeddedCluster "node_port" "cluster_ip"}}
         - name: node_port_port
           title: Node Port
           help_text: >
