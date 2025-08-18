@@ -17,7 +17,7 @@ spec:
             The domain name at which you'll access SlackerNews. Don't include
             the `https://` or any path elements.
           type: text
-          required: '{{repl ConfigOptionEquals "demo_mode" "0" }}'
+          required: true
           # validation:
           #   regex:
           #     pattern: ^(?!-)[A-Za-z0-9-]{1,63}(?<!-)(\.(?!-)[A-Za-z0-9-]{1,63}(?<!-))*\.[A-Za-z]{2,}$
