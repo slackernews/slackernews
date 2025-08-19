@@ -19,19 +19,21 @@ stringData:
             collectorName: slack
             get:
               url: https://api.slack.com/methods/api.test
+              timeout: 90s
         - http:
             collectorName: helmValuesSlackUserToken
             post:
               url: https://slack.com/api/auth.test
               headers:
                 Authorization: Bearer {{.Values.slack.userToken}}
+              timeout: 90s
         - http:
             collectorName: helmValuesSlackBotToken
             post:
               url: https://slack.com/api/auth.test
               headers:
                 Authorization: Bearer {{.Values.slack.botToken}}
-
+              timeout: 90s
         - logs:
             namespace: {{ .Release.Namespace }}
             selector:
@@ -115,24 +117,25 @@ stringData:
                   when: "true"
                   message: Slack Bot Token valid
         - distribution:
-          outcomes:
-            - pass:
-                when: "== kurl"
-                message: kurl is a supported platform
-            - pass:
-                when: "== gke"
-                message: GKE is a supported platform
-            - pass:
-                when: "== aks"
-                message: AKS is a supported platform
-            - pass:
-                when: "== eks"
-                message: EKS is a supported platform
-            - pass:
-                when: "== k3s"
-                message: K3s is a supported platform
-            - warn:
-                when: "== docker-desktop"
-                message: This application has not been tested on Docker Desktop
-            - warn:
-                message: This Kubernetes platform is not regularly tested, but there are no known compatibility issues.
+            exclude: {{ eq .Values.replicated.isEmbeddedCluster true }}
+            outcomes:
+              - pass:
+                  when: "== kurl"
+                  message: kurl is a supported platform
+              - pass:
+                  when: "== gke"
+                  message: GKE is a supported platform
+              - pass:
+                  when: "== aks"
+                  message: AKS is a supported platform
+              - pass:
+                  when: "== eks"
+                  message: EKS is a supported platform
+              - pass:
+                  when: "== k3s"
+                  message: K3s is a supported platform
+              - warn:
+                  when: "== docker-desktop"
+                  message: This application has not been tested on Docker Desktop
+              - warn:
+                  message: This Kubernetes platform is not regularly tested, but there are no known compatibility issues.

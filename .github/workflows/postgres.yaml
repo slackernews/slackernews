@@ -1,4 +1,4 @@
-name: cmx-test-with-portforward
+name: cmx-test-with-postgres-add-on
 
 on:
   workflow_dispatch:
@@ -103,24 +103,8 @@ jobs:
       fail-fast: false
       matrix:
         cluster:
-          - { distribution: kind, version: v1.26, expose-port: true }
-          - { distribution: kind, version: v1.27, expose-port: true }
-          - { distribution: kind, version: v1.28, expose-port: true }
-          - { distribution: kind, version: v1.29, expose-port: true }
-          - { distribution: k3s, version: v1.26, expose-port: true }
-          - { distribution: k3s, version: v1.27, expose-port: true }
-          - { distribution: k3s, version: v1.28, expose-port: true }
-          - { distribution: k3s, version: v1.29, expose-port: true }
-          - { distribution: openshift, version: v4.14.0-okd, expose-port: true }
-          - { distribution: eks, version: v1.26, expose-port: false }
-          - { distribution: eks, version: v1.27, expose-port: false }
-          - { distribution: eks, version: v1.28, expose-port: false }
-          - { distribution: eks, version: v1.29, expose-port: false }
-          - { distribution: gke, version: v1.26, expose-port: false }
-          - { distribution: gke, version: v1.27, expose-port: false }
-          - { distribution: gke, version: v1.28, expose-port: false }
-          - { distribution: gke, version: v1.29, expose-port: false }
-          - { distribution: aks, version: v1.29, expose-port: false }
+          - { distribution: eks, version: v1.29 }
+          - { distribution: eks, version: v1.29, postgres: true }
 
     runs-on: ubuntu-22.04
     steps:
@@ -150,13 +134,21 @@ jobs:
           ttl: 4h
           cluster-name: slackernews-${{ matrix.cluster.distribution }}-${{ matrix.cluster.version }}-${{ steps.vars.outputs.sha_short }}
 
+      - id: create-postgres
+        if: ${{ matrix.cluster.postgres }}
+        uses: replicatedhq/replicated-actions/create-postgres@v1
+        with:
+          api-token: ${{ secrets.REPLICATED_TOKEN }}
+          cluster-id: ${{ steps.create-cluster.outputs.cluster-id }}
+
       - name: extract chart
         run: |
           mkdir -p ./slackernews-0.0.0-alpha.${{ steps.vars.outputs.sha_short }}
           cd ./slackernews-0.0.0-alpha.${{ steps.vars.outputs.sha_short }}
           tar xzvf ../chart/slackernews/slackernews-0.0.0-alpha.${{ steps.vars.outputs.sha_short }}.tgz
 
-      - id: helm-install
+      - id: helm-install-external-postgres
+        if: ${{ matrix.cluster.postgres }}
         uses: replicatedhq/replicated-actions/helm-install@v1
         with:
           kubeconfig: ${{ steps.create-cluster.outputs.cluster-kubeconfig }}
@@ -166,11 +158,23 @@ jobs:
           namespace: "slackernews"
           helm-path: "helm"
           values: |
-            nginx:
-              service:
-                type: NodePort
-                nodePort:
-                  port: 30080
+            postgres:
+              uri: ${{ steps.create-postgres.outputs.uri }}
+            replicated:
+              integration:
+                licenseID: ${{ secrets.REPLICATED_LICENSE_ID }}
+
+      - id: helm-install-embedded-postgres
+        if: ${{ !matrix.cluster.postgres }}
+        uses: replicatedhq/replicated-actions/helm-install@v1
+        with:
+          kubeconfig: ${{ steps.create-cluster.outputs.cluster-kubeconfig }}
+          chart: ./slackernews-0.0.0-alpha.${{ steps.vars.outputs.sha_short }}/slackernews
+          name: "slackernews"
+          version: "alpha.0.0.0-${{ steps.vars.outputs.sha_short }}"
+          namespace: "slackernews"
+          helm-path: "helm"
+          values: |
             replicated:
               integration:
                 licenseID: ${{ secrets.REPLICATED_LICENSE_ID }}
@@ -188,37 +192,29 @@ jobs:
         run: |
           kubectl wait --for=condition=available --timeout=60s deployment/replicated  -n slackernews --timeout=300s
 
-      - name: print the list of services in the slackernews namespace
+      - name: print the list of pods in the slackernews namespace
         run: |
-          kubectl get services -n slackernews
+          kubectl get pods -n slackernews
+
+      - name: Install Chainsaw
+        uses: kyverno/chainsaw/.github/actions/install@v0.0.9
+        with:
+          release: v0.0.9
+
+      - name: Test with Chainsaw
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          cd ./test/conformance && chainsaw test --test-dir ./
 
       - name: Setup Kubernetes port-forward daemon, using the kubeconfig from the previous step
-        if: ${{ !matrix.cluster.expose-port }}
         uses: vbem/k8s-port-forward@v1
-        env:
-          KUBECONFIG: ./kubeconfig
         with:
           workload: "svc/slackernews"
           mappings: "3000:3000"
           options: "--namespace=slackernews"
-
-      - id: expose-port
-        if: ${{ matrix.cluster.expose-port }}
-        uses: replicatedhq/replicated-actions/expose-port@v1
-        with:
-          api-token: ${{ secrets.REPLICATED_TOKEN }}
-          cluster-id: ${{ steps.create-cluster.outputs.cluster-id }}
-          port: 30080
-          protocols: https
-
-      - id: test-url
-        name: Set test URL
-        run: |
-          if ${{ !matrix.cluster.expose-port }}; then
-            echo "test_url=http://localhost:3000" >> $GITHUB_OUTPUT
-          else
-            echo "test_url=https://${{ steps.expose-port.outputs.hostname }}" >> $GITHUB_OUTPUT
-          fi
 
       - uses: actions/setup-node@v3
         with:
@@ -230,9 +226,9 @@ jobs:
       - name: Install Playwright Browsers
         run: cd slackernews && yarn playwright install --with-deps
 
-      - name: Run Playwright tests on an instance
+      - name: Run Playwright tests on the port forward endpoint
         run: |
-          cd slackernews && NODE_ENV=test TEST_URL=${{ steps.test-url.outputs.test_url }} yarn playwright test
+          cd slackernews && NODE_ENV=test TEST_URL=http://localhost:3000 yarn playwright test
 
       - uses: actions/upload-artifact@v3
         if: always()

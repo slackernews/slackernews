@@ -9,6 +9,7 @@ pages:
   - index.md
   - prereqs.md
   - domain.md
+  - supported-installations.md
   - slack.md
   - helm.md
   - advanced.md

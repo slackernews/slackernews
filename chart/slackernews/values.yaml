@@ -29,6 +29,7 @@ ingress:
   annotations: {}
   enabled: false
   ingressClassName: ""
+
 nginx:
   service:
     type: ClusterIP
@@ -59,13 +60,28 @@ slackernews:
   domain: ""
   adminUserEmails: ""
 
+replicated:
+  isEmbeddedCluster: false
+  image:
+    registry: $REGISTRY
+    repository: library/replicated-sdk-image
+    tag: 1.7.0
+
 images:
   pullSecrets:
-    replicated:
-      name: proxypullsecret
-  nginx:
-    repository: $REGISTRY/$NGINX_IMAGE
-    pullPolicy: IfNotPresent
+    - name: slackernews-pull-secret
   slackernews:
-    repository: $REGISTRY/$IMAGE
+    registry: $REGISTRY
+    repository: $IMAGE
+    tag: $VERSION
+    pullPolicy: IfNotPresent
+  nginx:
+    registry: $REGISTRY
+    repository: $SECUREBUILD_PATH/nginx
+    tag: 1.29.0
+    pullPolicy: IfNotPresent
+  postgres:
+    registry: $REGISTRY
+    repository: $SECUREBUILD_PATH/postgres
+    tag: 16
     pullPolicy: IfNotPresent
