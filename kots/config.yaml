@@ -28,11 +28,6 @@ spec:
           help_text: >
             Provide a comma-separated list of email addresses for the users you
             want to grant admin access to.
-        - name: demo_mode
-          title: Demo Mode
-          type: bool
-          help_text: >
-            Enable demo mode. This will allow you to try SlackerNews without connecting it to Slack or configuring other options.
 
     - name: ingress
       title: Application Access
@@ -48,7 +43,6 @@ spec:
         - **LoadBalancer** Using a LoadBalancer service and letting Kubernetes provision a load balancer for you
 
         If you're running in a supported cloud provider and want Kubernetes to provision a Load Balancer, use LoadBalancer.
-      when: repl{{ ConfigOptionEquals "demo_mode" "0" }}
       items:
         - name: service_type
           title: Service Type
@@ -77,7 +71,6 @@ spec:
         Slack must connect to your application, generated certificates can only
         be used with demo-mode installations. We recommend that you upload your
         own certificates for production installations.
-      when: repl{{ ConfigOptionEquals "demo_mode" "0" }}
       items:
         - name: certificate_source
           type: radio
@@ -110,7 +103,6 @@ spec:
         These are required for logging into SlackerNews and pulling/organizing content from your slack instance. If you don't preconfigure these settings, you'll be prompted to configure them when you first access SlackerNews. You may also use the demo mode without configuring them.
 
         Instructions on how to configure your slack application and collect these values can be found in [the SlackerNews slack documentation](https://docs.slackernews.io/slack/).
-      when: repl{{ ConfigOptionEquals "demo_mode" "0" }}
       items:
         - name: slack_clientid
           title: Slack Client ID
@@ -143,7 +135,6 @@ spec:
         can either deploy postgresql as part of the installation or provide an external URI to an existing postgresql instance
         that you will use for SlackerNews.
       title: Postgresql
-      when: repl{{ ConfigOptionEquals "demo_mode" "0" }}
       items:
         - name: deploy_postgres
           type: bool

@@ -13,7 +13,7 @@ spec:
   # these values will be supplied to helm template
   values:
     postgres:
-      enabled: repl{{ ConfigOptionEquals "demo_mode" "0" }}
+      enabled: true
       deploy_postgres: repl{{ ConfigOption "deploy_postgres" | ParseBool }}
     slackernews:
       domain: repl{{ ConfigOption "slackernews_domain" }}
@@ -62,16 +62,6 @@ spec:
         postgres:
           registry: '{{repl LocalRegistryHost}}'
           repository: '{{LocalRegistryNamespace}}/postgres'
-
-    # configue Slack connectivity when we aren't in demo mode
-    - when: '{{repl ConfigOptionEquals "demo_mode" "0"}}'
-      recursiveMerge: true
-      values:
-        slack:
-          botToken: repl{{ ConfigOption "slack_bot_token" | quote }}
-          userToken: repl{{ ConfigOption "slack_user_token" | quote }}
-          clientId: repl{{ ConfigOption "slack_clientid" | quote }}
-          clientSecret: repl{{ ConfigOption "slack_clientsecret" | quote }}
 
     # the user wants us to deploy a local Postgres instance
     - when: '{{repl ConfigOptionEquals "deploy_postgres" "1"}}'
