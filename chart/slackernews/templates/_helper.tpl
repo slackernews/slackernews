@@ -34,3 +34,44 @@ Selector labels
 app.kubernetes.io/name: {{ include "slackernews.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
+
+{{/*
+Image pull secrets
+*/}}
+{{- define "slackernews.imagePullSecrets" -}}
+  {{- $pullSecrets := list }}
+
+  {{- with ((.Values.global).imagePullSecrets) -}}
+    {{- range . -}}
+      {{- if kindIs "map" . -}}
+        {{- $pullSecrets = append $pullSecrets .name -}}
+      {{- else -}}
+        {{- $pullSecrets = append $pullSecrets . -}}
+      {{- end }}
+    {{- end -}}
+  {{- end -}}
+
+  {{/* use image pull secrets provided as values */}}
+  {{- with .Values.images -}}
+    {{- range .pullSecrets -}}
+      {{- if kindIs "map" . -}}
+        {{- $pullSecrets = append $pullSecrets .name -}}
+      {{- else -}}
+        {{- $pullSecrets = append $pullSecrets . -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{/* use secret created with injected docker config */}}
+  {{- if hasKey ((.Values.global).replicated) "dockerconfigjson" }}
+    {{- $pullSecrets = append $pullSecrets "slackernews-pull-secret" -}}
+  {{- end -}}
+
+
+  {{- if (not (empty $pullSecrets)) -}}
+imagePullSecrets:
+    {{- range $pullSecrets | uniq }}
+  - name: {{ . }}
+    {{- end }}
+  {{- end }}
+{{- end -}}

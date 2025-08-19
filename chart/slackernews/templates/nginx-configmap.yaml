@@ -17,7 +17,7 @@ data:
       ssl_protocols         TLSv1 TLSv1.1 TLSv1.2;
       ssl_ciphers           HIGH:!aNULL:!MD5;
 {{ else }}
-      listen      80 default_server;
+      listen      8080 default_server;
 {{ end }}
       charset     utf-8;
 
