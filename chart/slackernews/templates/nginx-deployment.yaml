@@ -44,6 +44,7 @@ spec:
         - name: var-volume
           mountPath: /var/run
           readOnly: false
+{{ if .Values.service.tls.enabled }}
 {{ if .Values.service.tls.existingSecretName }}
         - mountPath: /certs/tls.crt
           name: certs
@@ -51,8 +52,7 @@ spec:
         - mountPath: /certs/tls.key
           name: certs
           subPath: {{ .Values.service.tls.existingSecretKeyKey }}
-{{ end }}
-{{ if .Values.service.tls.enabled }}
+{{ else }}
         - mountPath: /certs/tls.crt
           name: certs
           subPath: tls.crt
@@ -60,19 +60,21 @@ spec:
           name: certs
           subPath: tls.key
 {{ end }}
+{{ end }}
       volumes:
       - name: var-volume
         emptyDir: {}
       - configMap:
           name: slackernews-nginx
         name: config
+{{ if .Values.service.tls.enabled }}
 {{ if .Values.service.tls.existingSecretName }}
       - secret:
           secretName: {{ .Values.service.tls.existingSecretName }}
         name: certs
-{{ end }}
-{{ if .Values.service.tls.enabled }}
+{{ else }}
       - secret:
           secretName: slackernews-nginx
         name: certs
+{{ end }}
 {{ end }}
