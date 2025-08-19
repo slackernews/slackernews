@@ -1,10 +1,11 @@
 name: cmx-test-with-ingress
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  workflow_dispatch:
+  # push:
+  #   branches: [main]
+  # pull_request:
+  #   branches: [main]
 env:
   REGISTRY: ttl.sh
 
@@ -66,16 +67,16 @@ jobs:
       - name: Update the values.yaml with the registry name
         uses: jacobtomlinson/gha-find-replace@v2
         with:
-          include: 'chart/slackernews/values.yaml'
-          find: '$REGISTRY'
-          replace: 'ttl.sh'
+          include: "chart/slackernews/values.yaml"
+          find: "$REGISTRY"
+          replace: "ttl.sh"
           regex: false
       - name: Update the values.yaml with the image path
         uses: jacobtomlinson/gha-find-replace@v2
         with:
-          include: 'chart/slackernews/values.yaml'
-          find: '$IMAGE'
-          replace: 'slackernews/slackernews0.0.0-alpha.${{ steps.vars.outputs.sha_short }}:1h'
+          include: "chart/slackernews/values.yaml"
+          find: "$IMAGE"
+          replace: "slackernews/slackernews0.0.0-alpha.${{ steps.vars.outputs.sha_short }}:1h"
           regex: false
 
       - id: package-helm-chart
@@ -95,30 +96,31 @@ jobs:
           path: chart/slackernews-0.0.0-alpha.${{ steps.vars.outputs.sha_short }}.tgz
 
   compatibility-matrix:
+    if: false ## disabled in favor of expose port and port forward
     needs:
       - chart
     strategy:
       fail-fast: false
       matrix:
         cluster:
-          - { distribution: kind, version: v1.25 }
           - { distribution: kind, version: v1.26 }
           - { distribution: kind, version: v1.27 }
           - { distribution: kind, version: v1.28 }
-          - { distribution: k3s, version: v1.24 }
-          - { distribution: k3s, version: v1.25 }
+          - { distribution: kind, version: v1.29 }
           - { distribution: k3s, version: v1.26 }
           - { distribution: k3s, version: v1.27 }
+          - { distribution: k3s, version: v1.28 }
+          - { distribution: k3s, version: v1.29 }
           # - { distribution: openshift, version: v4.13.0-okd }
-          - { distribution: eks, version: v1.24 }
-          - { distribution: eks, version: v1.25 }
           - { distribution: eks, version: v1.26 }
           - { distribution: eks, version: v1.27 }
-          - { distribution: gke, version: v1.24 }
-          - { distribution: gke, version: v1.25 }
+          - { distribution: eks, version: v1.28 }
+          - { distribution: eks, version: v1.29 }
           - { distribution: gke, version: v1.26 }
           - { distribution: gke, version: v1.27 }
-          - { distribution: aks, version: v1.27 }
+          - { distribution: gke, version: v1.28 }
+          - { distribution: gke, version: v1.29 }
+          - { distribution: aks, version: v1.29 }
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
@@ -139,7 +141,7 @@ jobs:
         id: install-helm
 
       - id: create-cluster
-        uses: replicatedhq/compatibility-actions/create-cluster@v1
+        uses: replicatedhq/replicated-actions/create-cluster@v1
         with:
           api-token: ${{ secrets.REPLICATED_TOKEN }}
           kubernetes-distribution: ${{ matrix.cluster.distribution }}
@@ -148,15 +150,15 @@ jobs:
           cluster-name: slackernews-${{ matrix.cluster.distribution }}-${{ matrix.cluster.version }}-${{ steps.vars.outputs.sha_short }}
 
       - id: install-ngrok-ingress
-        uses: replicatedhq/compatibility-actions/helm-install@v1
+        uses: replicatedhq/replicated-actions/helm-install@v1
         with:
           kubeconfig: ${{ steps.create-cluster.outputs.cluster-kubeconfig }}
           repo-name: ngrok
           repo-url: https://ngrok.github.io/kubernetes-ingress-controller
           chart: ngrok/kubernetes-ingress-controller
-          name: 'ngrok-ingress-controller'
-          namespace: 'ngrok-ingress-controller'
-          helm-path: 'helm'
+          name: "ngrok-ingress-controller"
+          namespace: "ngrok-ingress-controller"
+          helm-path: "helm"
           values: |
             credentials:
               authtoken: ${{ secrets.NGROK_AUTH_TOKEN }}
@@ -169,19 +171,18 @@ jobs:
           tar xzvf ../chart/slackernews/slackernews-0.0.0-alpha.${{ steps.vars.outputs.sha_short }}.tgz
 
       - id: helm-install
-        uses: replicatedhq/compatibility-actions/helm-install@v1
+        uses: replicatedhq/replicated-actions/helm-install@v1
         with:
           kubeconfig: ${{ steps.create-cluster.outputs.cluster-kubeconfig }}
           chart: ./slackernews-0.0.0-alpha.${{ steps.vars.outputs.sha_short }}/slackernews
-          name: 'slackernews'
-          version: 'alpha.0.0.0-${{ steps.vars.outputs.sha_short }}'
-          namespace: 'slackernews'
-          helm-path: 'helm'
+          name: "slackernews"
+          version: "alpha.0.0.0-${{ steps.vars.outputs.sha_short }}"
+          namespace: "slackernews"
+          helm-path: "helm"
           values: |
             replicated:
               integration:
                 licenseID: ${{ secrets.REPLICATED_LICENSE_ID }}
-
 
       - name: save the kubeconfig as a tmp file, saving the filename as an output
         run: |
@@ -241,16 +242,15 @@ jobs:
 
       - id: delete-ingress
         if: always()
-        run:
-          kubectl delete -f ./test/ngrok-ingress.yaml
+        run: kubectl delete -f ./test/ngrok-ingress.yaml
 
       - id: wait-for-ingress-delete
         if: always()
-        run:
-          kubectl  wait --for=delete ingress/slackernews -n slackernews --timeout=300s
+        run: kubectl  wait --for=delete ingress/slackernews -n slackernews --timeout=300s
 
       - id: delete-cluster
-        uses: replicatedhq/compatibility-actions/remove-cluster@v1
+        if: always()
+        uses: replicatedhq/replicated-actions/remove-cluster@v1
         with:
           cluster-id: ${{ steps.create-cluster.outputs.cluster-id }}
           api-token: ${{ secrets.REPLICATED_TOKEN }}
