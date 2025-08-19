@@ -7,6 +7,7 @@ spec:
   chart:
     name: slackernews
     chartVersion: $VERSION
+  namespace: slackernews
 
   # values are used in the customer environment, as a pre-render step
   # these values will be supplied to helm template
@@ -25,36 +26,96 @@ spec:
     admin-console:
       enabled: false
     replicated:
-      enabled: false
-      preflights: false
+      isEmbeddedCluster: repl{{ eq Distribution "embedded-cluster"}}
       isKOTSManaged: true
+      imagePullSecrets:
+        - name: '{{repl ImagePullSecretName }}'
     service:
       tls:
         enabled: true
     nginx:
-      enabled: true 
-      service:
-        type: repl{{ ConfigOption "service_type" }}
+      enabled: true
     images:
       pullSecrets:
-        replicated:
-          dockerconfigjson: ""
+        - name: '{{repl ImagePullSecretName }}'
       slackernews:
-        pullSecret: repl{{ ImagePullSecretName }}
-        repository: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}/{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/ghcr.io/$NAMESPACE" ) }}/slackernews-web:$VERSION'
+        registry: '$REGISTRY'
+        repository: 'proxy/{{repl LicenseFieldValue "appSlug"}}/ghcr.io/$NAMESPACE/slackernews-web'
+      nginx:
+        registry: '$REGISTRY'
+        repository: 'proxy/{{repl LicenseFieldValue "appSlug"}}/cve0.io/nginx'
+      postgres:
+        registry: '$REGISTRY'
+        repository: 'proxy/{{repl LicenseFieldValue "appSlug"}}/cve0.io/postgres'
 
   optionalValues:
+    # load images from the local registry in an airgapped environment
+    - when: '{{repl HasLocalRegistry }}'
+      recursiveMerge: true
+      values:
+        replicated:
+          isAirgap: true
+          image:
+            registry: '{{repl LocalRegistryHost }}'
+            repository: '{{repl LocalRegistryNamespace }}/replicated-sdk-image'
+        slackernews:
+          registry: '{{repl LocalRegistryHost}}'
+          repository: '{{LocalRegistryNamespace}}/slackernews-web'
+        nginx:
+          registry: '{{repl LocalRegistryHost}}'
+          repository: '{{LocalRegistryNamespace}}/nginx'
+        postgres:
+          registry: '{{repl LocalRegistryHost}}'
+          repository: '{{LocalRegistryNamespace}}/postgres'
+
+    # the user wants us to deploy a local Postgres instance
     - when: '{{repl ConfigOptionEquals "deploy_postgres" "1"}}'
       recursiveMerge: true
       values:
         postgres:
           password: '{{repl ConfigOption "postgres_password" }}'
-        
+
+    # the user provided their own Postgres instance
     - when: '{{repl ConfigOptionEquals "deploy_postgres" "0"}}'
       recursiveMerge: true
       values:
         postgres:
           uri: '{{repl ConfigOption "postgres_external_uri" }}'
+
+    # use the user-provided certificates 
+    - when: '{{repl ConfigOptionEquals "certificate_source" "upload_existing"}}'
+      recursiveMerge: true
+      values:
+        service:
+          tls:
+            enabled: true
+            cert: repl{{ ConfigOptionData "tls_cert" | nindent 14 }}
+            key: repl{{ ConfigOptionData "tls_key" | nindent 14 }}
+            ca: repl{{ ConfigOptionData "tls_ca" | nindent 14 }}
+          
+    # or generate our own
+    - when: '{{repl ConfigOptionEquals "certificate_source" "generate_internal"}}'
+      recursiveMerge: true
+      values:
+        service:
+          tls:
+            enabled: true
+            ca: |-
+              {{repl $ca := genCA (LicenseFieldValue "customerName") 365 }}
+              {{repl $ca.Cert | Base64Encode}}
+            cert: |-
+              {{repl $cert := genSignedCert (ConfigOption "slackernews_domain") nil (list (ConfigOption "slackernews_domain")) 365 $ca }}
+              {{repl $cert.Cert | nindent 14 }}
+            key: |-
+              {{repl $cert.Key | nindent 14 }}
+             
+    # handle different service types
+    - when: '{{repl ConfigOptionEquals "service_type" "cluster_ip"}}'
+      recursiveMerge: true
+      values:
+        nginx:
+          service:
+            type: ClusterIP
 
     - when: '{{repl ConfigOptionEquals "service_type" "load_balancer"}}'
       recursiveMerge: true
@@ -72,36 +133,12 @@ spec:
             nodePort:
               port: repl{{ ConfigOption "node_port_port" }}
 
-    - when: '{{repl ConfigOptionEquals "certificate_source" "upload_existing"}}'
-      recursiveMerge: true
-      values:
-        service:
-          tls:
-            enabled: true
-            cert: repl{{ ConfigOptionData "tls_cert" | nindent 14 }}
-            key: repl{{ ConfigOptionData "tls_key" | nindent 14 }}
-            ca: repl{{ ConfigOptionData "tls_ca" | nindent 14 }}
-        
-    - when: '{{repl ConfigOptionEquals "certificate_source" "generate_internal"}}'
-      recursiveMerge: true
-      values:
-        service:
-          tls:
-            enabled: true
-            ca: |-
-              {{repl $ca := genCA (LicenseFieldValue "customerName") 365 }}
-              {{repl $ca.Cert | Base64Encode}}
-            cert: |-
-              {{repl $cert := genSignedCert (ConfigOption "slackernews_domain") nil (list (ConfigOption "slackernews_domain")) 365 $ca }}
-              {{repl $cert.Cert | nindent 14 }}
-            key: |-
-              {{repl $cert.Key | nindent 14 }}
- 
+
+
   # builder values provide a way to render the chart with all images
   # and manifests. this is used in replicated to create airgap packages
   builder:
     postgres:
-      password: repl{{ ConfigOption "postgres_password"}}
-    admin-console:
-      enabled: false
-
+      password: this-is-not-used-but-needed-for-builder
+      deploy_postgres: true
+      enabled: true

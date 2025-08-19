@@ -13,6 +13,7 @@ spec:
       labels:
         app: postgres
     spec:
+      {{- include "slackernews.imagePullSecrets" . | nindent 6 }}
       containers:
       - env:
         - name: PGDATA
@@ -26,7 +27,7 @@ spec:
               name: "{{ if .Values.postgres.existingSecretName }}{{ .Values.postgres.existingSecretName }}{{ else }}slackernews-postgres{{ end }}"
         - name: POSTGRES_DB
           value: slackernews
-        image: postgres:14
+        image: {{ .Values.images.postgres.registry }}/{{ .Values.images.postgres.repository }}:{{ .Values.images.postgres.tag }}
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:

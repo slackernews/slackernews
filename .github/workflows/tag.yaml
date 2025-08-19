@@ -54,16 +54,6 @@ jobs:
           cache-from: ${{ steps.cache.outputs.cache-from }}
           cache-to: ${{ steps.cache.outputs.cache-to }}
 
-      - name: Build nginx image
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          tags: ${{ env.REGISTRY }}/${{ secrets.GHCR_NAMESPACE }}/slackernews-nginx:0.0.0-alpha.${{ steps.vars.outputs.sha_short }}
-          file: ./deploy/Dockerfile.nginx
-          push: true
-          cache-from: ${{ steps.cache.outputs.cache-from }}
-          cache-to: ${{ steps.cache.outputs.cache-to }}
-
   release:
     runs-on: ubuntu-22.04
     needs:
@@ -108,12 +98,12 @@ jobs:
           replace: '${{ steps.get_version.outputs.version-without-v }}'
           regex: false
 
-      - name: Update the values.yaml with the nginx image path
+      - name: Update the values.yaml with the image path
         uses: jacobtomlinson/gha-find-replace@v2
         with:
           include: 'chart/slackernews/values.yaml'
-          find: '$NGINX_IMAGE'
-          replace: 'proxy/${{ secrets.REPLICATED_APP }}/ghcr.io/${{ secrets.GHCR_NAMESPACE }}/slackernews-nginx:${{ steps.get_version.outputs.version-without-v }}'
+          find: '$SECUREBUILD_PATH'
+          replace: 'proxy/${{ secrets.REPLICATED_APP }}/cve0.io'
           regex: false
 
       ###############
@@ -160,11 +150,10 @@ jobs:
         run: cp ./chart/slackernews-${{ steps.get_version.outputs.version-without-v }}.tgz ./kots
 
       - name: Create the unstable release
-        uses: replicatedhq/action-kots-release@configurable-endpoint
+        uses: replicatedhq/replicated-actions/create-release@v1
         with:
-          replicated-app: ${{ secrets.REPLICATED_APP }}
-          replicated-api-token: ${{ secrets.REPLICATED_TOKEN }}
-          replicated-api-origin: https://api.replicated.com/vendor
+          app-slug: ${{ secrets.REPLICATED_APP }}
+          api-token: ${{ secrets.REPLICATED_TOKEN }}
           yaml-dir: ./kots
           promote-channel: "Unstable"
           version: ${{ steps.get_version.outputs.version-without-v }}

@@ -1,11 +1,22 @@
 postgres:
+  # tells slackernews to use postgres as the
+  # backing database instead of sqlite
   enabled: false
+  # deploys a postgresql workload to the cluster
   deploy_postgres: false
+  # the password to use with deploy_postgres
   password: ""
+  # if deploy_postgres is false, provide a URI
   uri: ""
+
+  # use a value in an existing secret instead of
+  # .postgres.password OR .postgres.uri
   existingSecretName: ""
+  # key in the secret that contains the password
   existingSecretPasswordKey: ""
+  # key in the secret that contains the uri
   existingSecretUriKey: ""
+  # service type if deploy_postgres is true
   service:
     type: ClusterIP
     nodePort:
@@ -18,6 +29,7 @@ ingress:
   annotations: {}
   enabled: false
   ingressClassName: ""
+
 nginx:
   service:
     type: ClusterIP
@@ -51,13 +63,28 @@ slackernews:
   # display running version on admin dashboard
   version: "$TAG"
 
+replicated:
+  isEmbeddedCluster: false
+  image:
+    registry: $REGISTRY
+    repository: library/replicated-sdk-image
+    tag: 1.7.0
+
 images:
   pullSecrets:
-    replicated:
-      name: proxypullsecret
-  nginx:
-    repository: $REGISTRY/$NGINX_IMAGE
-    pullPolicy: IfNotPresent
+    - name: slackernews-pull-secret
   slackernews:
-    repository: "$REGISTRY/$IMAGE:$TAG"
+    registry: $REGISTRY
+    repository: $IMAGE
+    tag: $VERSION
+    pullPolicy: IfNotPresent
+  nginx:
+    registry: $REGISTRY
+    repository: $SECUREBUILD_PATH/nginx
+    tag: 1.29.0
+    pullPolicy: IfNotPresent
+  postgres:
+    registry: $REGISTRY
+    repository: $SECUREBUILD_PATH/postgres
+    tag: 16
     pullPolicy: IfNotPresent
