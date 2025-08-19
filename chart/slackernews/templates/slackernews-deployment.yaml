@@ -66,6 +66,8 @@ spec:
                 fieldPath: metadata.namespace
           - name: REPLICATED_ENDPOINT
             value: "http://replicated:3000"
+          - name: SLACKERNEWS_VERSION
+            value: {{ .Values.slackernews.version | quote }}
         ports:
         - containerPort: 3000
           name: http

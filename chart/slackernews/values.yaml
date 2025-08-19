@@ -58,7 +58,10 @@ slack:
 
 slackernews:
   domain: ""
+  # set default admin users
   adminUserEmails: ""
+  # display running version on admin dashboard
+  version: "$TAG"
 
 replicated:
   isEmbeddedCluster: false

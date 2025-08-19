@@ -69,6 +69,7 @@ export default function Page({ notificationsChannel, initialNotificationSettings
 Page.getLayout = function getLayout(page) {
   return (
     <AdminLayout currentPage="admin-notifications"
+                 slackernewsVersion={page.props.slackernewsVersion}
                  isReplicatedEnabled={page.props.isReplicatedEnabled}
                  isKOTSManaged={page.props.isKOTSManaged}
                  showChromePluginTab={page.props.showChromePluginTab}
@@ -103,7 +104,7 @@ export async function getServerSideProps(ctx) {
 
   const adminChannel = await ensureAdminNotificationChannel();
   const adminNotificationSettings = await getAdminNotificationSettings();  
-  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab} = envConfig();
+  const {isReplicatedEnabled, isKOTSManaged, showChromePluginTab, slackernewsVersion} = envConfig();
   return {
     props: {
       username: sess.user.name,
@@ -113,6 +114,7 @@ export async function getServerSideProps(ctx) {
       isReplicatedEnabled,
       isKOTSManaged,
       showChromePluginTab,
+      slackernewsVersion,
     },
   };
 }
