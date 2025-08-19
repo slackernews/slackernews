@@ -9,7 +9,7 @@ spec:
     - serviceName: slackernews-nginx
       servicePort: 443
       localPort: 443
-      applicationUrl: "https://{{repl ConfigOption "slackernews_domain" }}"
+      applicationUrl: 'https://{{repl ConfigOption "slackernews_domain" }}'
   statusInformers:
     - slackernews/deployment/slackernews
     - slackernews/deployment/slackernews-nginx
