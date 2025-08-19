@@ -116,6 +116,30 @@ stringData:
               - pass:
                   when: "true"
                   message: Slack Bot Token valid
+        - textAnalyze:
+            exclude: {{ eq .Values.slack.userToken  "" }}
+            checkName: 'Enterprise Grid: User'
+            fileName: helmValuesSlackUserToken.json
+            regex: is_enterprise_install\\":false
+            outcomes:
+              - fail:
+                  when: "false"
+                  message: Slack Enterprise Grid installations are not supported
+              - pass:
+                  when: "true"
+                  message: Confirmed that user token is not for a Slack Enterprise Grid installation
+        - textAnalyze:
+            exclude: {{ eq .Values.slack.botToken  "" }}
+            checkName: 'Enterprise Grid: Bot'
+            fileName: helmValuesSlackBotToken.json
+            regex: is_enterprise_install\\":false
+            outcomes:
+              - fail:
+                  when: "false"
+                  message: Slack Enterprise Grid installations are not supported
+              - pass:
+                  when: "true"
+                  message: Confirmed that bot token is not for a Slack Enterprise Grid installation
         - distribution:
             exclude: {{ eq .Values.replicated.isEmbeddedCluster true }}
             outcomes:
