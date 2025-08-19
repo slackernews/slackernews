@@ -4,34 +4,60 @@ metadata:
   name: slackernews-preflight
   labels:
     troubleshoot.sh/kind: preflight
-stringData: 
-  preflight.yaml: |- 
+stringData:
+  preflight.yaml: |-
     apiVersion: troubleshoot.sh/v1beta2
     kind: Preflight
     metadata:
       name: slackernews-preflight
     spec:
-      collectors:      
+      collectors:
         - clusterInfo: {}
         - clusterResources: {}
         - http:
             collectorName: slack
             get:
               url: https://api.slack.com/methods/api.test
+              timeout: 20s
         - http:
             collectorName: helmValuesSlackUserToken
             post:
               url: https://slack.com/api/auth.test
               headers:
                 Authorization: Bearer {{.Values.slack.userToken}}
+              timeout: 20s
         - http:
             collectorName: helmValuesSlackBotToken
             post:
               url: https://slack.com/api/auth.test
               headers:
                 Authorization: Bearer {{.Values.slack.botToken}}
+              timeout: 20s
+
+        {{- if and .Values.postgres.enabled
+                   (not .Values.postgres.deploy_postgres)
+                   (or
+                       .Values.postgres.uri
+                       (and .Values.postgres.existingSecretName
+                            .Values.postgres.existingSecretUriKey))
+                   }}
+        - postgres:
+            collectorName: postgres
+            uri: >-
+              {{- if (and .Values.postgres.existingSecretName
+                          .Values.postgres.existingSecretUriKey)
+              }}
+                {{/*
+                  # todo: add support for existing secret
+                  {{ get value of uri key in existing secret }}
+                */}}
+              {{- else }}
+                {{ .Values.postgres.uri }}
+              {{- end }}
+        {{- end }}
       analyzers:
         - clusterVersion:
+            exclude: {{ eq .Values.replicated.isEmbeddedCluster true }}
             outcomes:
             - fail:
                 message: This application relies on kubernetes features only present in 1.16.0
@@ -90,3 +116,18 @@ stringData:
               - pass:
                   when: "true"
                   message: Slack Bot Token valid
+
+        - postgres:
+            exclude: '{{ or (not .Values.postgres.enabled)
+                            .Values.postgres.deploy_postgres }}'
+            checkName: Postgres Check
+            collectorName: postgres
+            outcomes:
+              - fail:
+                  when: connected == false
+                  message: Cannot connect to PostgreSQL server
+              - fail:
+                  when: version < 10.x
+                  message: The PostgreSQL server must be at least version 10
+              - pass:
+                  message: The PostgreSQL server is ready

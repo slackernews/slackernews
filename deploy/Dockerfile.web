@@ -1,8 +1,12 @@
 # Use a specific version of node:alpine as the base image
-FROM node:20-alpine AS base
+FROM node:20-bookworm-slim AS base
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    python3 \
+    libsqlite3-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install dependencies that might be necessary
-RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Install dependencies based on the lock file present
@@ -13,7 +17,7 @@ RUN \
   elif [ -f package-lock.json ]; then npm ci; \
   elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i --frozen-lockfile; \
   else echo "Lockfile not found." && exit 1; \
-  fi
+  fi && find .
 
 # Build the application
 FROM base AS builder
@@ -22,40 +26,29 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Uncomment to disable Next.js telemetry during build
-# ENV NEXT_TELEMETRY_DISABLED 1
+# ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN yarn build
+RUN ["yarn", "build"]
 
 # Set up the production image
-FROM base AS runner
+FROM cve0.io/node:20.19 AS runner
 WORKDIR /app
 
-ENV NODE_ENV production
-
-# Uncomment to disable Next.js telemetry at runtime
-# ENV NEXT_TELEMETRY_DISABLED 1
-
-# Create a group and user for running the application
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-
-# Change ownership of the /app directory and its contents to nextjs
-# This ensures nextjs user has write permissions in /app
-RUN chown -R nextjs:nodejs /app
+ENV NODE_ENV=production
 
 # Copy the necessary files from the builder stage
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder --chown=1001:1001 /app/public ./public
+COPY --from=builder --chown=1001:1001 /app/.next/standalone ./
+COPY --from=builder --chown=1001:1001 /app/.next/static ./.next/static
 
 # Switch to the nextjs user
-USER nextjs
+USER 1001
 
 EXPOSE 3000
 
 # Set required environment variables
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
 # Run the application
-CMD ["node", "server.js"]
+CMD ["server.js"]

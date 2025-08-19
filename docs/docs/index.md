@@ -13,5 +13,5 @@ SlackerNews is deployed by your team onto resources you control to ensure that y
 1. Satisfy the [prerequisites](/prereqs). 
 2. Identify the [domain name](/domain) you want to use for your SlackerNews instance.
 3. Create & install [the Slack app](/slack) to generate tokens with the right permissions.
-4. Install the [Helm chart](/helm).
+4. Install SlackerNews using one of the [supported installation methods](/supported-installations).
 5. Revisit the [domain step](/domain) to set up the DNS.
