@@ -23,5 +23,5 @@ spec:
     type: slackernews
     links:
       - description: 🔗 Open Slackernews
-        url: "https://slackernews"
+        url: "https://{{repl ConfigOption "slackernews_domain" }}"
 #      - description: Slackernews Admin
