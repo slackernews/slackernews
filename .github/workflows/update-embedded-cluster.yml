@@ -1,0 +1,71 @@
+name: Update Embedded Cluster Version
+
+on:
+  schedule:
+    - cron: '0 8 * * *'  # Run daily at 8 AM UTC
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  check-and-update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup yq
+        id: current
+        uses: mikefarah/yq@master
+        with:
+          cmd: |
+            yq '.spec.version' kots/embedded-cluster.yaml
+      
+      - name: Get latest release
+        id: latest
+        run: |
+          LATEST=$(curl -s https://api.github.com/repos/replicatedhq/embedded-cluster/releases/latest | jq -r .tag_name)
+          echo "version=$LATEST" >> $GITHUB_OUTPUT
+      
+      - name: Install semver CLI
+        run: |
+          wget -O /tmp/semver https://github.com/davidrjonas/semver-cli/releases/latest/download/semver-linux-amd64
+          chmod +x /tmp/semver
+          sudo mv /tmp/semver /usr/local/bin/semver
+      
+      - name: Compare versions and update
+        id: compare
+        run: |
+          CURRENT="${{ steps.current.outputs.result }}"
+          LATEST="${{ steps.latest.outputs.version }}"
+          
+          # Check if latest is greater than current
+          if semver greater $LATEST $CURRENT > /dev/null; then
+            MAJOR=$(semver get major $CURRENT)
+            if semver satisfies $LATEST "~$MAJOR"; then
+              # Update the file using yq
+              yq -i '.spec.version = "${{ steps.latest.outputs.version }}"' kots/embedded-cluster.yaml
+            fi
+            echo "needs_update=true" >> $GITHUB_OUTPUT
+          else
+            echo "needs_update=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Create Pull Request
+        if: steps.compare.outputs.needs_update == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "build: update embedded-cluster to ${{ steps.latest.outputs.version }}"
+          title: "Update embedded-cluster to ${{ steps.latest.outputs.version }}"
+          body: |
+            This PR updates the embedded-cluster version from `${{ steps.current.outputs.result }}` to `${{ steps.latest.outputs.version }}`.
+            
+            Changes:
+            - Updated `kots/embedded-cluster.yaml` with the latest version
+            
+            🤖 Generated with [Claude Code](https://claude.ai/code)
+          branch: update-embedded-cluster-${{ steps.latest.outputs.version }}
+          delete-branch: true
