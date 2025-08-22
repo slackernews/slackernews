@@ -29,7 +29,7 @@ export async function Favicon() {
       primaryKey: true,
     },
     icon: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false,
     },
   }, {

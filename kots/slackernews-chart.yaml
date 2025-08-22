@@ -15,11 +15,6 @@ spec:
     postgres:
       enabled: true
       deploy_postgres: repl{{ ConfigOption "deploy_postgres" | ParseBool }}
-    slack:
-      botToken: repl{{ ConfigOption "slack_bot_token" | quote }}
-      userToken: repl{{ ConfigOption "slack_user_token" | quote }}
-      clientId: repl{{ ConfigOption "slack_clientid" | quote }}
-      clientSecret: repl{{ ConfigOption "slack_clientsecret" | quote }}
     slackernews:
       domain: repl{{ ConfigOption "slackernews_domain" }}
       adminUserEmails: repl{{ ConfigOption "slackernews_admin_user_emails" | quote }}
