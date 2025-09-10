@@ -29,11 +29,13 @@ jobs:
           LATEST=$(curl -s https://api.github.com/repos/replicatedhq/embedded-cluster/releases/latest | jq -r .tag_name)
           echo "version=$LATEST" >> $GITHUB_OUTPUT
       
-      - name: Install semver CLI
-        run: |
-          wget -O /tmp/semver https://github.com/davidrjonas/semver-cli/releases/latest/download/semver-linux-amd64
-          chmod +x /tmp/semver
-          sudo mv /tmp/semver /usr/local/bin/semver
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      
+      - name: Install semver package
+        run: npm install -g semver
       
       - name: Compare versions and update
         id: compare
@@ -42,13 +44,15 @@ jobs:
           LATEST="${{ steps.latest.outputs.version }}"
           
           # Check if latest is greater than current
-          if semver greater $LATEST $CURRENT > /dev/null; then
-            MAJOR=$(semver get major $CURRENT)
-            if semver satisfies $LATEST "~$MAJOR"; then
+          if npx semver -r ">$CURRENT" $LATEST >/dev/null 2>&1; then
+            CURRENT_MAJOR=$(npx semver $CURRENT | cut -d. -f1)
+            if npx semver -r "~$CURRENT_MAJOR" $LATEST >/dev/null 2>&1; then
               # Update the file using yq
               yq -i '.spec.version = "${{ steps.latest.outputs.version }}"' kots/embedded-cluster.yaml
+              echo "needs_update=true" >> $GITHUB_OUTPUT
+            else
+              echo "needs_update=false" >> $GITHUB_OUTPUT
             fi
-            echo "needs_update=true" >> $GITHUB_OUTPUT
           else
             echo "needs_update=false" >> $GITHUB_OUTPUT
           fi
