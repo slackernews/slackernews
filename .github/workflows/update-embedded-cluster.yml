@@ -61,7 +61,7 @@ jobs:
         if: steps.compare.outputs.needs_update == 'true'
         uses: peter-evans/create-pull-request@v5
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.AUTO_PR_TOKEN || secrets.GITHUB_TOKEN }}
           commit-message: "build: update embedded-cluster to ${{ steps.latest.outputs.version }}"
           title: "Update embedded-cluster to ${{ steps.latest.outputs.version }}"
           body: |
