@@ -3,7 +3,7 @@ kind: Config
 metadata:
   name: embedded-cluster-config
 spec:
-  version: "2.8.1+k8s-1.31"
+  version: 2.11.1+k8s-1.33
   domains:
     proxyRegistryDomain: "images.shortrib.io"
     replicatedAppDomain: "updates.shortrib.io"
