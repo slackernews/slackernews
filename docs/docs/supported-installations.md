@@ -11,7 +11,8 @@ Below is an overview of each installation method for reference.
 ## Installing on a VM (recommended)
 
 To install SlackerNews on a VM, you'll need to download the installer from the [SlackerNews Enterprise Portal](https://enterprise.slackernews.io). After download, you will
-1. Download the from the [Enterprise Portal](If you need a link or credentials, please contact us at [support@slackernews.io](mailto:support@slackernews.io).
+
+1. Download the from the [Enterprise Portal](https://enterprise.slackernews.io).  If you need a link or credentials, please contact us at [support@slackernews.io](mailto:support@slackernews.io).
 
 1. Extract the installer:
 ```shell
