@@ -33,7 +33,7 @@ sudo ./slackernews install --license license.yaml
 
 1. Assure you have [Helm](https://helm.sh/docs/intro/install/),
    [kubectl](https://kubernetes.io/docs/tasks/tools/), and
-   [the preflight plugin for `kubectl`](/prefight) installed.
+   [the preflight plugin for `kubectl`](/preflight) installed.
 
 2. Prepare [install values](/values) for your installation. 
 
