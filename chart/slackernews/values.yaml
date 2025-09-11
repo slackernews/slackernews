@@ -64,7 +64,6 @@ slackernews:
   version: "$TAG"
 
 replicated:
-  isEmbeddedCluster: false
   image:
     registry: $REGISTRY
     repository: library/replicated-sdk-image

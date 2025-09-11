@@ -21,7 +21,6 @@ spec:
     admin-console:
       enabled: false
     replicated:
-      isEmbeddedCluster: repl{{ eq Distribution "embedded-cluster"}}
       isKOTSManaged: true
       imagePullSecrets:
         - name: '{{repl ImagePullSecretName }}'
