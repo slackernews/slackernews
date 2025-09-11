@@ -54,7 +54,7 @@ spec:
               title: NodePort
             - name: load_balancer
               title: LoadBalancer
-          # default: '{{repl (eq Distribution "embedded-cluster") | ternary "node_port" "cluster_ip"}}'
+          default: cluster_ip
         - name: node_port_port
           title: Node Port
           help_text: >
