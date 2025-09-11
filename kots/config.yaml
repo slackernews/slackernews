@@ -46,7 +46,7 @@ spec:
       items:
         - name: service_type
           title: Service Type
-          type: select_one
+          type: radio
           items:
             - name: cluster_ip
               title: ClusterIP
