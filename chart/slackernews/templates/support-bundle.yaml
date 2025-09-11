@@ -141,23 +141,7 @@ stringData:
                   when: "true"
                   message: Confirmed that bot token is not for a Slack Enterprise Grid installation
         - distribution:
-            exclude: {{ eq .Values.replicated.isEmbeddedCluster true }}
             outcomes:
-              - pass:
-                  when: "== kurl"
-                  message: kurl is a supported platform
-              - pass:
-                  when: "== gke"
-                  message: GKE is a supported platform
-              - pass:
-                  when: "== aks"
-                  message: AKS is a supported platform
-              - pass:
-                  when: "== eks"
-                  message: EKS is a supported platform
-              - pass:
-                  when: "== k3s"
-                  message: K3s is a supported platform
               - warn:
                   when: "== docker-desktop"
                   message: This application has not been tested on Docker Desktop
