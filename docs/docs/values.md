@@ -2,7 +2,7 @@
 
 When installing SlackerNews with Helm, you'll need to provide a values file
 that configures SlackerNews for your environment. You do not need to create a
-values file when isntalling on a VM, since the Admin Console will guide you
+values file when installing on a VM, since the Admin Console will guide you
 through providing the required configuration.
 
 !!! Note
