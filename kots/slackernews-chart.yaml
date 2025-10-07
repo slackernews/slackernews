@@ -38,10 +38,10 @@ spec:
         repository: 'proxy/{{repl LicenseFieldValue "appSlug"}}/ghcr.io/$NAMESPACE/slackernews-web'
       nginx:
         registry: '$REGISTRY'
-        repository: 'proxy/{{repl LicenseFieldValue "appSlug"}}/cve0.io/nginx'
+        repository: 'proxy/{{repl LicenseFieldValue "appSlug"}}/index.docker.io/library/nginx'
       postgres:
         registry: '$REGISTRY'
-        repository: 'proxy/{{repl LicenseFieldValue "appSlug"}}/cve0.io/postgres'
+        repository: 'proxy/{{repl LicenseFieldValue "appSlug"}}/index.docker.io/library/postgres'
 
   optionalValues:
     # load images from the local registry in an airgapped environment
