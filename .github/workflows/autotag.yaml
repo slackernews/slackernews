@@ -1,55 +1,61 @@
-name: autotag
+# .github/workflows/autotag.yaml
+name: autotag-and-release
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 permissions:
-  contents: write
+  contents: read
+  packages: write
 
 concurrency:
-  group: autotag-main
+  group: release-main
   cancel-in-progress: false
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: slackernews-web
+
 jobs:
-  tag:
+  version:
     runs-on: ubuntu-22.04
+    outputs:
+      version: ${{ steps.next.outputs.version }}
+      tag: ${{ steps.next.outputs.tag }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Compute next patch tag
+      - name: Compute next patch version
         id: next
         shell: bash
         run: |
           set -euo pipefail
-          git fetch --tags
+          git fetch --tags --force
 
           latest="$(git tag -l 'v*.*.*' --sort=-v:refname | head -n 1 || true)"
-
           if [[ -z "${latest}" ]]; then
-            next="v0.1.0"
+            next="0.1.0"
           else
             ver="${latest#v}"
             IFS='.' read -r major minor patch <<< "${ver}"
             patch=$((patch + 1))
-            next="v${major}.${minor}.${patch}"
+            next="${major}.${minor}.${patch}"
           fi
 
-          echo "latest=${latest}" >> "$GITHUB_OUTPUT"
-          echo "next=${next}" >> "$GITHUB_OUTPUT"
-          echo "Next tag: ${next} (latest was: ${latest:-<none>})"
+          echo "version=${next}" >> "$GITHUB_OUTPUT"
+          echo "tag=v${next}" >> "$GITHUB_OUTPUT"
+          echo "Next tag: v${next} (latest was: ${latest:-<none>})"
 
       - name: Create and push tag (idempotent)
         shell: bash
         run: |
           set -euo pipefail
-          tag="${{ steps.next.outputs.next }}"
+          tag="${{ steps.next.outputs.tag }}"
 
-          # Refresh tags right before creating, to reduce races further
-          git fetch --tags
-
+          git fetch --tags --force
           if git rev-parse -q --verify "refs/tags/${tag}" >/dev/null; then
             echo "Tag ${tag} already exists. Skipping."
             exit 0
@@ -57,3 +63,141 @@ jobs:
 
           git tag "${tag}"
           git push origin "${tag}"
+
+  build:
+    runs-on: ubuntu-22.04
+    needs: [version]
+    outputs:
+      version: ${{ needs.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for web image
+        id: web-meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ secrets.GHCR_NAMESPACE }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,format=long
+            type=raw,value=v${{ needs.version.outputs.version }}
+            type=raw,value=${{ needs.version.outputs.version }}
+
+      - uses: int128/docker-build-cache-config-action@v1
+        id: cache
+        with:
+          image: ghcr.io/${{ github.repository }}/cache
+
+      - name: Build web image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./slackernews
+          tags: ${{ steps.web-meta.outputs.tags }}
+          labels: ${{ steps.web-meta.outputs.labels }}
+          file: ./deploy/Dockerfile.web
+          push: true
+          cache-from: ${{ steps.cache.outputs.cache-from }}
+          cache-to: ${{ steps.cache.outputs.cache-to }}
+
+  release:
+    runs-on: ubuntu-22.04
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: make chart
+
+      - uses: azure/setup-helm@v1
+        with:
+          version: "3.9.0"
+        id: install
+
+      # Prepare Chart values.yaml
+      - name: Update the values.yaml with the registry name
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          include: "chart/slackernews/values.yaml"
+          find: "$REGISTRY"
+          replace: ${{ secrets.REPLICATED_PROXY_REGISTRY_CNAME || 'proxy.replicated.com' }}
+          regex: false
+
+      - name: Update the values.yaml with the image path
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          include: "chart/slackernews/values.yaml"
+          find: "$IMAGE"
+          replace: "proxy/${{ secrets.REPLICATED_APP }}/ghcr.io/${{ secrets.GHCR_NAMESPACE }}/slackernews-web"
+          regex: false
+
+      - name: Update the values.yaml with the tag
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          include: "chart/slackernews/values.yaml"
+          find: "$TAG"
+          replace: "${{ needs.build.outputs.version }}"
+          regex: false
+
+      - name: Update the values.yaml with the securebuild path
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          include: "chart/slackernews/values.yaml"
+          find: "$SECUREBUILD_PATH"
+          replace: "proxy/${{ secrets.REPLICATED_APP }}/cve0.io"
+          regex: false
+
+      # Prepare KOTS HelmChart kind
+      - name: Update the version in the KOTS HelmChart kind
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          include: "kots/slackernews-chart.yaml"
+          find: "$VERSION"
+          replace: "${{ needs.build.outputs.version }}"
+          regex: false
+
+      - name: Update the KOTS HelmChart kind with the registry name
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          include: "kots/slackernews-chart.yaml"
+          find: "$REGISTRY"
+          replace: "${{ secrets.REPLICATED_PROXY_REGISTRY_CNAME }}"
+          regex: false
+
+      - name: Update the KOTS HelmChart kind with the image namespace
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          include: "kots/slackernews-chart.yaml"
+          find: "$NAMESPACE"
+          replace: "${{ secrets.GHCR_NAMESPACE }}"
+          regex: false
+
+      # Package Helm Chart and Create Release
+      - id: package-helm-chart
+        run: |
+          cd chart/slackernews && \
+          helm dep up --debug && \
+          cd .. && \
+          helm package \
+            --app-version=${{ needs.build.outputs.version }} \
+            --version=${{ needs.build.outputs.version }} \
+            ./slackernews
+
+      - name: Copy the helm chart to the kots directory
+        run: cp ./chart/slackernews-${{ needs.build.outputs.version }}.tgz ./kots
+
+      - name: Create the unstable release
+        uses: replicatedhq/replicated-actions/create-release@v1
+        with:
+          app-slug: ${{ secrets.REPLICATED_APP }}
+          api-token: ${{ secrets.REPLICATED_TOKEN }}
+          yaml-dir: ./kots
+          promote-channel: "Unstable"
+          version: ${{ needs.build.outputs.version }}
