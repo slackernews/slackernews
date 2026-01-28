@@ -4,6 +4,9 @@ on:
   push:
     tags:
     - "v*.*.*"
+concurrency:
+  group: release
+  cancel-in-progress: false
 env:
   REGISTRY: ghcr.io
 

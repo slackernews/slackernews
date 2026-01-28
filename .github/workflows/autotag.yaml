@@ -1,0 +1,59 @@
+name: autotag
+
+on:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: autotag-main
+  cancel-in-progress: false
+
+jobs:
+  tag:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Compute next patch tag
+        id: next
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --tags
+
+          latest="$(git tag -l 'v*.*.*' --sort=-v:refname | head -n 1 || true)"
+
+          if [[ -z "${latest}" ]]; then
+            next="v0.1.0"
+          else
+            ver="${latest#v}"
+            IFS='.' read -r major minor patch <<< "${ver}"
+            patch=$((patch + 1))
+            next="v${major}.${minor}.${patch}"
+          fi
+
+          echo "latest=${latest}" >> "$GITHUB_OUTPUT"
+          echo "next=${next}" >> "$GITHUB_OUTPUT"
+          echo "Next tag: ${next} (latest was: ${latest:-<none>})"
+
+      - name: Create and push tag (idempotent)
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="${{ steps.next.outputs.next }}"
+
+          # Refresh tags right before creating, to reduce races further
+          git fetch --tags
+
+          if git rev-parse -q --verify "refs/tags/${tag}" >/dev/null; then
+            echo "Tag ${tag} already exists. Skipping."
+            exit 0
+          fi
+
+          git tag "${tag}"
+          git push origin "${tag}"
