@@ -6,7 +6,8 @@ on:
     branches: ["main"]
 
 permissions:
-  contents: write
+  contents: read
+  packages: write
 
 concurrency:
   group: release-main
@@ -79,7 +80,7 @@ jobs:
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_PAT }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract metadata (tags, labels) for web image
         id: web-meta
