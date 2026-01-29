@@ -53,15 +53,16 @@ spec:
           image:
             registry: '{{repl LocalRegistryHost }}'
             repository: '{{repl LocalRegistryNamespace }}/replicated-sdk-image'
-        slackernews:
-          registry: '{{repl LocalRegistryHost}}'
-          repository: '{{LocalRegistryNamespace}}/slackernews-web'
-        nginx:
-          registry: '{{repl LocalRegistryHost}}'
-          repository: '{{LocalRegistryNamespace}}/nginx'
-        postgres:
-          registry: '{{repl LocalRegistryHost}}'
-          repository: '{{LocalRegistryNamespace}}/postgres'
+        images:
+          slackernews:
+            registry: '{{repl LocalRegistryHost}}'
+            repository: '{{LocalRegistryNamespace}}/slackernews-web'
+          nginx:
+            registry: '{{repl LocalRegistryHost}}'
+            repository: '{{LocalRegistryNamespace}}/nginx'
+          postgres:
+            registry: '{{repl LocalRegistryHost}}'
+            repository: '{{LocalRegistryNamespace}}/postgres'
 
     # the user wants us to deploy a local Postgres instance
     - when: '{{repl ConfigOptionEquals "deploy_postgres" "1"}}'
