@@ -63,13 +63,6 @@ slackernews:
   # display running version on admin dashboard
   version: "$TAG"
 
-replicated:
-  isEmbeddedCluster: false
-  image:
-    registry: $REGISTRY
-    repository: library/replicated-sdk-image
-    tag: 1.7.0
-
 images:
   pullSecrets:
     - name: slackernews-pull-secret
