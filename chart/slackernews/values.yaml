@@ -80,11 +80,11 @@ images:
     pullPolicy: IfNotPresent
   nginx:
     registry: $REGISTRY
-    repository: $SECUREBUILD_PATH/nginx
+    repository: index.docker.io/library/nginx
     tag: 1.29.0
     pullPolicy: IfNotPresent
   postgres:
     registry: $REGISTRY
-    repository: $SECUREBUILD_PATH/postgres
+    repository: index.docker.io/library/postgres
     tag: 16
     pullPolicy: IfNotPresent
