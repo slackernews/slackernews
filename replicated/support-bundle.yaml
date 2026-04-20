@@ -1,0 +1,155 @@
+apiVersion: troubleshoot.sh/v1beta3
+kind: SupportBundle
+metadata:
+  name: slackernews-support-bundle
+spec:
+  collectors:
+    - clusterInfo: {}
+    - clusterResources: {}
+    - http:
+        collectorName: slack
+        get:
+          url: https://api.slack.com/methods/api.test
+          timeout: 90s
+    - http:
+        collectorName: slackUserToken
+        post:
+          url: https://slack.com/api/auth.test
+          headers:
+            Authorization: 'Bearer repl{{ ConfigOption "slack_user_token" }}'
+          timeout: 90s
+    - http:
+        collectorName: slackBotToken
+        post:
+          url: https://slack.com/api/auth.test
+          headers:
+            Authorization: 'Bearer repl{{ ConfigOption "slack_bot_token" }}'
+          timeout: 90s
+    - logs:
+        namespace: slackernews
+        selector:
+          - app=slackernews-nginx
+    - logs:
+        namespace: slackernews
+        selector:
+          - app=slackernews
+    - logs:
+        selector:
+          - app=postgres
+
+  analyzers:
+    - clusterVersion:
+        outcomes:
+          - fail:
+              when: '< 1.16.0'
+              message: This application relies on Kubernetes features only present in 1.16.0 and later.
+              uri: https://kubernetes.io
+          - warn:
+              when: '< 1.24.0'
+              message: Your cluster is running a version of Kubernetes that is out of support.
+              uri: https://kubernetes.io
+          - pass:
+              message: Your cluster meets the recommended and required versions of Kubernetes.
+    - textAnalyze:
+        checkName: Axios Errors
+        fileName: slackernews-*/slackernews.log
+        regex: "error - AxiosError"
+        outcomes:
+          - pass:
+              when: "false"
+              message: Axios errors not found in logs
+          - fail:
+              when: "true"
+              message: Axios errors found in logs
+    - textAnalyze:
+        checkName: Slack Accessible
+        fileName: slack.json
+        regex: '"status": 200,'
+        outcomes:
+          - pass:
+              when: "true"
+              message: Can access the Slack API
+          - fail:
+              when: "false"
+              message: "Cannot access the Slack API. Check that the server can reach the internet and check [status.slack.com](https://status.slack.com)."
+    - nodeResources:
+        checkName: One node must have 2 GB RAM and 1 CPU Core
+        filters:
+          allocatableMemory: 2Gi
+          cpuCapacity: "1"
+        outcomes:
+          - fail:
+              when: count() < 1
+              message: Cannot find a node with sufficient memory and cpu
+          - pass:
+              message: Sufficient CPU and memory is available
+    - textAnalyze:
+        checkName: Slack User Token
+        exclude: 'repl{{ ConfigOptionEquals "slack_user_token" "" }}'
+        fileName: slackUserToken.json
+        regex: ok\\":true
+        outcomes:
+          - fail:
+              when: "false"
+              message: No valid Slack User token provided
+          - pass:
+              when: "true"
+              message: Slack User Token valid
+    - textAnalyze:
+        checkName: Slack Bot Token
+        exclude: 'repl{{ ConfigOptionEquals "slack_bot_token" "" }}'
+        fileName: slackBotToken.json
+        regex: ok\\":true
+        outcomes:
+          - fail:
+              when: "false"
+              message: No valid Slack Bot token provided
+          - pass:
+              when: "true"
+              message: Slack Bot Token valid
+    - textAnalyze:
+        checkName: "Enterprise Grid: User"
+        exclude: 'repl{{ ConfigOptionEquals "slack_user_token" "" }}'
+        fileName: slackUserToken.json
+        regex: is_enterprise_install\\":false
+        outcomes:
+          - fail:
+              when: "false"
+              message: Slack Enterprise Grid installations are not supported
+          - pass:
+              when: "true"
+              message: Confirmed that user token is not for a Slack Enterprise Grid installation
+    - textAnalyze:
+        checkName: "Enterprise Grid: Bot"
+        exclude: 'repl{{ ConfigOptionEquals "slack_bot_token" "" }}'
+        fileName: slackBotToken.json
+        regex: is_enterprise_install\\":false
+        outcomes:
+          - fail:
+              when: "false"
+              message: Slack Enterprise Grid installations are not supported
+          - pass:
+              when: "true"
+              message: Confirmed that bot token is not for a Slack Enterprise Grid installation
+    - distribution:
+        outcomes:
+          - pass:
+              when: "== kurl"
+              message: kurl is a supported platform
+          - pass:
+              when: "== gke"
+              message: GKE is a supported platform
+          - pass:
+              when: "== aks"
+              message: AKS is a supported platform
+          - pass:
+              when: "== eks"
+              message: EKS is a supported platform
+          - pass:
+              when: "== k3s"
+              message: K3s is a supported platform
+          - warn:
+              when: "== docker-desktop"
+              message: This application has not been tested on Docker Desktop
+          - warn:
+              message: This Kubernetes platform is not regularly tested, but there are no known compatibility issues.

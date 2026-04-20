@@ -1,0 +1,141 @@
+apiVersion: troubleshoot.sh/v1beta3
+kind: Preflight
+metadata:
+  name: slackernews-preflight
+spec:
+  collectors:
+    - clusterInfo: {}
+    - clusterResources: {}
+    - http:
+        collectorName: slack
+        get:
+          url: https://api.slack.com/methods/api.test
+          timeout: 20s
+    - http:
+        collectorName: slackUserToken
+        post:
+          url: https://slack.com/api/auth.test
+          headers:
+            Authorization: 'Bearer repl{{ ConfigOption "slack_user_token" }}'
+          timeout: 20s
+    - http:
+        collectorName: slackBotToken
+        post:
+          url: https://slack.com/api/auth.test
+          headers:
+            Authorization: 'Bearer repl{{ ConfigOption "slack_bot_token" }}'
+          timeout: 20s
+    - postgres:
+        collectorName: postgres
+        uri: 'repl{{ ConfigOption "postgres_external_uri" }}'
+
+  analyzers:
+    - docString: |
+        Title: Kubernetes Version
+        Requirement:
+          - Minimum: 1.16.0
+          - Recommended: 1.24.0
+        SlackerNews relies on Kubernetes features present in 1.16.0 and later.
+        Running a supported version ensures API compatibility and security patches.
+      clusterVersion:
+        checkName: Kubernetes Version
+        outcomes:
+          - fail:
+              when: '< 1.16.0'
+              message: This application relies on Kubernetes features only present in 1.16.0 and later.
+              uri: https://kubernetes.io
+          - warn:
+              when: '< 1.24.0'
+              message: Your cluster is running a version of Kubernetes that is out of support.
+              uri: https://kubernetes.io
+          - pass:
+              message: Your cluster meets the recommended and required versions of Kubernetes.
+
+    - docString: |
+        Title: Slack API Accessibility
+        Requirement:
+          - The cluster must be able to reach https://api.slack.com
+        SlackerNews requires connectivity to the Slack API to function.
+      textAnalyze:
+        checkName: Slack Accessible
+        fileName: slack.json
+        regex: '"status": 200,'
+        outcomes:
+          - pass:
+              when: "true"
+              message: Can access the Slack API
+          - fail:
+              when: "false"
+              message: "Cannot access the Slack API. Check that the server can reach the internet and check [status.slack.com](https://status.slack.com)."
+
+    - docString: |
+        Title: Node Resources
+        Requirement:
+          - At least one node with 2 GB RAM and 1 CPU core
+        SlackerNews requires minimum compute resources to run reliably.
+      nodeResources:
+        checkName: One node must have 2 GB RAM and 1 CPU Core
+        filters:
+          allocatableMemory: 2Gi
+          cpuCapacity: "1"
+        outcomes:
+          - fail:
+              when: count() < 1
+              message: Cannot find a node with sufficient memory and cpu
+          - pass:
+              message: Sufficient CPU and memory is available
+
+    - docString: |
+        Title: Slack User Token Validation
+        Requirement:
+          - A valid Slack User OAuth token must be provided
+        The user token is required for SlackerNews to access Slack on behalf of users.
+      textAnalyze:
+        checkName: Slack User Token
+        exclude: 'repl{{ ConfigOptionEquals "slack_user_token" "" }}'
+        fileName: slackUserToken.json
+        regex: ok\\":true
+        outcomes:
+          - fail:
+              when: "false"
+              message: No valid Slack User token provided
+          - pass:
+              when: "true"
+              message: Slack User Token valid
+
+    - docString: |
+        Title: Slack Bot Token Validation
+        Requirement:
+          - A valid Slack Bot OAuth token must be provided
+        The bot token is required for SlackerNews to interact with Slack channels.
+      textAnalyze:
+        checkName: Slack Bot Token
+        exclude: 'repl{{ ConfigOptionEquals "slack_bot_token" "" }}'
+        fileName: slackBotToken.json
+        regex: ok\\":true
+        outcomes:
+          - fail:
+              when: "false"
+              message: No valid Slack Bot token provided
+          - pass:
+              when: "true"
+              message: Slack Bot Token valid
+
+    - docString: |
+        Title: PostgreSQL Connectivity
+        Requirement:
+          - PostgreSQL must be reachable and running version 10 or later
+        SlackerNews uses PostgreSQL as its primary data store.
+      postgres:
+        checkName: Postgres Check
+        exclude: 'repl{{ ConfigOptionEquals "deploy_postgres" "1" }}'
+        collectorName: postgres
+        outcomes:
+          - fail:
+              when: connected == false
+              message: Cannot connect to PostgreSQL server
+          - fail:
+              when: version < 10.x
+              message: The PostgreSQL server must be at least version 10
+          - pass:
+              message: The PostgreSQL server is ready
