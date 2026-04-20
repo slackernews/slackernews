@@ -21,7 +21,7 @@ jobs:
         uses: mikefarah/yq@master
         with:
           cmd: |
-            yq '.spec.version' kots/embedded-cluster.yaml
+            yq '.spec.version' replicated/embedded-cluster.yaml
       
       - name: Get latest release
         id: latest
@@ -48,7 +48,7 @@ jobs:
             CURRENT_MAJOR=$(npx semver $CURRENT | cut -d. -f1)
             if npx semver -r "~$CURRENT_MAJOR" $LATEST >/dev/null 2>&1; then
               # Update the file using yq
-              yq -i '.spec.version = "${{ steps.latest.outputs.version }}"' kots/embedded-cluster.yaml
+              yq -i '.spec.version = "${{ steps.latest.outputs.version }}"' replicated/embedded-cluster.yaml
               echo "needs_update=true" >> $GITHUB_OUTPUT
             else
               echo "needs_update=false" >> $GITHUB_OUTPUT
@@ -68,7 +68,7 @@ jobs:
             This PR updates the embedded-cluster version from `${{ steps.current.outputs.result }}` to `${{ steps.latest.outputs.version }}`.
             
             Changes:
-            - Updated `kots/embedded-cluster.yaml` with the latest version
+            - Updated `replicated/embedded-cluster.yaml` with the latest version
             
             🤖 Generated with [Claude Code](https://claude.ai/code)
           branch: update-embedded-cluster-${{ steps.latest.outputs.version }}
