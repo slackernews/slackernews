@@ -41,7 +41,7 @@ spec:
         repository: '{{repl ReplicatedImageName (HelmValue ".images.nginx.repository") }}'
       postgres:
         registry: '{{repl ReplicatedImageRegistry (HelmValue ".images.postgres.registry") }}'
-        repository: '{{repl ReplicatedImageName (HelmValue ".images.postgres.repository") }}
+        repository: '{{repl ReplicatedImageName (HelmValue ".images.postgres.repository") }}'
 
   optionalValues:
     # the user wants us to deploy a local Postgres instance
