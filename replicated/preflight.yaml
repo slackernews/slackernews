@@ -16,18 +16,22 @@ spec:
         post:
           url: https://slack.com/api/auth.test
           headers:
-            Authorization: 'Bearer repl{{ ConfigOption "slack_user_token" }}'
+            Authorization: 'Bearer {{ .Values.slack.userToken }}'
           timeout: 20s
     - http:
         collectorName: slackBotToken
         post:
           url: https://slack.com/api/auth.test
           headers:
-            Authorization: 'Bearer repl{{ ConfigOption "slack_bot_token" }}'
+            Authorization: 'Bearer {{ .Values.slack.botToken }}'
           timeout: 20s
+    {{- if and .Values.postgres.enabled
+               (not .Values.postgres.deploy_postgres)
+               .Values.postgres.uri }}
     - postgres:
         collectorName: postgres
-        uri: 'repl{{ ConfigOption "postgres_external_uri" }}'
+        uri: '{{ .Values.postgres.uri }}'
+    {{- end }}
 
   analyzers:
     - docString: |
@@ -85,6 +89,7 @@ spec:
           - pass:
               message: Sufficient CPU and memory is available
 
+    {{- if .Values.slack.userToken }}
     - docString: |
         Title: Slack User Token Validation
         Requirement:
@@ -92,7 +97,6 @@ spec:
         The user token is required for SlackerNews to access Slack on behalf of users.
       textAnalyze:
         checkName: Slack User Token
-        exclude: 'repl{{ ConfigOptionEquals "slack_user_token" "" }}'
         fileName: slackUserToken.json
         regex: ok\\":true
         outcomes:
@@ -102,7 +106,9 @@ spec:
           - pass:
               when: "true"
               message: Slack User Token valid
+    {{- end }}
 
+    {{- if .Values.slack.botToken }}
     - docString: |
         Title: Slack Bot Token Validation
         Requirement:
@@ -110,7 +116,6 @@ spec:
         The bot token is required for SlackerNews to interact with Slack channels.
       textAnalyze:
         checkName: Slack Bot Token
-        exclude: 'repl{{ ConfigOptionEquals "slack_bot_token" "" }}'
         fileName: slackBotToken.json
         regex: ok\\":true
         outcomes:
@@ -120,7 +125,9 @@ spec:
           - pass:
               when: "true"
               message: Slack Bot Token valid
+    {{- end }}
 
+    {{- if and .Values.postgres.enabled (not .Values.postgres.deploy_postgres) }}
     - docString: |
         Title: PostgreSQL Connectivity
         Requirement:
@@ -128,7 +135,6 @@ spec:
         SlackerNews uses PostgreSQL as its primary data store.
       postgres:
         checkName: Postgres Check
-        exclude: 'repl{{ ConfigOptionEquals "deploy_postgres" "1" }}'
         collectorName: postgres
         outcomes:
           - fail:
@@ -139,3 +145,4 @@ spec:
               message: The PostgreSQL server must be at least version 10
           - pass:
               message: The PostgreSQL server is ready
+    {{- end }}

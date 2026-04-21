@@ -16,14 +16,14 @@ spec:
         post:
           url: https://slack.com/api/auth.test
           headers:
-            Authorization: 'Bearer repl{{ ConfigOption "slack_user_token" }}'
+            Authorization: 'Bearer {{ .Values.slack.userToken }}'
           timeout: 90s
     - http:
         collectorName: slackBotToken
         post:
           url: https://slack.com/api/auth.test
           headers:
-            Authorization: 'Bearer repl{{ ConfigOption "slack_bot_token" }}'
+            Authorization: 'Bearer {{ .Values.slack.botToken }}'
           timeout: 90s
     - logs:
         namespace: slackernews
@@ -83,9 +83,9 @@ spec:
               message: Cannot find a node with sufficient memory and cpu
           - pass:
               message: Sufficient CPU and memory is available
+    {{- if .Values.slack.userToken }}
     - textAnalyze:
         checkName: Slack User Token
-        exclude: 'repl{{ ConfigOptionEquals "slack_user_token" "" }}'
         fileName: slackUserToken.json
         regex: ok\\":true
         outcomes:
@@ -96,8 +96,20 @@ spec:
               when: "true"
               message: Slack User Token valid
     - textAnalyze:
+        checkName: "Enterprise Grid: User"
+        fileName: slackUserToken.json
+        regex: is_enterprise_install\\":false
+        outcomes:
+          - fail:
+              when: "false"
+              message: Slack Enterprise Grid installations are not supported
+          - pass:
+              when: "true"
+              message: Confirmed that user token is not for a Slack Enterprise Grid installation
+    {{- end }}
+    {{- if .Values.slack.botToken }}
+    - textAnalyze:
         checkName: Slack Bot Token
-        exclude: 'repl{{ ConfigOptionEquals "slack_bot_token" "" }}'
         fileName: slackBotToken.json
         regex: ok\\":true
         outcomes:
@@ -108,20 +120,7 @@ spec:
               when: "true"
               message: Slack Bot Token valid
     - textAnalyze:
-        checkName: "Enterprise Grid: User"
-        exclude: 'repl{{ ConfigOptionEquals "slack_user_token" "" }}'
-        fileName: slackUserToken.json
-        regex: is_enterprise_install\\":false
-        outcomes:
-          - fail:
-              when: "false"
-              message: Slack Enterprise Grid installations are not supported
-          - pass:
-              when: "true"
-              message: Confirmed that user token is not for a Slack Enterprise Grid installation
-    - textAnalyze:
         checkName: "Enterprise Grid: Bot"
-        exclude: 'repl{{ ConfigOptionEquals "slack_bot_token" "" }}'
         fileName: slackBotToken.json
         regex: is_enterprise_install\\":false
         outcomes:
@@ -131,6 +130,7 @@ spec:
           - pass:
               when: "true"
               message: Confirmed that bot token is not for a Slack Enterprise Grid installation
+    {{- end }}
     - distribution:
         outcomes:
           - pass:
