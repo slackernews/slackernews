@@ -35,13 +35,10 @@ spec:
         - name: '{{repl ImagePullSecretName }}'
       slackernews:
         registry: '{{repl ReplicatedImageRegistry (HelmValue ".images.slackernews.registry") }}'
-        repository: '{{repl ReplicatedImageName (HelmValue ".images.slackernews.repository") }}'
       nginx:
         registry: '{{repl ReplicatedImageRegistry (HelmValue ".images.nginx.registry") }}'
-        repository: '{{repl ReplicatedImageName (HelmValue ".images.nginx.repository") }}'
       postgres:
         registry: '{{repl ReplicatedImageRegistry (HelmValue ".images.postgres.registry") }}'
-        repository: '{{repl ReplicatedImageName (HelmValue ".images.postgres.repository") }}'
 
   optionalValues:
     # the user wants us to deploy a local Postgres instance
