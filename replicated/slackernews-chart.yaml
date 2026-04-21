@@ -34,36 +34,16 @@ spec:
       pullSecrets:
         - name: '{{repl ImagePullSecretName }}'
       slackernews:
-        registry: '$REGISTRY'
-        repository: 'proxy/{{repl LicenseFieldValue "appSlug"}}/ghcr.io/$NAMESPACE/slackernews-web'
+        registry: '{{repl ReplicatedImageRegistry (HelmValue ".images.slackernews.registry") }}'
+        repository: '{{repl ReplicatedImageName (HelmValue ".images.slackernews.repository") }}'
       nginx:
-        registry: '$REGISTRY'
-        repository: 'proxy/{{repl LicenseFieldValue "appSlug"}}/index.docker.io/library/nginx'
+        registry: '{{repl ReplicatedImageRegistry (HelmValue ".images.nginx.registry") }}'
+        repository: '{{repl ReplicatedImageName (HelmValue ".images.nginx.repository") }}'
       postgres:
-        registry: '$REGISTRY'
-        repository: 'proxy/{{repl LicenseFieldValue "appSlug"}}/index.docker.io/library/postgres'
+        registry: '{{repl ReplicatedImageRegistry (HelmValue ".images.postgres.registry") }}'
+        repository: '{{repl ReplicatedImageName (HelmValue ".images.postgres.repository") }}
 
   optionalValues:
-    # load images from the local registry in an airgapped environment
-    - when: '{{repl HasLocalRegistry }}'
-      recursiveMerge: true
-      values:
-        replicated:
-          isAirgap: true
-          image:
-            registry: '{{repl LocalRegistryHost }}'
-            repository: '{{repl LocalRegistryNamespace }}/replicated-sdk-image'
-        images:
-          slackernews:
-            registry: '{{repl LocalRegistryHost}}'
-            repository: '{{LocalRegistryNamespace}}/slackernews-web'
-          nginx:
-            registry: '{{repl LocalRegistryHost}}'
-            repository: '{{LocalRegistryNamespace}}/nginx'
-          postgres:
-            registry: '{{repl LocalRegistryHost}}'
-            repository: '{{LocalRegistryNamespace}}/postgres'
-
     # the user wants us to deploy a local Postgres instance
     - when: '{{repl ConfigOptionEquals "deploy_postgres" "1"}}'
       recursiveMerge: true
