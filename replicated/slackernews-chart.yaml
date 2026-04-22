@@ -23,6 +23,7 @@ spec:
     replicated:
       isEmbeddedCluster: repl{{ eq Distribution "embedded-cluster"}}
       isKOTSManaged: true
+      registry: '{{repl ReplicatedImageRegistry (HelmValue ".replicated.image.registry") }}'
       imagePullSecrets:
         - name: '{{repl ImagePullSecretName }}'
     service:
