@@ -8,6 +8,7 @@ import { Filter } from "./filter";
 import { User } from "./user";
 import { Session } from "./session";
 import { getApiTokenModel } from "./apiToken";
+import { UserComment } from "./user_comment";
 import { DefaultIntegrations, Integration } from "./integration";
 const { Sequelize } = require('sequelize');
 const sqlite3 = require('sqlite3');
@@ -54,6 +55,7 @@ export async function initDb(dbUri: string) {
   await (await Integration()).sync();
   await (await AdminNotification()).sync();
   await (await Reply()).sync();
+  await (await UserComment()).sync();
 
   await DefaultIntegrations();
   await DefaultAdminNotifications();
