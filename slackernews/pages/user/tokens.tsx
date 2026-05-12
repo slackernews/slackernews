@@ -1,7 +1,7 @@
 import React, { useState, FormEvent } from 'react';
 import type { GetServerSidePropsContext } from "next";
 import { loadSession } from "../../lib/session";
-import { listApiTokens, ApiToken } from "../../lib/api_token";
+import { listApiTokens, ApiToken } from "../../lib/apiToken";
 import cookies from 'next-cookies';
 import Layout from "../../components/layout";
 import moment from 'moment';
@@ -37,12 +37,8 @@ export default function Page({ initialTokens }: PageProps) {
         const data: GeneratedToken = await res.json();
         setGeneratedToken(data);
         setNewTokenName('');
-        // Refresh the list to include the new token
-        const listRes = await fetch('/api/user/tokens');
-        if (listRes.status === 200) {
-          const listData = await listRes.json();
-          setTokens(listData.tokens);
-        }
+        // Optimistically append the newly created token to local state
+        setTokens(prev => [data.token, ...prev]);
       } else {
         alert('Failed to generate token');
       }

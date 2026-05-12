@@ -2,7 +2,7 @@ import { getSequelize } from "./db";
 import { DataTypes } from 'sequelize';
 import { randomUUID } from 'crypto';
 
-export async function ApiToken() {
+export async function getApiTokenModel() {
   const model = (await getSequelize()).define('api_token', {
     id: {
       type: DataTypes.STRING,
@@ -16,6 +16,10 @@ export async function ApiToken() {
     name: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+    access_token: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     created_at: {
       type: DataTypes.DATE,
@@ -37,6 +41,7 @@ export interface ApiToken {
   id: string;
   userId: string;
   name: string;
+  accessToken: string | null;
   createdAt: number;
   lastUsedAt: number | null;
 }
@@ -46,7 +51,7 @@ export async function listApiTokens(userId: string): Promise<ApiToken[]> {
     throw new Error('userId is required');
   }
 
-  const tokens = await (await ApiToken()).findAll({
+  const tokens = await (await getApiTokenModel()).findAll({
     where: { user_id: userId },
     order: [['created_at', 'DESC']],
   });
@@ -55,19 +60,21 @@ export async function listApiTokens(userId: string): Promise<ApiToken[]> {
     id: t.id,
     userId: t.user_id,
     name: t.name,
+    accessToken: t.access_token || null,
     createdAt: t.created_at.getTime(),
     lastUsedAt: t.last_used_at ? t.last_used_at.getTime() : null,
   }));
 }
 
-export async function createApiToken(userId: string, name: string): Promise<{ token: ApiToken; jwt: string }> {
+export async function createApiToken(userId: string, name: string, accessToken?: string): Promise<{ token: ApiToken; jwt: string }> {
   const id = randomUUID();
   const createdAt = new Date();
 
-  const token = await (await ApiToken()).create({
+  const token = await (await getApiTokenModel()).create({
     id,
     user_id: userId,
     name,
+    access_token: accessToken || null,
     created_at: createdAt,
     last_used_at: null,
   });
@@ -77,6 +84,7 @@ export async function createApiToken(userId: string, name: string): Promise<{ to
       id: token.id,
       userId: token.user_id,
       name: token.name,
+      accessToken: token.access_token || null,
       createdAt: token.created_at.getTime(),
       lastUsedAt: null,
     },
@@ -89,7 +97,7 @@ export async function deleteApiToken(tokenId: string, userId: string): Promise<b
     return false;
   }
 
-  const result = await (await ApiToken()).destroy({
+  const result = await (await getApiTokenModel()).destroy({
     where: {
       id: tokenId,
       user_id: userId,
@@ -104,7 +112,7 @@ export async function getApiToken(tokenId: string): Promise<ApiToken | null> {
     return null;
   }
 
-  const token = await (await ApiToken()).findOne({
+  const token = await (await getApiTokenModel()).findOne({
     where: { id: tokenId },
   });
 
@@ -114,6 +122,7 @@ export async function getApiToken(tokenId: string): Promise<ApiToken | null> {
     id: token.id,
     userId: token.user_id,
     name: token.name,
+    accessToken: token.access_token || null,
     createdAt: token.created_at.getTime(),
     lastUsedAt: token.last_used_at ? token.last_used_at.getTime() : null,
   };
@@ -124,7 +133,7 @@ export async function updateApiTokenLastUsed(tokenId: string): Promise<void> {
     return;
   }
 
-  await (await ApiToken()).update({
+  await (await getApiTokenModel()).update({
     last_used_at: new Date(),
   }, {
     where: { id: tokenId },

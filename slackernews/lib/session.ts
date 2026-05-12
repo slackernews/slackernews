@@ -3,7 +3,7 @@ import * as jwt from "jsonwebtoken";
 import { getUser, User } from "./user";
 import { getParam, SlackerNewsConfig } from "./param";
 import { getSequelize } from "./db";
-import { getApiToken, updateApiTokenLastUsed } from "./api_token";
+import { getApiToken, updateApiTokenLastUsed } from "./apiToken";
 
 const { Sequelize, DataTypes } = require('sequelize');
 
@@ -77,7 +77,7 @@ export async function getApiTokenJwt(userId: string, tokenId: string): Promise<s
     };
 
     const jwtSigningKey = await getJwtSigningKey();
-    const token = jwt.sign(claims, jwtSigningKey, { algorithm: 'HS256' });
+    const token = jwt.sign(claims, jwtSigningKey, { algorithm: 'HS256', expiresIn: '365d' });
     return token;
   } catch (err) {
     console.error(err);
@@ -162,8 +162,8 @@ export async function loadSession(token?: string): Promise<Session | undefined> 
 
       const sess: Session = {
         id: apiToken.id,
-        expireAt: Date.now() + (365 * 24 * 60 * 60 * 1000), // 1 year from now
-        accessToken: '',
+        expireAt: claims.exp ? claims.exp * 1000 : Date.now() + (365 * 24 * 60 * 60 * 1000),
+        accessToken: apiToken.accessToken || '',
         user: user,
       };
 
