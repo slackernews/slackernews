@@ -7,6 +7,7 @@ import { SlackChannel, SlackChannelSeed, SlackUser, SlackUserSeed } from "./slac
 import { Filter } from "./filter";
 import { User } from "./user";
 import { Session } from "./session";
+import { ApiToken } from "./api_token";
 import { DefaultIntegrations, Integration } from "./integration";
 const { Sequelize } = require('sequelize');
 const sqlite3 = require('sqlite3');
@@ -49,6 +50,7 @@ export async function initDb(dbUri: string) {
   (await Filter()).sync();
   (await User()).sync();
   (await Session()).sync();
+  (await ApiToken()).sync();
   (await Integration()).sync();
   (await AdminNotification()).sync();
   (await Reply()).sync();

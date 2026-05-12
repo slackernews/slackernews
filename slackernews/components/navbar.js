@@ -72,8 +72,9 @@ export default function Navbar({ username, userId, duration, hideFilter, departm
           </ul>
         </div>
         <span className="navbar-text ms-auto" style={{paddingRight: "30px"}}>
-          <Link href={`/user?id=${userId}`} className="username">{username}</Link>{' '}|{' '}<Link href="/logout"
-                                                                                                   className="logout">logout</Link>
+          <Link href={`/user?id=${userId}`} className="username">{username}</Link>{' '}|{' '}
+          <Link href="/user/tokens" className="tokens">tokens</Link>{' '}|{' '}
+          <Link href="/logout" className="logout">logout</Link>
         </span>
       </div>
     </nav>
