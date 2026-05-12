@@ -60,8 +60,7 @@ export async function getToken(session: Session): Promise<string> {
     };
 
     const jwtSigningKey = await getJwtSigningKey();
-    console.log(`got jwt signing key: ${jwtSigningKey}`)
-    const token = jwt.sign(claims, jwtSigningKey);
+    const token = jwt.sign(claims, jwtSigningKey, { algorithm: 'HS256' });
     return token;
   } catch (err) {
     console.error(err);
@@ -78,7 +77,7 @@ export async function getApiTokenJwt(userId: string, tokenId: string): Promise<s
     };
 
     const jwtSigningKey = await getJwtSigningKey();
-    const token = jwt.sign(claims, jwtSigningKey);
+    const token = jwt.sign(claims, jwtSigningKey, { algorithm: 'HS256' });
     return token;
   } catch (err) {
     console.error(err);
@@ -94,11 +93,7 @@ export async function getJwtSigningKey(): Promise<jwt.Secret> {
   });
 
   if (signingKey) {
-    console.log(`returning existing signing key: ${signingKey.val}`)
-    const s = signingKey.val as string;
-    console.log(`returning existing signing key: ${s}`)
-    return s;
-    // return signingKey.val as string;
+    return signingKey.val as string;
   }
 
   let newKey = srs.default({ length: 64 });
@@ -145,9 +140,7 @@ export async function loadSession(token?: string): Promise<Session | undefined> 
     }
 
     const signingKey = await getJwtSigningKey();
-    const claims = jwt.verify(token, signingKey) as jwt.JwtPayload;
-
-    console.log(claims);
+    const claims = jwt.verify(token, signingKey, { algorithms: ['HS256'] }) as jwt.JwtPayload;
 
     // Handle API tokens
     if (claims.type === 'api') {

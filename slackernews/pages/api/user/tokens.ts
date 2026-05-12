@@ -1,7 +1,8 @@
+import type { NextApiRequest, NextApiResponse } from "next";
 import { listApiTokens, createApiToken, deleteApiToken } from "../../../lib/api_token";
 import { loadSession, loadSessionFromRequest, getApiTokenJwt } from "../../../lib/session";
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const sess = await loadSessionFromRequest(req);
   if (!sess) {
     res.status(401).send({ error: 'Unauthorized' });
@@ -16,7 +17,7 @@ export default async function handler(req: any, res: any) {
 
   if (req.method === 'POST') {
     const { name } = req.body;
-    if (!name || name.trim().length === 0) {
+    if (typeof name !== 'string' || name.trim().length === 0) {
       res.status(400).send({ error: 'Token name is required' });
       return;
     }
@@ -28,7 +29,7 @@ export default async function handler(req: any, res: any) {
   }
 
   if (req.method === 'DELETE') {
-    const { id } = req.query;
+    const id = typeof req.query.id === 'string' ? req.query.id : Array.isArray(req.query.id) ? req.query.id[0] : undefined;
     if (!id) {
       res.status(400).send({ error: 'Token ID is required' });
       return;
@@ -40,7 +41,7 @@ export default async function handler(req: any, res: any) {
       return;
     }
 
-    res.status(204).send();
+    res.status(204).end();
     return;
   }
 

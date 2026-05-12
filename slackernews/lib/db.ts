@@ -49,12 +49,11 @@ export async function initDb(dbUri: string) {
   (await SlackUser()).sync();
   (await Filter()).sync();
   (await User()).sync();
-  (await Session()).sync();
-  (await ApiToken()).sync();
-  (await Integration()).sync();
-  (await AdminNotification()).sync();
-  (await Reply()).sync();
-  (await Filter()).sync();
+  await (await Session()).sync();
+  await (await ApiToken()).sync();
+  await (await Integration()).sync();
+  await (await AdminNotification()).sync();
+  await (await Reply()).sync();
 
   await DefaultIntegrations();
   await DefaultAdminNotifications();

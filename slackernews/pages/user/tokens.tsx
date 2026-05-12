@@ -1,4 +1,5 @@
 import React, { useState, FormEvent } from 'react';
+import type { GetServerSidePropsContext } from "next";
 import { loadSession } from "../../lib/session";
 import { listApiTokens, ApiToken } from "../../lib/api_token";
 import cookies from 'next-cookies';
@@ -12,10 +13,9 @@ interface GeneratedToken {
 
 interface PageProps {
   initialTokens: ApiToken[];
-  username: string;
 }
 
-export default function Page({ initialTokens, username }: PageProps) {
+export default function Page({ initialTokens }: PageProps) {
   const [tokens, setTokens] = useState<ApiToken[]>(initialTokens);
   const [newTokenName, setNewTokenName] = useState('');
   const [generatedToken, setGeneratedToken] = useState<GeneratedToken | null>(null);
@@ -157,7 +157,7 @@ export default function Page({ initialTokens, username }: PageProps) {
             </tr>
           </thead>
           <tbody>
-            {tokens.map((token: ApiToken) => (
+            {tokens.map((token) => (
               <tr key={token.id}>
                 <td>{token.name}</td>
                 <td>{moment(token.createdAt).format('LLL')}</td>
@@ -191,7 +191,7 @@ Page.getLayout = function getLayout(page: React.ReactElement) {
   );
 };
 
-export async function getServerSideProps(ctx: any) {
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const c = cookies(ctx);
   const sess = await loadSession(c.auth);
   if (!sess) {
@@ -209,7 +209,6 @@ export async function getServerSideProps(ctx: any) {
   return {
     props: {
       initialTokens: tokens,
-      username: sess.user.name,
     },
   };
 }
