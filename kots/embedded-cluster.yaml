@@ -1,9 +1,0 @@
-apiVersion: embeddedcluster.replicated.com/v1beta1
-kind: Config
-metadata:
-  name: embedded-cluster-config
-spec:
-  version: 3.0.0-alpha-15+k8s-1.34
-  domains:
-    proxyRegistryDomain: "images.shortrib.io"
-    replicatedAppDomain: "updates.shortrib.io"

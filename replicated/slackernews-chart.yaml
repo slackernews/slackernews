@@ -23,6 +23,7 @@ spec:
     replicated:
       isEmbeddedCluster: repl{{ eq Distribution "embedded-cluster"}}
       isKOTSManaged: true
+      registry: '{{repl ReplicatedImageRegistry (HelmValue ".replicated.image.registry") }}'
       imagePullSecrets:
         - name: '{{repl ImagePullSecretName }}'
     service:
@@ -34,36 +35,13 @@ spec:
       pullSecrets:
         - name: '{{repl ImagePullSecretName }}'
       slackernews:
-        registry: '$REGISTRY'
-        repository: 'proxy/{{repl LicenseFieldValue "appSlug"}}/ghcr.io/$NAMESPACE/slackernews-web'
+        registry: '{{repl ReplicatedImageRegistry (HelmValue ".images.slackernews.registry") }}'
       nginx:
-        registry: '$REGISTRY'
-        repository: 'proxy/{{repl LicenseFieldValue "appSlug"}}/index.docker.io/library/nginx'
+        registry: '{{repl ReplicatedImageRegistry (HelmValue ".images.nginx.registry") }}'
       postgres:
-        registry: '$REGISTRY'
-        repository: 'proxy/{{repl LicenseFieldValue "appSlug"}}/index.docker.io/library/postgres'
+        registry: '{{repl ReplicatedImageRegistry (HelmValue ".images.postgres.registry") }}'
 
   optionalValues:
-    # load images from the local registry in an airgapped environment
-    - when: '{{repl HasLocalRegistry }}'
-      recursiveMerge: true
-      values:
-        replicated:
-          isAirgap: true
-          image:
-            registry: '{{repl LocalRegistryHost }}'
-            repository: '{{repl LocalRegistryNamespace }}/replicated-sdk-image'
-        images:
-          slackernews:
-            registry: '{{repl LocalRegistryHost}}'
-            repository: '{{LocalRegistryNamespace}}/slackernews-web'
-          nginx:
-            registry: '{{repl LocalRegistryHost}}'
-            repository: '{{LocalRegistryNamespace}}/nginx'
-          postgres:
-            registry: '{{repl LocalRegistryHost}}'
-            repository: '{{LocalRegistryNamespace}}/postgres'
-
     # the user wants us to deploy a local Postgres instance
     - when: '{{repl ConfigOptionEquals "deploy_postgres" "1"}}'
       recursiveMerge: true

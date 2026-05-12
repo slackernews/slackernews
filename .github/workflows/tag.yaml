@@ -122,28 +122,28 @@ jobs:
           regex: false
 
       ###############
-      # Prepare KOTS HelmChart kind
+      # Prepare Replicated HelmChart kind
       ###############
-      - name: Update the version in the KOTS HelmChart kind
+      - name: Update the version in the Replicated HelmChart kind
         uses: jacobtomlinson/gha-find-replace@v2
         with:
-          include: 'kots/slackernews-chart.yaml'
+          include: 'replicated/slackernews-chart.yaml'
           find: '$VERSION'
           replace: '${{ steps.get_version.outputs.version-without-v }}'
           regex: false
 
-      - name: Update the KOTS HelmChart kind with the registry name
+      - name: Update the Replicated HelmChart kind with the registry name
         uses: jacobtomlinson/gha-find-replace@v2
         with:
-          include: 'kots/slackernews-chart.yaml'
+          include: 'replicated/slackernews-chart.yaml'
           find: '$REGISTRY'
           replace: '${{ secrets.REPLICATED_PROXY_REGISTRY_CNAME }}'
           regex: false
 
-      - name: Update the KOTS HelmChart kind with the image namespace
+      - name: Update the Replicated HelmChart kind with the image namespace
         uses: jacobtomlinson/gha-find-replace@v2
         with:
-          include: 'kots/slackernews-chart.yaml'
+          include: 'replicated/slackernews-chart.yaml'
           find: '$NAMESPACE'
           replace: '${{ secrets.GHCR_NAMESPACE }}'
           regex: false
@@ -161,14 +161,14 @@ jobs:
             --version=${{ steps.get_version.outputs.version-without-v }} \
             ./slackernews
 
-      - name: Copy the helm chart to the kots directory
-        run: cp ./chart/slackernews-${{ steps.get_version.outputs.version-without-v }}.tgz ./kots
+      - name: Copy the helm chart to the replicated directory
+        run: cp ./chart/slackernews-${{ steps.get_version.outputs.version-without-v }}.tgz ./replicated
 
       - name: Create the unstable release
         uses: replicatedhq/replicated-actions/create-release@v1
         with:
           app-slug: ${{ secrets.REPLICATED_APP }}
           api-token: ${{ secrets.REPLICATED_TOKEN }}
-          yaml-dir: ./kots
+          yaml-dir: ./replicated
           promote-channel: "Unstable"
           version: ${{ steps.get_version.outputs.version-without-v }}
