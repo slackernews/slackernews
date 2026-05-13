@@ -14,9 +14,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return;
   }
 
-  const query = typeof req.query.q === 'string' ? req.query.q : '';
+  const MAX_QUERY_LENGTH = 200;
+  const rawQuery = typeof req.query.q === 'string' ? req.query.q : '';
+  const query = rawQuery.length > MAX_QUERY_LENGTH ? rawQuery.substring(0, MAX_QUERY_LENGTH) : rawQuery;
   const page = typeof req.query.page === 'string' ? parseInt(req.query.page, 10) : 1;
-  const validPage = isNaN(page) || page < 1 ? 1 : page;
+  const MAX_PAGE = 1000;
+  const validPage = isNaN(page) || page < 1 ? 1 : Math.min(page, MAX_PAGE);
 
   try {
     const links = await listTopLinks("all", validPage, sess.user.id, [], false, query);

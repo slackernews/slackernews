@@ -13,28 +13,50 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   // POST (create) and DELETE (revoke) require a web session (cookie auth)
   // to prevent privilege escalation where a compromised API token could
   // generate unlimited additional tokens.
-  const isApiTokenAuth = req.headers?.authorization?.startsWith('Bearer ');
-  if (isApiTokenAuth && req.method !== 'GET') {
+  if (sess.isApiToken && req.method !== 'GET') {
     res.status(403).send({ error: 'Token management requires web session authentication' });
     return;
   }
 
   if (req.method === 'GET') {
-    const tokens = await listApiTokens(sess.user.id);
-    res.status(200).send({ tokens });
+    try {
+      const tokens = await listApiTokens(sess.user.id);
+      res.status(200).send({ tokens });
+    } catch (err) {
+      console.error('Error listing tokens:', err);
+      res.status(500).send({ error: 'Internal server error' });
+    }
     return;
   }
 
   if (req.method === 'POST') {
+    if (!req.body || typeof req.body !== 'object') {
+      res.status(400).send({ error: 'Invalid request body' });
+      return;
+    }
+
     const { name } = req.body;
     if (typeof name !== 'string' || name.trim().length === 0) {
       res.status(400).send({ error: 'Token name is required' });
       return;
     }
 
-    const { token } = await createApiToken(sess.user.id, name.trim(), sess.accessToken);
-    const jwt = await getApiTokenJwt(sess.user.id, token.id);
-    res.status(201).send({ token, jwt });
+    try {
+      const { token } = await createApiToken(sess.user.id, name.trim(), sess.accessToken);
+      const jwt = await getApiTokenJwt(sess.user.id, token.id);
+      // Strip sensitive accessToken from response
+      const publicToken = {
+        id: token.id,
+        userId: token.userId,
+        name: token.name,
+        createdAt: token.createdAt,
+        lastUsedAt: token.lastUsedAt,
+      };
+      res.status(201).send({ token: publicToken, jwt });
+    } catch (err) {
+      console.error('Error creating token:', err);
+      res.status(500).send({ error: 'Internal server error' });
+    }
     return;
   }
 
@@ -45,13 +67,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return;
     }
 
-    const deleted = await deleteApiToken(id, sess.user.id);
-    if (!deleted) {
-      res.status(404).send({ error: 'Token not found' });
-      return;
-    }
+    try {
+      const deleted = await deleteApiToken(id, sess.user.id);
+      if (!deleted) {
+        res.status(404).send({ error: 'Token not found' });
+        return;
+      }
 
-    res.status(204).end();
+      res.status(204).end();
+    } catch (err) {
+      console.error('Error deleting token:', err);
+      res.status(500).send({ error: 'Internal server error' });
+    }
     return;
   }
 

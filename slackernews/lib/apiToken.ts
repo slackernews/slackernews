@@ -46,7 +46,25 @@ export interface ApiToken {
   lastUsedAt: number | null;
 }
 
-export async function listApiTokens(userId: string): Promise<ApiToken[]> {
+export interface PublicApiToken {
+  id: string;
+  userId: string;
+  name: string;
+  createdAt: number;
+  lastUsedAt: number | null;
+}
+
+export function sanitizeApiToken(token: ApiToken): PublicApiToken {
+  return {
+    id: token.id,
+    userId: token.userId,
+    name: token.name,
+    createdAt: token.createdAt,
+    lastUsedAt: token.lastUsedAt,
+  };
+}
+
+export async function listApiTokens(userId: string): Promise<PublicApiToken[]> {
   if (!userId) {
     throw new Error('userId is required');
   }
@@ -60,7 +78,6 @@ export async function listApiTokens(userId: string): Promise<ApiToken[]> {
     id: t.id,
     userId: t.user_id,
     name: t.name,
-    accessToken: t.access_token || null,
     createdAt: t.created_at.getTime(),
     lastUsedAt: t.last_used_at ? t.last_used_at.getTime() : null,
   }));

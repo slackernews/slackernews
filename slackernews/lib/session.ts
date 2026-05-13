@@ -39,6 +39,7 @@ export interface Session {
   expireAt: number;
   user: User;
   accessToken: string;
+  isApiToken?: boolean;
 }
 
 /* tslint:disable:variable-name */
@@ -140,7 +141,7 @@ export async function loadSession(token?: string): Promise<Session | undefined> 
     }
 
     const signingKey = await getJwtSigningKey();
-    const claims = jwt.verify(token, signingKey, { algorithms: ['HS256'] }) as jwt.JwtPayload;
+    const claims = jwt.verify(token, signingKey, { algorithms: ['HS256'], clockTolerance: 60 }) as jwt.JwtPayload;
 
     // Handle API tokens
     if (claims.type === 'api') {
@@ -205,10 +206,30 @@ export async function loadSession(token?: string): Promise<Session | undefined> 
 }
 
 export async function loadSessionFromRequest(req: any): Promise<Session | undefined> {
-  let token = req.cookies?.auth;
-  if (!token && req.headers?.authorization?.startsWith('Bearer ')) {
-    token = req.headers.authorization.substring(7);
+  const cookieToken = req.cookies?.auth;
+  const bearerToken = req.headers?.authorization?.startsWith('Bearer ')
+    ? req.headers.authorization.substring(7)
+    : undefined;
+
+  // Try cookie first, then Bearer, so a valid Bearer isn't shadowed by an invalid cookie
+  let sess: Session | undefined;
+  let isApiToken = false;
+
+  if (cookieToken) {
+    sess = await loadSession(cookieToken);
   }
-  return loadSession(token);
+
+  if (!sess && bearerToken) {
+    sess = await loadSession(bearerToken);
+    if (sess) {
+      isApiToken = true;
+    }
+  }
+
+  if (sess) {
+    sess.isApiToken = isApiToken;
+  }
+
+  return sess;
 }
 

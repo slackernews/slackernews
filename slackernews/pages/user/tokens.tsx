@@ -59,7 +59,7 @@ export default function Page({ initialTokens }: PageProps) {
       });
 
       if (res.status === 204) {
-        setTokens(tokens.filter(t => t.id !== tokenId));
+        setTokens(prev => prev.filter(t => t.id !== tokenId));
       } else {
         alert('Failed to revoke token');
       }
@@ -70,11 +70,33 @@ export default function Page({ initialTokens }: PageProps) {
   };
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text).then(() => {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Token copied to clipboard');
+      }).catch(err => {
+        console.error('Failed to copy:', err);
+        fallbackCopy(text);
+      });
+    } else {
+      fallbackCopy(text);
+    }
+  };
+
+  const fallbackCopy = (text: string) => {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      document.execCommand('copy');
       alert('Token copied to clipboard');
-    }).catch(err => {
-      console.error('Failed to copy:', err);
-    });
+    } catch (err) {
+      console.error('Fallback copy failed:', err);
+      alert('Unable to copy token automatically. Please copy it manually.');
+    }
+    document.body.removeChild(textarea);
   };
 
   return (

@@ -16,7 +16,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const duration = typeof req.query.duration === 'string' ? req.query.duration : '7d';
   const page = typeof req.query.page === 'string' ? parseInt(req.query.page, 10) : 1;
-  const validPage = isNaN(page) || page < 1 ? 1 : page;
+  const MAX_PAGE = 1000;
+  const validPage = isNaN(page) || page < 1 ? 1 : Math.min(page, MAX_PAGE);
 
   try {
     const links = await listTopLinks(duration, validPage, sess.user.id, [], false, "");

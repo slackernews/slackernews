@@ -28,6 +28,11 @@ export async function UserComment() {
   }, {
     tableName: 'user_comment',
     timestamps: false,
+    indexes: [
+      {
+        fields: ['link'],
+      },
+    ],
   });
 
   return model;
