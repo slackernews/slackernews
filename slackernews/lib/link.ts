@@ -341,12 +341,18 @@ export async function listTopLinks(duration: string, pageNumber: number, userId:
         if (i > 0) {
           userIdClause += " or "
         }
-        userIdClause += `user_id = $${3 + i}`;
+        const paramName = `userIdFilter${i}`;
+        userIdClause += `user_id = :${paramName}`;
+        (queryParams as any)[paramName] = id;
       });
       userIdClause += ")";
     }
 
-    const searchClause = query ? ` and (link.title ilike $${3 + userIds.length} or link.link ilike $${3 + userIds.length})` : "";
+    // Build search clause using cross-database LOWER() for case-insensitive matching
+    const searchClause = query ? " and (LOWER(link.title) LIKE LOWER(:query) OR LOWER(link.link) LIKE LOWER(:query))" : "";
+    if (query) {
+      (queryParams as any).query = `%${query}%`;
+    }
 
     const sql = `select
 link.link as url, link.domain, link.title, link.icon,
