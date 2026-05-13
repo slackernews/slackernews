@@ -142,6 +142,20 @@ export async function getUserVoteOnLink(userId: string, url: string): Promise<nu
   return score.score;
 }
 
+export async function removeUserVoteOnLink(userId: string, url: string): Promise<boolean> {
+  console.log('removeUserVoteOnLink', userId, url);
+  const s = await Score();
+  const result = await s.destroy({
+    where: {
+      link: url,
+      user_id: userId,
+      reason: 'upvote',
+    },
+  });
+
+  return result > 0;
+}
+
 export async function getTotalScoreCount(): Promise<number> {
   const s = await Score();
   const score = await s.sum('score');

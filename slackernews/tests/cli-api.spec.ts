@@ -87,4 +87,49 @@ test.describe('CLI API Routes', () => {
     const response = await request.get(`${baseUrl}/api/user/tokens`);
     expect(response.status()).toBe(401);
   });
+
+  test('POST /api/v1/cli/links/[id]/upvote returns 401 without auth', async ({ request }) => {
+    const encodedLink = encodeURIComponent('https://docs.slackernews.io');
+    const response = await request.post(`${baseUrl}/api/v1/cli/links/${encodedLink}/upvote`);
+    expect(response.status()).toBe(401);
+    const body = await response.json();
+    expect(body.error).toBe('Unauthorized');
+  });
+
+  test('DELETE /api/v1/cli/links/[id]/upvote returns 401 without auth', async ({ request }) => {
+    const encodedLink = encodeURIComponent('https://docs.slackernews.io');
+    const response = await request.delete(`${baseUrl}/api/v1/cli/links/${encodedLink}/upvote`);
+    expect(response.status()).toBe(401);
+    const body = await response.json();
+    expect(body.error).toBe('Unauthorized');
+  });
+
+  test('POST /api/v1/cli/links/[id]/upvote returns 405 for GET', async ({ request }) => {
+    const encodedLink = encodeURIComponent('https://docs.slackernews.io');
+    const response = await request.get(`${baseUrl}/api/v1/cli/links/${encodedLink}/upvote`);
+    expect(response.status()).toBe(405);
+  });
+
+  test('POST /api/v1/cli/links/[id]/upvote returns 400 for invalid URL encoding', async ({ request }) => {
+    const response = await request.post(`${baseUrl}/api/v1/cli/links/%ZZ/upvote`);
+    expect(response.status()).toBe(400);
+    const body = await response.json();
+    expect(body.error).toBe('Invalid link ID encoding');
+  });
+
+  test('POST /api/v1/cli/links/[id]/upvote returns 404 for nonexistent link', async ({ request }) => {
+    const encodedLink = encodeURIComponent('https://nonexistent-link-for-test.example.com');
+    const response = await request.post(`${baseUrl}/api/v1/cli/links/${encodedLink}/upvote`);
+    expect(response.status()).toBe(404);
+    const body = await response.json();
+    expect(body.error).toBe('Link not found');
+  });
+
+  test('DELETE /api/v1/cli/links/[id]/upvote returns 404 for nonexistent link', async ({ request }) => {
+    const encodedLink = encodeURIComponent('https://nonexistent-link-for-test.example.com');
+    const response = await request.delete(`${baseUrl}/api/v1/cli/links/${encodedLink}/upvote`);
+    expect(response.status()).toBe(404);
+    const body = await response.json();
+    expect(body.error).toBe('Link not found');
+  });
 });
