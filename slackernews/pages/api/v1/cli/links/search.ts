@@ -23,7 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const links = await listTopLinks("all", validPage, sess.user.id, [], false, query);
-    res.status(200).send({ links: links || [] });
+    res.status(200).send(links || []);
   } catch (err) {
     console.error('Error searching links:', err);
     res.status(500).send({ error: 'Internal server error' });

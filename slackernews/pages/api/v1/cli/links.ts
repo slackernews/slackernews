@@ -21,7 +21,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const links = await listTopLinks(duration, validPage, sess.user.id, [], false, "");
-    res.status(200).send({ links: links || [] });
+    res.status(200).send(links || []);
   } catch (err) {
     console.error('Error listing links:', err);
     res.status(500).send({ error: 'Internal server error' });
