@@ -143,7 +143,6 @@ export async function getUserVoteOnLink(userId: string, url: string): Promise<nu
 }
 
 export async function removeUserVoteOnLink(userId: string, url: string): Promise<boolean> {
-  console.log('removeUserVoteOnLink', userId, url);
   const s = await Score();
   const result = await s.destroy({
     where: {

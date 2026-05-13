@@ -132,4 +132,21 @@ test.describe('CLI API Routes', () => {
     const body = await response.json();
     expect(body.error).toBe('Link not found');
   });
+
+  test('DELETE /api/v1/cli/links/[id]/upvote returns 400 for invalid URL encoding', async ({ request }) => {
+    const response = await request.delete(`${baseUrl}/api/v1/cli/links/%ZZ/upvote`);
+    expect(response.status()).toBe(400);
+    const body = await response.json();
+    expect(body.error).toBe('Invalid link ID encoding');
+  });
+
+  test('POST /api/v1/cli/links/[id]/comments returns 404 for nonexistent link', async ({ request }) => {
+    const encodedLink = encodeURIComponent('https://nonexistent-link-for-test.example.com');
+    const response = await request.post(`${baseUrl}/api/v1/cli/links/${encodedLink}/comments`, {
+      data: { body: 'Test comment' },
+    });
+    expect(response.status()).toBe(404);
+    const body = await response.json();
+    expect(body.error).toBe('Link not found');
+  });
 });
