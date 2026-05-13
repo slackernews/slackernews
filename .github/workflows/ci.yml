@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  static-checks:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./slackernews
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: slackernews/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript compilation
+        run: npx tsc --noEmit
+
+      - name: ESLint
+        run: npx next lint
+
+  api-tests:
+    runs-on: ubuntu-latest
+    needs: static-checks
+    defaults:
+      run:
+        working-directory: ./slackernews
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: slackernews/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Start dev server
+        run: |
+          DB_URI="sqlite:/tmp/ci-test.db" npm run dev &
+          echo $! > /tmp/server.pid
+          # Wait for server to be ready
+          for i in {1..30}; do
+            if curl -s http://localhost:3000 > /dev/null 2>&1; then
+              echo "Server is ready"
+              break
+            fi
+            if [ $i -eq 30 ]; then
+              echo "Server failed to start"
+              exit 1
+            fi
+            sleep 1
+          done
+
+      - name: Run Playwright API tests
+        run: TEST_URL=http://localhost:3000 npx playwright test cli-api.spec.ts --config=tests/playwright-ci.config.ts
+
+      - name: Stop dev server
+        if: always()
+        run: |
+          if [ -f /tmp/server.pid ]; then
+            kill $(cat /tmp/server.pid) || true
+          fi
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: slackernews/playwright-report/
+          retention-days: 7

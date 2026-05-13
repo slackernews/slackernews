@@ -7,6 +7,8 @@ import { SlackChannel, SlackChannelSeed, SlackUser, SlackUserSeed } from "./slac
 import { Filter } from "./filter";
 import { User } from "./user";
 import { Session } from "./session";
+import { getApiTokenModel } from "./apiToken";
+import { UserComment } from "./user_comment";
 import { DefaultIntegrations, Integration } from "./integration";
 const { Sequelize } = require('sequelize');
 const sqlite3 = require('sqlite3');
@@ -39,20 +41,21 @@ export async function initDb(dbUri: string) {
   console.log('Connection has been established successfully.');
 
   // initialize the models
-  (await SlackerNewsConfig()).sync();
-  (await Link()).sync();
-  (await Share()).sync();
-  (await Favicon()).sync();
-  (await Score()).sync();
-  (await SlackChannel()).sync();
-  (await SlackUser()).sync();
-  (await Filter()).sync();
-  (await User()).sync();
-  (await Session()).sync();
-  (await Integration()).sync();
-  (await AdminNotification()).sync();
-  (await Reply()).sync();
-  (await Filter()).sync();
+  await (await SlackerNewsConfig()).sync();
+  await (await Link()).sync();
+  await (await Share()).sync();
+  await (await Favicon()).sync();
+  await (await Score()).sync();
+  await (await SlackChannel()).sync();
+  await (await SlackUser()).sync();
+  await (await Filter()).sync();
+  await (await User()).sync();
+  await (await Session()).sync();
+  await (await getApiTokenModel()).sync();
+  await (await Integration()).sync();
+  await (await AdminNotification()).sync();
+  await (await Reply()).sync();
+  await (await UserComment()).sync();
 
   await DefaultIntegrations();
   await DefaultAdminNotifications();

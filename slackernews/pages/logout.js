@@ -14,6 +14,8 @@ export async function getServerSideProps(ctx) {
 
   cookies.set('auth', null, {
     httpOnly: true,
+    sameSite: 'lax',
+    secure: true,
   });
 
   return {

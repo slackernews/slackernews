@@ -54,10 +54,10 @@ export default function Navbar({ username, userId, duration, hideFilter, departm
         <div className="align-items-center" style={{display: hideFilter ? "none" : "flex"}}>
           <ul className="navbar-nav" style={{paddingLeft: "30px"}}>
             <NavDropdown title={durationDisplay} id="collasible-nav-dropdown" className="duration-dropdown" >
-              {durations.map((d, i) => {
+              {durations.map((d) => {
                 const href = `/?t=${d.duration}&depart=${depart}`;
                 return (
-                  <Link href={href} key={i}>
+                  <Link href={href} key={d.duration}>
                     <NavDropdown.Item href={href}>{d.name}</NavDropdown.Item>
                   </Link>);
               })}
@@ -72,8 +72,9 @@ export default function Navbar({ username, userId, duration, hideFilter, departm
           </ul>
         </div>
         <span className="navbar-text ms-auto" style={{paddingRight: "30px"}}>
-          <Link href={`/user?id=${userId}`} className="username">{username}</Link>{' '}|{' '}<Link href="/logout"
-                                                                                                   className="logout">logout</Link>
+          <Link href={`/user?id=${userId}`} className="username">{username}</Link>{' '}|{' '}
+          <Link href="/user/tokens" className="tokens">tokens</Link>{' '}|{' '}
+          <Link href="/logout" className="logout">logout</Link>
         </span>
       </div>
     </nav>
